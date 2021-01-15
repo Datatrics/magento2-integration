@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright © Magmodules.eu. All rights reserved.
+  ~ See COPYING.txt for license details.
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="catalog_product_save_after">
+        <observer name="datatrics_invalidate_product" instance="Datatrics\Connect\Observer\InvalidateProduct"/>
+    </event>
+    <event name="customer_address_save_after">
+        <observer name="datatrics_profile_address_save" instance="Datatrics\Connect\Observer\SaveAddress"/>
+    </event>
+    <event name="cataloginventory_stock_item_save_after">
+        <observer name="datatrics_stocl_change" instance="Datatrics\Connect\Observer\ChangeStock"/>
+    </event>
+</config>

@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="datatrics" translate="label" sortOrder="500" class="datatrics-extensions">
+            <label>Datatrics</label>
+        </tab>
+        <section id="datatrics_connect_general" translate="label" type="text" sortOrder="10" showInDefault="1"
+                 showInWebsite="1" showInStore="1">
+            <label>General</label>
+            <tab>datatrics</tab>
+            <resource>Datatrics_Connect::config</resource>
+            <include path="Datatrics_Connect::system/branding.xml"/>
+            <include path="Datatrics_Connect::system/general.xml"/>
+            <include path="Datatrics_Connect::system/debug.xml"/>
+        </section>
+        <section id="datatrics_connect_product" translate="label" type="text" sortOrder="20" showInDefault="1"
+                 showInWebsite="1" showInStore="1">
+            <label>Data: Content</label>
+            <tab>datatrics</tab>
+            <resource>Datatrics_Connect::config_product</resource>
+            <include path="Datatrics_Connect::system/product_sync.xml"/>
+            <include path="Datatrics_Connect::system/product_data.xml"/>
+            <include path="Datatrics_Connect::system/product_filter.xml"/>
+            <include path="Datatrics_Connect::system/product_types.xml"/>
+        </section>
+        <section id="datatrics_connect_customer" translate="label" type="text" sortOrder="30" showInDefault="1"
+                 showInWebsite="1" showInStore="1">
+            <label>Data: Profiles</label>
+            <tab>datatrics</tab>
+            <resource>Datatrics_Connect::config_customer</resource>
+            <include path="Datatrics_Connect::system/customer_sync.xml"/>
+        </section>
+        <section id="datatrics_connect_order" translate="label" type="text" sortOrder="40" showInDefault="1"
+                 showInWebsite="1" showInStore="1">
+            <label>Data: Sales</label>
+            <tab>datatrics</tab>
+            <resource>Datatrics_Connect::config_order</resource>
+            <include path="Datatrics_Connect::system/order_sync.xml"/>
+        </section>
+        <section id="datatrics_connect_tracking" translate="label" type="text" sortOrder="50" showInDefault="1"
+                 showInWebsite="1" showInStore="1">
+            <label>Tracking</label>
+            <tab>datatrics</tab>
+            <resource>Datatrics_Connect::config_tracking</resource>
+            <include path="Datatrics_Connect::system/tracking.xml"/>
+        </section>
+    </system>
+</config>

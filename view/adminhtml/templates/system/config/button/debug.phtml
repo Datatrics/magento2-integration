@@ -1,0 +1,19 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @see \Datatrics\Connect\Block\Adminhtml\System\Config\Button\Credentials
+ * @var \Datatrics\Connect\Block\Adminhtml\System\Config\Button\Credentials $block
+ */
+?>
+
+<div id="mm-result_debug-modal" data-mm-endpoind-url="<?= $block->escapeUrl($block->getDebugCheckUrl()) ?>">
+    <div id="mm-result_debug">
+        <div class="result"></div>
+    </div>
+</div>
+<?= $block->getButtonHtml() ?>
+

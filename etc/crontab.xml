@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<!--
+  ~ Copyright © Magmodules.eu. All rights reserved.
+  ~ See COPYING.txt for license details.
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job instance="Datatrics\Connect\Model\Cron\SalesUpdate" method="execute" name="sales_update">
+            <config_path>datatrics_connect/order_sync/cron</config_path>
+        </job>
+        <job instance="Datatrics\Connect\Model\Cron\ProfileUpdate" method="execute" name="profile_update">
+            <config_path>datatrics_connect/customer_sync/cron</config_path>
+        </job>
+        <job instance="Datatrics\Connect\Model\Cron\ContentUpdate" method="execute" name="profile_update">
+            <config_path>datatrics_connect/product_sync/cron</config_path>
+        </job>
+        <job instance="Datatrics\Connect\Model\Cron\ContentMaintenance" method="execute" name="content_maintenance">
+            <schedule>0 2 * * *</schedule>
+        </job>
+    </group>
+</config>

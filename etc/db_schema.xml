@@ -1,0 +1,334 @@
+<?xml version="1.0" ?>
+<!--
+  ~ Copyright © Magmodules.eu. All rights reserved.
+  ~ See COPYING.txt for license details.
+  -->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <table name="datatrics_content" engine="innodb" resource="default" comment="Datatrics Content Table">
+        <column name="entity_id"
+                xsi:type="int"
+                padding="10"
+                identity="true"
+                nullable="false"
+                unsigned="true"
+                comment="Review Form ID"/>
+        <column name="content_id"
+                xsi:type="int"
+                padding="10"
+                nullable="false"
+                identity="false"
+                unsigned="true"
+                comment="Product ID"/>
+        <column name="parent_id"
+                xsi:type="varchar"
+                length="255"
+                nullable="true"
+                comment="Parent ID"/>
+        <column name="created_at"
+                xsi:type="timestamp"
+                on_update="false"
+                default="CURRENT_TIMESTAMP"
+                comment="Created At"/>
+        <column name="updated_at"
+                xsi:type="timestamp"
+                on_update="true"
+                default="CURRENT_TIMESTAMP"
+                comment="Updated At"/>
+        <constraint referenceId="PRIMARY" xsi:type="primary">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint
+            xsi:type="foreign"
+            referenceId="DATATRICS_CONTENT_PRODUCT_ID_CATALOG_PRODUCT_ENTITY_ENTITY_ID"
+            table="datatrics_profile"
+            column="content_id"
+            referenceTable="catalog_product_entity"
+            referenceColumn="entity_id"
+            onDelete="CASCADE"
+        />
+    </table>
+
+    <table name="datatrics_content_store" engine="innodb" resource="default" comment="Datatrics Content Store Table">
+        <column name="entity_id"
+                xsi:type="int"
+                padding="10"
+                identity="true"
+                nullable="false"
+                unsigned="true"
+                comment="Entity ID"/>
+        <column name="product_id"
+                xsi:type="int"
+                padding="10"
+                nullable="false"
+                unsigned="true"
+                comment="Product ID"/>
+        <column name="store_id"
+                xsi:type="smallint"
+                padding="5"
+                unsigned="true"
+                nullable="false"
+                identity="false"
+                comment="Store ID"/>
+        <column name="update_msg"
+                xsi:type="text"
+                nullable="true"
+                comment="Update Message"/>
+        <column name="update_attempts"
+                xsi:type="smallint"
+                padding="5"
+                unsigned="true"
+                nullable="false"
+                identity="false"
+                comment="Number of Update Attempts"/>
+        <column name="status"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="Status"/>
+        <constraint referenceId="PRIMARY" xsi:type="primary">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint
+            xsi:type="foreign"
+            referenceId="DATATRICS_CONTENT_STORE_ID_STORE_STORE_ID"
+            table="datatrics_content"
+            column="store_id"
+            referenceTable="store"
+            referenceColumn="store_id"
+            onDelete="CASCADE"
+        />
+    </table>
+
+    <table name="datatrics_sales" engine="innodb" resource="default" comment="Datatrics Sales Table">
+        <column name="entity_id"
+                xsi:type="int"
+                padding="10"
+                identity="true"
+                nullable="false"
+                unsigned="true"
+                comment="Review Form ID"/>
+        <column name="order_id"
+                xsi:type="int"
+                padding="10"
+                nullable="false"
+                identity="false"
+                unsigned="true"
+                comment="Order ID"/>
+        <column name="profile_id"
+                xsi:type="varchar"
+                length="255"
+                nullable="true"
+                comment="Profile ID"/>
+        <column name="store_id"
+                xsi:type="smallint"
+                padding="5"
+                unsigned="true"
+                nullable="false"
+                identity="false"
+                comment="Store ID"/>
+        <column name="created_at"
+                xsi:type="timestamp"
+                on_update="false"
+                default="CURRENT_TIMESTAMP"
+                comment="Created At"/>
+        <column name="updated_at"
+                xsi:type="timestamp"
+                on_update="true"
+                default="CURRENT_TIMESTAMP"
+                comment="Updated At"/>
+        <column name="email"
+                xsi:type="text"
+                nullable="true"
+                comment="Order Email"/>
+        <column name="total"
+                xsi:type="decimal"
+                precision="20"
+                scale="4"
+                nullable="true"
+                comment="Order Total"/>
+        <column name="update_msg"
+                xsi:type="text"
+                nullable="true"
+                comment="Update Message"/>
+        <column name="items"
+                xsi:type="text"
+                nullable="true"
+                comment="Order Items"/>
+        <column name="update_attempts"
+                xsi:type="smallint"
+                padding="5"
+                unsigned="true"
+                nullable="false"
+                identity="false"
+                comment="Number of Update Attempts"/>
+        <column name="status"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="Status"/>
+        <constraint referenceId="PRIMARY" xsi:type="primary">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint
+            xsi:type="foreign"
+            referenceId="DATATRICS_SALE_ORDER_ID_SALES_ENTITY_ID"
+            table="datatrics_sales"
+            column="order_id"
+            referenceTable="sales_order"
+            referenceColumn="entity_id"
+            onDelete="CASCADE"
+        />
+        <constraint
+            xsi:type="foreign"
+            referenceId="DATATRICS_SALE_STORE_ID_STORE_STORE_ID"
+            table="datatrics_sale"
+            column="store_id"
+            referenceTable="store"
+            referenceColumn="store_id"
+            onDelete="CASCADE"
+        />
+    </table>
+
+    <table name="datatrics_profile" engine="innodb" resource="default" comment="Datatrics Profile Table">
+        <column name="entity_id"
+                xsi:type="int"
+                padding="10"
+                identity="true"
+                nullable="false"
+                unsigned="true"
+                comment="Review Form ID"/>
+        <column name="customer_id"
+                xsi:type="int"
+                padding="10"
+                nullable="false"
+                identity="false"
+                unsigned="true"
+                comment="Customer ID"/>
+        <column name="store_id"
+                xsi:type="smallint"
+                padding="5"
+                unsigned="true"
+                nullable="false"
+                identity="false"
+                comment="Store ID"/>
+        <column name="profile_id"
+                xsi:type="varchar"
+                length="255"
+                nullable="true"
+                comment="Profile ID"/>
+        <column name="address_id"
+                xsi:type="int"
+                padding="10"
+                nullable="false"
+                identity="false"
+                unsigned="true"
+                comment="Address ID"/>
+
+        <column name="firstname"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="Firstname"/>
+        <column name="prefix"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="prefix"/>
+        <column name="lastname"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="Lastname"/>
+        <column name="name"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="Name"/>
+        <column name="email"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="Email"/>
+        <column name="company"
+                xsi:type="varchar"
+                length="255"
+                nullable="true"
+                comment="Company"/>
+        <column name="address"
+                xsi:type="text"
+                nullable="true"
+                comment="Address"/>
+        <column name="country"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="Country"/>
+        <column name="city"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="City"/>
+        <column name="zip"
+                xsi:type="varchar"
+                length="25"
+                nullable="true"
+                comment="Zip"/>
+        <column name="phone"
+                xsi:type="varchar"
+                length="25"
+                nullable="true"
+                comment="Phone"/>
+        <column name="region"
+                xsi:type="varchar"
+                length="25"
+                nullable="true"
+                comment="Region"/>
+        <column name="street"
+                xsi:type="varchar"
+                length="255"
+                nullable="true"
+                comment="Street"/>
+
+        <column name="created_at"
+                xsi:type="timestamp"
+                on_update="false"
+                default="CURRENT_TIMESTAMP"
+                comment="Created At"/>
+        <column name="updated_at"
+                xsi:type="timestamp"
+                on_update="true"
+                default="CURRENT_TIMESTAMP"
+                comment="Updated At"/>
+        <column name="update_msg"
+                xsi:type="text"
+                nullable="true"
+                comment="Update Message"/>
+        <column name="update_attempts"
+                xsi:type="smallint"
+                padding="5"
+                unsigned="true"
+                nullable="false"
+                identity="false"
+                comment="Number of Update Attempts"/>
+        <column name="status"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                comment="Status"/>
+        <constraint referenceId="PRIMARY" xsi:type="primary">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint
+            xsi:type="foreign"
+            referenceId="DATATRICS_SALE_STORE_ID_STORE_STORE_ID"
+            table="datatrics_profile"
+            column="store_id"
+            referenceTable="store"
+            referenceColumn="store_id"
+            onDelete="CASCADE"
+        />
+    </table>
+
+</schema>

@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+           showInStore="1">
+        <field id="logging_heading" translate="label" type="text" sortOrder="0" showInDefault="1"
+               showInWebsite="1" showInStore="1">
+            <label>Tracking Script</label>
+            <comment><![CDATA[Use the test button to perform a test call to check if the scripts can be succesfully loaded in ccombination with the used API key.]]></comment>
+            <frontend_model>Datatrics\Connect\Block\Adminhtml\Datatrics\Heading</frontend_model>
+        </field>
+        <field id="button" translate="label" type="button" sortOrder="5" showInDefault="1"
+               showInWebsite="0" showInStore="1">
+            <label/>
+            <frontend_model>Datatrics\Connect\Block\Adminhtml\System\Config\Button\TrackingTest</frontend_model>
+        </field>
+        <label>Tracking</label>
+        <field id="enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+               showInStore="1">
+            <label>Enabled</label>
+            <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+            <config_path>datatrics_connect/tracking/enable</config_path>
+        </field>
+
+        <field id="product" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1"
+               showInStore="1">
+            <label>Product view tracking</label>
+            <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+            <config_path>datatrics_connect/tracking/product</config_path>
+            <depends>
+                <field id="enable">1</field>
+            </depends>
+        </field>
+
+        <field id="category" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1"
+               showInStore="1">
+            <label>Category view tracking</label>
+            <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+            <config_path>datatrics_connect/tracking/category</config_path>
+            <depends>
+                <field id="enable">1</field>
+            </depends>
+        </field>
+
+        <field id="cart" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1"
+               showInStore="1">
+            <label>Shopping cart tracking</label>
+            <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+            <config_path>datatrics_connect/tracking/cart</config_path>
+            <depends>
+                <field id="enable">1</field>
+            </depends>
+        </field>
+
+        <field id="conversion" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1"
+               showInStore="1">
+            <label>Sales tracking</label>
+            <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+            <config_path>datatrics_connect/tracking/conversion</config_path>
+            <depends>
+                <field id="enable">1</field>
+            </depends>
+        </field>
+    </group>
+</include>

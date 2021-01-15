@@ -1,0 +1,9 @@
+<!-- Datatrics Pixel -->
+<?php
+
+$viewModel = $block->getViewModel();
+// phpcs:ignore
+print /* @noEscape */ $viewModel->getTrack(
+    $block->getScriptTemplate(),
+    $block->getVariableCollector()
+);

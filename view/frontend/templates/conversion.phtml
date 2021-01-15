@@ -1,0 +1,22 @@
+<!--Conversion Pixel Start-->
+<script type="text/javascript">
+    {{products start}}
+    _paq.push(['addEcommerceItem',
+        "{{sku}}",
+        "{{name}}",
+        {{price}},
+        {{quantity}}
+    ]);
+    {{products end}}
+
+    _paq.push(['trackEcommerceOrder',
+        "{{orderid}}",
+        {{grandtotal}},
+        {{subtotal}},
+        {{tax}},
+        {{shipping}},
+        {{discount}}
+    ]);
+    _paq.push(['trackPageView']);
+</script>
+<!--Conversion Pixel End-->

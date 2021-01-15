@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright © Magmodules.eu. All rights reserved.
+  ~ See COPYING.txt for license details.
+  -->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <listingToolbar name="listing_top">
+        <massaction name="listing_massaction">
+            <action name="add_to_queue">
+                <settings>
+                    <url path="datatrics/sales/massqueue"/>
+                    <type>add_to_queue</type>
+                    <label translate="true">Add to Datatrics Sync Queue</label>
+                </settings>
+            </action>
+        </massaction>
+    </listingToolbar>
+    <columns name="sales_order_columns">
+        <column name="datatrics_status">
+            <settings>
+                <filter>select</filter>
+                <options class="Datatrics\Connect\Model\Source\Status"/>
+                <visible>true</visible>
+                <dataType>select</dataType>
+                <bodyTmpl>Datatrics_Connect/grid/sync_status</bodyTmpl>
+                <sortable>false</sortable>
+                <label translate="true">Datatrics Status</label>
+            </settings>
+        </column>
+    </columns>
+</listing>

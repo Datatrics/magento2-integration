@@ -1,0 +1,12 @@
+<!-- ko if: ($col.getLabel($row()) == "Error") -->
+<span class='grid-severity-major'><!-- ko i18n: 'Error' --><!-- /ko --></span>
+<!--/ko-->
+<!-- ko if: ($col.getLabel($row()) == "Queued for Update") -->
+<span class='grid-severity-minor'><!-- ko i18n: 'Queued for Update' --><!-- /ko --></span>
+<!--/ko-->
+<!-- ko if: ($col.getLabel($row()) == "Synced") -->
+<span class='grid-severity-notice'><!-- ko i18n: 'Synced' --><!-- /ko --></span>
+<!--/ko-->
+<!-- ko if: ($col.getLabel($row()) == "Failed") -->
+<span class='grid-severity-critical'><!-- ko i18n: 'Failed' --><!-- /ko --></span>
+<!--/ko-->

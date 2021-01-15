@@ -1,0 +1,10 @@
+parameters:
+    level: 4
+    ignoreErrors:
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::(get|set|uns|has|calc|unset|put|del)[A-Z]#'
+        - '#Variable \$block might not be defined.#'
+    fileExtensions:
+        - php
+        - phtml
+    excludes_analyse:
+        - Test/*

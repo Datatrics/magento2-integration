@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Datatrics\Connect\Api\Config\RepositoryInterface"
+                type="Datatrics\Connect\Model\Config\Repository"/>
+    <preference for="Datatrics\Connect\Api\Log\RepositoryInterface"
+                type="Datatrics\Connect\Model\Log\Repository"/>
+    <preference for="Datatrics\Connect\Api\Selftest\RepositoryInterface"
+                type="Datatrics\Connect\Model\Selftest\Repository"/>
+
+    <!-- Sales block start-->
+    <preference for="Datatrics\Connect\Api\Sales\RepositoryInterface"
+                type="Datatrics\Connect\Model\Sales\Repository"/>
+    <preference for="Datatrics\Connect\Api\Sales\DataInterface"
+                type="Datatrics\Connect\Model\Sales\Data"/>
+    <preference for="Datatrics\Connect\Api\Sales\SearchResultsInterface"
+                type="Magento\Framework\Api\SearchResults"/>
+    <!-- Sales block end-->
+
+    <!-- Sales block start-->
+    <preference for="Datatrics\Connect\Api\Content\RepositoryInterface"
+                type="Datatrics\Connect\Model\Content\Repository"/>
+    <preference for="Datatrics\Connect\Api\Content\DataInterface"
+                type="Datatrics\Connect\Model\Content\Data"/>
+    <preference for="Datatrics\Connect\Api\Content\SearchResultsInterface"
+                type="Magento\Framework\Api\SearchResults"/>
+    <!-- Sales block end-->
+
+    <!-- Profile block start-->
+    <preference for="Datatrics\Connect\Api\Profile\RepositoryInterface"
+                type="Datatrics\Connect\Model\Profile\Repository"/>
+    <preference for="Datatrics\Connect\Api\Profile\DataInterface"
+                type="Datatrics\Connect\Model\Profile\Data"/>
+    <preference for="Datatrics\Connect\Api\Profile\SearchResultsInterface"
+                type="Magento\Framework\Api\SearchResults"/>
+    <!-- Profile block end-->
+
+    <preference for="Datatrics\Connect\Api\ProductData\RepositoryInterface"
+                type="Datatrics\Connect\Model\ProductData\Repository"/>
+
+
+    <type name="Datatrics\Connect\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Logger\ErrorLogger">
+        <arguments>
+            <argument name="name" xsi:type="string">ConnectError</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Datatrics\Connect\Logger\Handler\Error</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Logger\DebugLogger">
+        <arguments>
+            <argument name="name" xsi:type="string">ConnectDebug</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Datatrics\Connect\Logger\Handler\Debug</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Datatrics\Connect\Model\Selftest\Repository">
+        <arguments>
+            <argument name="testList" xsi:type="array">
+                <item name="phpVersion" xsi:type="object">Datatrics\Connect\Service\Test\PhpVersion</item>
+                <item name="cron" xsi:type="object">Datatrics\Connect\Service\Test\Cron</item>
+                <item name="extensionStatus" xsi:type="object">Datatrics\Connect\Service\Test\ExtensionStatus</item>
+                <item name="magentoVersion" xsi:type="object">Datatrics\Connect\Service\Test\MagentoVersion</item>
+                <item name="extensionVersion" xsi:type="object">Datatrics\Connect\Service\Test\ExtensionVersion</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Datatrics\Connect\Service\Product\Hub">
+        <arguments>
+            <argument name="dataServices" xsi:type="array">
+                <item name="attributeMapper" xsi:type="object">Datatrics\Connect\Service\Product\Data\AttributeMapper</item>
+                <item name="category" xsi:type="object">Datatrics\Connect\Service\Product\Data\Category</item>
+                <item name="stock" xsi:type="object">Datatrics\Connect\Service\Product\Data\Stock</item>
+                <item name="url" xsi:type="object">Datatrics\Connect\Service\Product\Data\Url</item>
+                <item name="price" xsi:type="object">Datatrics\Connect\Service\Product\Data\Price</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Datatrics\Connect\ViewModel\PreProcessor">
+        <arguments>
+            <argument name="variableProcessors" xsi:type="array">
+                <item name="base" xsi:type="object">Datatrics\Connect\Service\Pixel\VariableCollector\Base</item>
+                <item name="category" xsi:type="object">Datatrics\Connect\Service\Pixel\VariableCollector\Categories</item>
+                <item name="product" xsi:type="object">Datatrics\Connect\Service\Pixel\VariableCollector\Products</item>
+                <item name="cart" xsi:type="object">Datatrics\Connect\Service\Pixel\VariableCollector\Cart</item>
+                <item name="conversion" xsi:type="object">Datatrics\Connect\Service\Pixel\VariableCollector\Conversion</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Datatrics\Connect\Console\Command\Selftest">
+        <arguments>
+            <argument name="selftestRepository" xsi:type="object">Datatrics\Connect\Model\Selftest\Repository\Proxy</argument>
+        </arguments>
+    </type>
+
+    <!-- Command line block start -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="ConnectSelftest" xsi:type="object">Datatrics\Connect\Console\Command\Selftest</item>
+                <item name="ProfileUpdate" xsi:type="object">Datatrics\Connect\Console\Command\ProfileUpdate</item>
+                <item name="ProfileAdd" xsi:type="object">Datatrics\Connect\Console\Command\ProfileAdd</item>
+                <item name="ProfileInvalidate" xsi:type="object">Datatrics\Connect\Console\Command\ProfileInvalidate</item>
+                <item name="CategoryUpdate" xsi:type="object">Datatrics\Connect\Console\Command\CategoryUpdate</item>
+                <item name="SaleAdd" xsi:type="object">Datatrics\Connect\Console\Command\SaleAdd</item>
+                <item name="SaleUpdate" xsi:type="object">Datatrics\Connect\Console\Command\SaleUpdate</item>
+                <item name="ContentAdd" xsi:type="object">Datatrics\Connect\Console\Command\ContentAdd</item>
+                <item name="ContentInvalidate" xsi:type="object">Datatrics\Connect\Console\Command\ContentInvalidate</item>
+                <item name="ContentUpdate" xsi:type="object">Datatrics\Connect\Console\Command\ContentUpdate</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- Command line block end -->
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <plugin name="datatrics_order_status"
+                type="Datatrics\Connect\Plugin\OrderGridCollection"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\Reporting">
+        <plugin name="datatrics_customer_status" type="Datatrics\Connect\Plugin\CustomerGridCollection"/>
+    </type>
+
+    <!-- Adapter block start -->
+    <preference for="Magento\Framework\HTTP\Client\Curl"
+                type="Datatrics\Connect\Model\API\CurlExtra"/>
+    <preference for="Datatrics\Connect\Api\API\AdapterInterface"
+                type="Datatrics\Connect\Model\API\Adapter"/>
+    <!-- Adapter block end -->
+
+    <type name="Magento\Sales\Model\Order">
+        <plugin name="order-save-hook" type="Datatrics\Connect\Plugin\OrderSave" sortOrder="100" />
+    </type>
+    <type name="Magento\Customer\Model\Customer">
+        <plugin name="customer-save-hook" type="Datatrics\Connect\Plugin\CustomerSave" sortOrder="100" />
+    </type>
+    <type name="Magento\Sales\Api\OrderManagementInterface">
+        <plugin name="orderPlaceAfterPlugin" type="Datatrics\Connect\Plugin\OrderPlace" sortOrder="99" />
+    </type>
+
+</config>

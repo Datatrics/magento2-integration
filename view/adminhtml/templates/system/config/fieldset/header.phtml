@@ -1,0 +1,28 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ * @var $block Datatrics\Connect\Block\Adminhtml\Datatrics\Header
+ */
+?>
+<div class="mm-datatrics-header" style="background-image: url(<?= $block->escapeUrl($block->getImage()); ?>)">
+    <div class="">
+        <p class="mm-datatrics-header-text">
+            <strong>Developed by Magmodules.</strong><br>
+            A Magento only eCommerce Agency located in the Netherlands.
+        </p>
+    </div>
+    <div class="mm-datatrics-header-actions">
+        <a id="mm-button_help"
+           class="helpbutton"
+           href="<?= $block->escapeUrl($block->getSupportLink()); ?>"
+           target="_blank">
+            <i class="mm-icon__question-circled"></i>
+            <span>Manual & Support</span>
+        </a>
+        <button id="mm-button_test" title="Perform Testing" type="button" class="action-default scalable">
+            <i class="mm-icon__list-unordered-four"></i>
+            <span>Perform Testing</span>
+        </button>
+    </div>
+</div>

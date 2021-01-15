@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <datatrics_connect>
+            <general>
+                <version>v1.0.1</version>
+                <enable>0</enable>
+                <debug>0</debug>
+            </general>
+            <product_sync>
+                <cron>0 * * * *</cron>
+            </product_sync>
+            <product_data>
+                <sku>sku</sku>
+                <name>name</name>
+                <description>description</description>
+                <short_description>short_description</short_description>
+            </product_data>
+            <order_sync>
+                <cron>0 * * * *</cron>
+            </order_sync>
+            <customer_sync>
+                <cron>0 * * * *</cron>
+            </customer_sync>
+            <tracking>
+                <enable>1</enable>
+                <product>1</product>
+                <category>1</category>
+                <cart>1</cart>
+                <conversion>1</conversion>
+            </tracking>
+        </datatrics_connect>
+    </default>
+</config>

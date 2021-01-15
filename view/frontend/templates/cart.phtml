@@ -1,0 +1,17 @@
+<!--Cart Pixel Start-->
+<script type="text/javascript">
+    {{products start}}
+    _paq.push(['addEcommerceItem',
+        "{{sku}}",
+        "{{name}}",
+        {{price}},
+        {{quantity}}
+    ]);
+    {{products end}}
+
+    _paq.push(['trackEcommerceCartUpdate',
+        {{totalcartvalue}}
+    ]);
+    _paq.push(['trackPageView']);
+</script>
+<!--Cart Pixel End-->
