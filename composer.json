@@ -4,7 +4,7 @@
     "type": "magento2-module",
     "version": "1.0.1",
     "license": [
-        "Commercial"
+        "BSD-2-Clause"
     ],
     "require": {
         "magento/framework": ">=102.0"
