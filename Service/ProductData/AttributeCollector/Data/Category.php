@@ -9,6 +9,8 @@ namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
 use Magento\Framework\App\ResourceConnection;
 use Magento\Store\Api\StoreRepositoryInterface;
+use Magento\Framework\App\ProductMetadata;
+use Magento\Framework\App\ProductMetadataInterface;
 
 /**
  * Service class for category path for products
@@ -60,17 +62,25 @@ class Category
     private $categoryIds = [];
 
     /**
+     * @var bool
+     */
+    private $isCommerce;
+
+    /**
      * Category constructor.
      *
      * @param ResourceConnection $resource
      * @param StoreRepositoryInterface $storeRepository
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         ResourceConnection $resource,
-        StoreRepositoryInterface $storeRepository
+        StoreRepositoryInterface $storeRepository,
+        ProductMetadataInterface $productMetadata
     ) {
         $this->resource = $resource;
         $this->storeRepository = $storeRepository;
+        $this->isCommerce = ($productMetadata->getEdition() !== ProductMetadata::EDITION_NAME);
     }
 
     /**
@@ -200,6 +210,11 @@ class Category
      */
     private function fetchCategoryNames()
     {
+        if ($this->isCommerce) {
+            $fields = ['entity_id' => 'row_id', 'value', 'store_id'];
+        } else {
+            $fields = ['entity_id', 'value', 'store_id'];
+        }
         $connection = $this->resource->getConnection();
         $select = $connection->select()->from(
             ['eav_attribute' => $connection->getTableName('eav_attribute')],
@@ -207,11 +222,7 @@ class Category
         )->joinLeft(
             ['catalog_category_entity_varchar' => $connection->getTableName('catalog_category_entity_varchar')],
             'catalog_category_entity_varchar.attribute_id = eav_attribute.attribute_id',
-            [
-                'entity_id',
-                'value',
-                'store_id'
-            ]
+            $fields
         )->where('eav_attribute.attribute_code = ?', 'name')
         ->where('catalog_category_entity_varchar.store_id IN (?)', [0, $this->storeId]);
         foreach ($connection->fetchAll($select) as $item) {

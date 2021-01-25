@@ -10,6 +10,8 @@ namespace Datatrics\Connect\Service\ProductData;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\App\ProductMetadata;
+use Magento\Framework\App\ProductMetadataInterface;
 
 /**
  * Filter class
@@ -28,17 +30,25 @@ class Filter
     private $resourceConnection;
 
     private $storeId;
+
+    /**
+     * @var string
+     */
+    private $entityId;
     /**
      * Data constructor.
      * @param JsonSerializer $json
      * @param ResourceConnection $resourceConnection
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         JsonSerializer $json,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        ProductMetadataInterface $productMetadata
     ) {
         $this->json = $json;
         $this->resourceConnection = $resourceConnection;
+        $this->entityId = ($productMetadata->getEdition() !== ProductMetadata::EDITION_NAME) ? 'row_id' : 'entity_id';
     }
 
     public function execute($filter, $storeId = 0)
@@ -67,7 +77,7 @@ class Filter
         $connection = $this->resourceConnection->getConnection();
         $select = $connection->select()->distinct()->from(
             ['catalog_product_entity_int' => $connection->getTableName('catalog_product_entity_int')],
-            ['entity_id']
+            [$this->entityId]
         )->joinLeft(
             ['eav_attribute' => $connection->getTableName('eav_attribute')],
             'eav_attribute.attribute_id = catalog_product_entity_int.attribute_id',
@@ -75,7 +85,7 @@ class Filter
         )->where('value IN (?)', $visibility)
             ->where('attribute_code = ?', 'visibility')
             ->where('store_id IN (?)', [0]);
-        return $connection->fetchCol($select, 'catalog_product_entity_int.entity_id');
+        return $connection->fetchCol($select, 'catalog_product_entity_int.' . $this->entityId);
     }
 
     private function filterEnabledStatus($entityIds)
@@ -83,7 +93,7 @@ class Filter
         $connection = $this->resourceConnection->getConnection();
         $select = $connection->select()->distinct()->from(
             ['catalog_product_entity_int' => $connection->getTableName('catalog_product_entity_int')],
-            ['entity_id', 'value']
+            [$this->entityId, 'value']
         )->joinLeft(
             ['eav_attribute' => $connection->getTableName('eav_attribute')],
             'eav_attribute.attribute_id = catalog_product_entity_int.attribute_id',
@@ -91,8 +101,8 @@ class Filter
         )->where('value = ?', 1)
             ->where('attribute_code = ?', 'status')
             ->where('store_id IN (?)', [0])
-            ->where('entity_id IN (?)', $entityIds);
-        return $connection->fetchCol($select, 'catalog_product_entity_int.entity_id');
+            ->where($this->entityId . ' IN (?)', $entityIds);
+        return $connection->fetchCol($select, 'catalog_product_entity_int.' . $this->entityId);
     }
 
     private function filterByCategories(
