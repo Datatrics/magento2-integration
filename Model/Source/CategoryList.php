@@ -24,7 +24,7 @@ class CategoryList implements OptionSourceInterface
      *
      * @var array
      */
-    public $options = null;
+    public $options = [];
     /**
      * @var CategoryFactory
      */

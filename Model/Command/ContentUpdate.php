@@ -239,7 +239,6 @@ class ContentUpdate
             }
             $items['items'][] = $preparedData;
         }
-
         if ($this->isDry) {
             // phpcs:ignore Magento2.Functions.DiscouragedFunction
             print_r($items);

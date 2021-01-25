@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
+use Magento\Framework\App\ProductMetadata;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\ResourceConnection;
 
 /**
@@ -30,14 +32,22 @@ class ConfigurableKey
     private $entityIds;
 
     /**
+     * @var string
+     */
+    private $entityId;
+
+    /**
      * Price constructor.
      *
      * @param ResourceConnection $resource
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
-        ResourceConnection $resource
+        ResourceConnection $resource,
+        ProductMetadataInterface $productMetadata
     ) {
         $this->resource = $resource;
+        $this->entityId = ($productMetadata->getEdition() !== ProductMetadata::EDITION_NAME) ? 'row_id' : 'entity_id';
     }
 
     /**
@@ -104,7 +114,7 @@ class ConfigurableKey
             )->joinLeft(
                 ['catalog_product_entity_int' => $this->resource->getTableName('catalog_product_entity_int')],
                 'catalog_product_entity_int.attribute_id = catalog_product_super_attribute.attribute_id
-and catalog_product_entity_int.entity_id = catalog_product_relation.child_id',
+and catalog_product_entity_int.' . $this->entityId . ' = catalog_product_relation.child_id',
                 ['value', 'store_id']
             )->where('child_id IN (?)', $this->entityIds);
         $keysData = $this->resource->getConnection()->fetchAll($select);

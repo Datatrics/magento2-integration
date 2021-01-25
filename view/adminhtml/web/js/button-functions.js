@@ -154,97 +154,99 @@ require([
     }
 
     // init debug modal
-    initModal('#mm-result_debug-modal', {
-        type: 'popup',
-        responsive: true,
-        innerScroll: true,
-        title: $.mage.__('last 100 debug log lines'),
-        buttons: [
-            {
-                text: $.mage.__('download as .txt file'),
-                class: 'mm-button__download mm-icon__download-alt',
-                click: function () {
+    $(() => {
+        initModal('#mm-result_debug-modal', {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: $.mage.__('last 100 debug log lines'),
+            buttons: [
+                {
+                    text: $.mage.__('download as .txt file'),
+                    class: 'mm-button__download mm-icon__download-alt',
+                    click: function () {
 
-                    var elText = document.getElementById('mm-result_debug').innerText || '';
-                    var link = document.createElement('a');
+                        var elText = document.getElementById('mm-result_debug').innerText || '';
+                        var link = document.createElement('a');
 
-                    link.setAttribute('download', 'debug-log.txt');
-                    link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(elText));
-                    link.click();
+                        link.setAttribute('download', 'debug-log.txt');
+                        link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(elText));
+                        link.click();
+                    },
                 },
-            },
-            {
-                text: $.mage.__('ok'),
-                class: '',
-                click: function () {
-                    this.closeModal();
-                },
-            }
-        ]
-    });
+                {
+                    text: $.mage.__('ok'),
+                    class: '',
+                    click: function () {
+                        this.closeModal();
+                    },
+                }
+            ]
+        });
 
-    // init error modal
-    initModal('#mm-result_error-modal', {
-        type: 'popup',
-        responsive: true,
-        innerScroll: true,
-        title: $.mage.__('last 100 error log records'),
-        buttons: [
-            {
-                text: $.mage.__('download as .txt file'),
-                class: 'mm-button__download mm-icon__download-alt',
-                click: function () {
+        // init error modal
+        initModal('#mm-result_error-modal', {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: $.mage.__('last 100 error log records'),
+            buttons: [
+                {
+                    text: $.mage.__('download as .txt file'),
+                    class: 'mm-button__download mm-icon__download-alt',
+                    click: function () {
 
-                    var elText = document.getElementById('mm-result_error').innerText || '';
-                    var link = document.createElement('a');
+                        var elText = document.getElementById('mm-result_error').innerText || '';
+                        var link = document.createElement('a');
 
-                    link.setAttribute('download', 'error-log.txt');
-                    link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(elText));
-                    link.click();
+                        link.setAttribute('download', 'error-log.txt');
+                        link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(elText));
+                        link.click();
+                    },
                 },
-            },
-            {
-                text: $.mage.__('ok'),
-                class: '',
-                click: function () {
-                    this.closeModal();
-                },
-            }
-        ]
-    });
+                {
+                    text: $.mage.__('ok'),
+                    class: '',
+                    click: function () {
+                        this.closeModal();
+                    },
+                }
+            ]
+        });
 
-    // init selftest modal
-    initModal('#mm-result_test-modal', {
-        type: 'popup',
-        responsive: true,
-        innerScroll: true,
-        title: $.mage.__('Self-test'),
-        buttons: [
-            {
-                text: $.mage.__('ok'),
-                class: '',
-                click: function () {
-                    this.closeModal();
-                },
-            }
-        ]
-    });
+        // init selftest modal
+        initModal('#mm-result_test-modal', {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: $.mage.__('Self-test'),
+            buttons: [
+                {
+                    text: $.mage.__('ok'),
+                    class: '',
+                    click: function () {
+                        this.closeModal();
+                    },
+                }
+            ]
+        });
 
-    // init changelog modal
-    initModal('#mm-result_changelog-modal', {
-        type: 'popup',
-        responsive: true,
-        innerScroll: true,
-        title: 'Changelog',
-        buttons: [
-            {
-                text: $.mage.__('ok'),
-                class: '',
-                click: function () {
-                    this.closeModal();
-                },
-            }
-        ]
+        // init changelog modal
+        initModal('#mm-result_changelog-modal', {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: 'Changelog',
+            buttons: [
+                {
+                    text: $.mage.__('ok'),
+                    class: '',
+                    click: function () {
+                        this.closeModal();
+                    },
+                }
+            ]
+        });
     });
 
     // init loader on the Check Version block

@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\App\ProductMetadata;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -116,16 +118,25 @@ class AttributeMapper
     private $storeManager;
 
     /**
+     * @var bool
+     */
+    private $isCommerce;
+
+    /**
      * Price constructor.
      *
      * @param ResourceConnection $resource
+     * @param StoreManagerInterface $storeManager
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         ResourceConnection $resource,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        ProductMetadataInterface $productMetadata
     ) {
         $this->resource = $resource;
         $this->storeManager = $storeManager;
+        $this->isCommerce = ($productMetadata->getEdition() !== ProductMetadata::EDITION_NAME);
     }
 
     /**
@@ -263,12 +274,22 @@ class AttributeMapper
         $entityTable = reset($attributes)['entity_table'];
 
         foreach ($tablesNonStatic as $table) {
+            if ($this->isCommerce) {
+                $fields = ['attribute_id', 'store_id', 'value', 'entity_id' => 'row_id'];
+            } else {
+                $fields = ['attribute_id', 'store_id', 'value', 'entity_id'];
+            }
             $select = $this->resource->getConnection()->select()
                 ->from(
                     [$table => $this->resource->getTableName($table)],
-                    ['attribute_id', 'store_id', 'value', 'entity_id']
-                )->where('entity_id IN (?)', $this->entityIds)
-                ->where('attribute_id in (?)', $attributeIdsNonStatic)
+                    $fields
+                );
+            if ($this->isCommerce) {
+                $select->where('row_id IN (?)', $this->entityIds);
+            } else {
+                $select->where('entity_id IN (?)', $this->entityIds);
+            }
+            $select->where('attribute_id in (?)', $attributeIdsNonStatic)
                 ->where('store_id in (?)', $this->storeId);
             $result = $this->resource->getConnection()->fetchAll($select);
             foreach ($result as $item) {
@@ -296,12 +317,18 @@ class AttributeMapper
                     str_replace(["\r", "\n"], '', strip_tags((string)$item['value']));
             }
         }
+
         $select = $this->resource->getConnection()
             ->select()
             ->from(
                 $this->resource->getTableName($entityTable),
                 $attributeStaticCode
-            )->where('entity_id in (?)', $this->entityIds);
+            );
+        if ($this->isCommerce) {
+            $select->where('row_id IN (?)', $this->entityIds);
+        } else {
+            $select->where('entity_id IN (?)', $this->entityIds);
+        }
         $result = $this->resource->getConnection()->fetchAll($select);
         foreach ($result as $item) {
             foreach ($attributeStaticCode as $static) {
