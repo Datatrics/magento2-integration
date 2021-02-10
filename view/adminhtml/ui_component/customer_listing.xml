@@ -17,7 +17,7 @@
         </massaction>
     </listingToolbar>
     <columns name="customer_columns">
-        <column name="datatrics_status">
+        <column name="status">
             <settings>
                 <filter>select</filter>
                 <options class="Datatrics\Connect\Model\Source\Status"/>
