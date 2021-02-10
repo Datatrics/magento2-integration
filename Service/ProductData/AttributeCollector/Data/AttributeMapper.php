@@ -314,7 +314,7 @@ class AttributeMapper
                         . 'catalog/product' . $item['value'];
                 }
                 $this->result[$relations[$item['attribute_id']]][$item['entity_id']] =
-                    str_replace(["\r", "\n"], '', strip_tags((string)$item['value']));
+                    str_replace(["\r", "\n"], '', (string)$item['value']);
             }
         }
 

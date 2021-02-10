@@ -15,6 +15,7 @@ use Datatrics\Connect\Model\Profile\ResourceModel as ProfileResource;
  */
 class CustomerGridCollection
 {
+
     const TABLE = 'customer_grid_flat';
 
     public function afterSearch($intercepter, $collection)
@@ -25,11 +26,11 @@ class CustomerGridCollection
             $collection
                 ->getSelect()
                 ->joinLeft(
-                    ['datatrics_profile'=>$leftJoinTableName],
+                    ['datatrics_profile' => $leftJoinTableName],
                     "datatrics_profile.customer_id = main_table.entity_id",
-                    ['datatrics_status' => 'status']
+                    ['status']
                 )->group('main_table.entity_id');
-            $collection->addFilterToMap('datatrics_status', 'datatrics_profile.status');
+            $collection->addFilterToMap('status', 'datatrics_profile.status');
         }
         return $collection;
     }
