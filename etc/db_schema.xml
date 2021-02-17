@@ -320,6 +320,9 @@
         <constraint referenceId="PRIMARY" xsi:type="primary">
             <column name="entity_id"/>
         </constraint>
+        <index referenceId="DATATRICS_PROFILE_CUSTOMER_ID" indexType="btree">
+            <column name="customer_id"/>
+        </index>
         <constraint
             xsi:type="foreign"
             referenceId="DATATRICS_SALE_STORE_ID_STORE_STORE_ID"

@@ -108,6 +108,9 @@ class Repository implements ProductData
      */
     public function getProductData($storeId = 0, array $entityIds = []): array
     {
+        if ($entityIds) {
+            $this->entityIds = array_intersect($entityIds, $this->entityIds);
+        }
         $this->collectAttributes();
         $advancedFilters = $this->configRepository->getFiltersData((int)$storeId);
         foreach ($advancedFilters as $filter) {
