@@ -29,6 +29,7 @@ interface RepositoryInterface
     const XML_PATH_SHORT_DESCRIPTION = 'datatrics_connect/product_data/short_description';
     const XML_PATH_PRODUCT_IMAGE = 'datatrics_connect/product_data/image';
     const XML_PATH_PRODUCT_SYNC_ENABLED = 'datatrics_connect/product_sync/enable';
+    const XML_PATH_PRODUCT_SYNC_SOURCE = 'datatrics_connect/product_sync/source';
     const XML_PATH_EXTRA_FIELDS = 'datatrics_connect/advanced_options/extra_fields';
     const XML_PATH_INVENTORY = 'datatrics_connect/advanced_options/inventory';
     const XML_PATH_INVENTORY_FIELDS = 'datatrics_connect/advanced_options/inventory_fields';
@@ -167,6 +168,15 @@ interface RepositoryInterface
      * @return bool
      */
     public function isProductSyncEnabled(int $storeId = null) : bool;
+
+    /**
+     * Get Product Source for Sync
+     *
+     * @param int|null $storeId
+     *
+     * @return string
+     */
+    public function getProductSyncSource(int $storeId = null) : string;
 
     /**
      * Get current store

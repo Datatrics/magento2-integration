@@ -657,6 +657,19 @@ class Repository implements ConfigRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function getProductSyncSource(int $storeId = null): string
+    {
+        $scope = $scope ?? ScopeInterface::SCOPE_STORE;
+        return $this->getStoreValue(
+            self::XML_PATH_PRODUCT_SYNC_SOURCE,
+            $storeId,
+            $scope
+        ) ?? 'Magento 2';
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getFiltersData(int $storeId = null): array
     {
         $storeId = $storeId ? $storeId : $this->getStore()->getId();

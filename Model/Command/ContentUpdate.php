@@ -229,7 +229,7 @@ class ContentUpdate
         foreach ($data as $id => $product) {
             $preparedData = [
                 "itemid" => $id,
-                "source" => "Magento 2",
+                "source" => $this->configRepository->getProductSyncSource((int)$storeId),
                 "item" => $product
             ];
             try {

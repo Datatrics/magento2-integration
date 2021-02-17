@@ -15,6 +15,7 @@
                 <debug>0</debug>
             </general>
             <product_sync>
+                <source>Magento 2</source>
                 <cron>0 * * * *</cron>
             </product_sync>
             <product_data>
