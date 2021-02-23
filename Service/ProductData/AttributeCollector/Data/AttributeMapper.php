@@ -8,9 +8,9 @@ declare(strict_types=1);
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\App\ProductMetadata;
-use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Catalog\Api\Data\ProductInterface;
 
 /**
  * Service class for attribute data
@@ -73,20 +73,6 @@ class AttributeMapper
     private $entityTypeCode;
 
     /**
-     * Type of attributes, like int, varchar, decimal, etc.
-     *
-     * @var string
-     */
-    private $entityTypeId;
-
-    /**
-     * Base Entity table where attribute value will be looking for
-     *
-     * @var string
-     */
-    private $entityTable;
-
-    /**
      * Store ID
      *
      * @var string|array
@@ -118,25 +104,26 @@ class AttributeMapper
     private $storeManager;
 
     /**
-     * @var bool
+     * @var string
      */
-    private $isCommerce;
+    private $linkField;
 
     /**
-     * Price constructor.
+     * AttributeMapper constructor.
      *
      * @param ResourceConnection $resource
      * @param StoreManagerInterface $storeManager
-     * @param ProductMetadataInterface $productMetadata
+     * @param MetadataPool $metadataPool
+     * @throws \Exception
      */
     public function __construct(
         ResourceConnection $resource,
         StoreManagerInterface $storeManager,
-        ProductMetadataInterface $productMetadata
+        MetadataPool $metadataPool
     ) {
         $this->resource = $resource;
         $this->storeManager = $storeManager;
-        $this->isCommerce = ($productMetadata->getEdition() !== ProductMetadata::EDITION_NAME);
+        $this->linkField = $metadataPool->getMetadata(ProductInterface::class)->getLinkField();
     }
 
     /**
@@ -274,21 +261,13 @@ class AttributeMapper
         $entityTable = reset($attributes)['entity_table'];
 
         foreach ($tablesNonStatic as $table) {
-            if ($this->isCommerce) {
-                $fields = ['attribute_id', 'store_id', 'value', 'entity_id' => 'row_id'];
-            } else {
-                $fields = ['attribute_id', 'store_id', 'value', 'entity_id'];
-            }
+            $fields = ['attribute_id', 'store_id', 'value', 'entity_id' => $this->linkField];
             $select = $this->resource->getConnection()->select()
                 ->from(
                     [$table => $this->resource->getTableName($table)],
                     $fields
                 );
-            if ($this->isCommerce) {
-                $select->where('row_id IN (?)', $this->entityIds);
-            } else {
-                $select->where('entity_id IN (?)', $this->entityIds);
-            }
+            $select->where("{$this->linkField} IN (?)", $this->entityIds);
             $select->where('attribute_id in (?)', $attributeIdsNonStatic)
                 ->where('store_id in (?)', $this->storeId);
             $result = $this->resource->getConnection()->fetchAll($select);
@@ -324,11 +303,7 @@ class AttributeMapper
                 $this->resource->getTableName($entityTable),
                 $attributeStaticCode
             );
-        if ($this->isCommerce) {
-            $select->where('row_id IN (?)', $this->entityIds);
-        } else {
-            $select->where('entity_id IN (?)', $this->entityIds);
-        }
+        $select->where("{$this->linkField} IN (?)", $this->entityIds);
         $result = $this->resource->getConnection()->fetchAll($select);
         foreach ($result as $item) {
             foreach ($attributeStaticCode as $static) {
