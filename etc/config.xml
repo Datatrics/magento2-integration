@@ -10,7 +10,7 @@
     <default>
         <datatrics_connect>
             <general>
-                <version>v1.1.0</version>
+                <version>v1.2.0</version>
                 <enable>0</enable>
                 <debug>0</debug>
             </general>
