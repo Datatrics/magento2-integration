@@ -66,14 +66,15 @@ class ProfileUpdate
      */
     public function execute()
     {
-        if (!$this->configRepository->isEnabled()
-            || !$this->configRepository->getCustomerSyncEnabled()
-        ) {
+        if (!$this->configRepository->isEnabled()) {
             return $this;
         }
         $collection = $this->profileCollectionFactory->create()
             ->addFieldToFilter('status', ['neq' => 'Synced']);
         foreach ($collection as $profile) {
+            if (!$this->configRepository->getCustomerSyncEnabled((int)$profile->getStoreId())) {
+                continue;
+            }
             $response = $this->apiAdapter->execute(
                 ApiAdapter::CREATE_PROFILE,
                 null,
@@ -97,11 +98,12 @@ class ProfileUpdate
      */
     private function prepareData($profile)
     {
+        $storeId = (int)$profile->getStoreId();
         return [
-            "projectid" => $this->configRepository->getProjectId(),
+            "projectid" => $this->configRepository->getProjectId($storeId),
             "profileid" => $profile->getProfileId(),
             "objecttype" => "profile",
-            "source" => 'Magento2',
+            "source" => $this->configRepository->getSyncSource($storeId),
             "profile" => $profile->getData()
         ];
     }

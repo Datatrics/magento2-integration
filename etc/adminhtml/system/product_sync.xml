@@ -17,14 +17,6 @@
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>datatrics_connect/product_sync/enable</config_path>
         </field>
-        <field id="source" translate="label" type="text" sortOrder="21" showInDefault="1" showInWebsite="1"
-               showInStore="1" canRestore="1">
-            <label>Source</label>
-            <config_path>datatrics_connect/product_sync/source</config_path>
-            <depends>
-                <field id="enable">1</field>
-            </depends>
-        </field>
         <field id="cron" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1"
                showInStore="1">
             <label>Automatic Synchronize Limits</label>

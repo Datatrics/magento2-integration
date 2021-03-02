@@ -91,12 +91,12 @@ class ContentMaintenance
         );
         $magentoProductIds = $connection->fetchCol($selectMagentoProducts, 'entity_id');
         $selectDatatricsProducts = $connection->select()->from(
-            $connection->getTableName('catalog_product_entity'),
+            $connection->getTableName('datatrics_content'),
             [
-                'product_id'
+                'content_id'
             ]
         );
-        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts, 'datatrics_content');
+        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts, 'content_id');
         $toDelete = array_diff($datatricsProductIds, $magentoProductIds);
         $connection->update(
             $connection->getTableName('datatrics_content_store'),
@@ -204,6 +204,9 @@ class ContentMaintenance
      */
     public function execute()
     {
+        if (!$this->configRepository->isEnabled()) {
+            return $this;
+        }
         $this->collectProductsToDelete();
         $idsToAdd = $this->collectProductsToAdd();
         $this->addProducts($idsToAdd);

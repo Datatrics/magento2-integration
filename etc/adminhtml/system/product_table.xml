@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="content_table" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1"
+           showInStore="1">
+        <label>Content Summary</label>
+        <frontend_model>Datatrics\Connect\Block\Adminhtml\System\Config\Form\Table\Content</frontend_model>
+    </group>
+</include>

@@ -14,6 +14,7 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
+use Datatrics\Connect\Model\Command\ContentUpdate as CommandContentUpdate;
 
 /**
  * Class ContentUpdate
@@ -59,6 +60,11 @@ class ContentUpdate
     private $productDataRepository;
 
     /**
+     * @var CommandContentUpdate
+     */
+    private $commandContentUpdate;
+
+    /**
      * ContentUpdate constructor.
      * @param ContentResource $contentResource
      * @param ApiAdapter $apiAdapter
@@ -67,6 +73,7 @@ class ContentUpdate
      * @param StoreRepositoryInterface $storeManager
      * @param ProductCollection $productCollection
      * @param ProductDataRepository $productDataRepository
+     * @param CommandContentUpdate $commandContentUpdate
      */
     public function __construct(
         ContentResource $contentResource,
@@ -75,7 +82,8 @@ class ContentUpdate
         Json $json,
         StoreRepositoryInterface $storeManager,
         ProductCollection $productCollection,
-        ProductDataRepository $productDataRepository
+        ProductDataRepository $productDataRepository,
+        CommandContentUpdate $commandContentUpdate
     ) {
         $this->contentResource = $contentResource;
         $this->apiAdapter = $apiAdapter;
@@ -84,6 +92,7 @@ class ContentUpdate
         $this->storeManager = $storeManager;
         $this->productCollection = $productCollection;
         $this->productDataRepository = $productDataRepository;
+        $this->commandContentUpdate = $commandContentUpdate;
     }
 
     /**
@@ -111,15 +120,26 @@ class ContentUpdate
 
     /**
      * Delete and update products data
-     * @return $this|int
+     * @return $this
      */
     public function execute()
     {
-        if (!$this->configRepository->isEnabled()
-            || !$this->configRepository->isProductSyncEnabled()) {
-            return $this;
-        }
         $this->deleteProducts();
+        foreach ($this->storeManager->getList() as $store) {
+            if (!$this->configRepository->isEnabled((int)$store->getId())) {
+                continue;
+            }
+            if ($store->getIsActive()
+                && $this->configRepository->isProductSyncEnabled((int)$store->getId())
+            ) {
+                $this->processStoreData($store->getId());
+            }
+        }
+        return $this;
+    }
+
+    private function processStoreData($storeId)
+    {
         $connection = $this->contentResource->getConnection();
         $select = $connection->select()->from(
             $connection->getTableName('datatrics_content_store'),
@@ -127,86 +147,12 @@ class ContentUpdate
                 'product_id',
                 'update_attempts'
             ]
-        )->where('store_id = ?', 1);
+        )->where('store_id = ?', $storeId);
         $select->where('status <> ?', 'Synced');
         if (!$connection->fetchOne($select)) {
-            return 0;
+            return;
         }
         $productIds = $connection->fetchCol($select, 'product_id');
-        $attempts = $connection->fetchPairs($select);
-        $this->prepareData($productIds, 1, $attempts);
-        return 0;
-    }
-
-    /**
-     * Collect products data and push to platform
-     *
-     * @param array $productIds
-     * @param string|int $storeId
-     * @param string|int $attempts
-     * @return int
-     */
-    private function prepareData($productIds, $storeId, $attempts)
-    {
-        $connection = $this->contentResource->getConnection();
-        $count = 0;
-        $items = [
-            'items' => []
-        ];
-        $data = $this->productDataRepository->getProductData($storeId, $productIds);
-        foreach ($data as $id => $product) {
-            $preparedData = [
-                "itemid" => $id,
-                "source" => "Magento 2",
-                "item" => $product
-            ];
-            try {
-                $serializedData = $this->json->serialize($preparedData);
-            } catch (\Exception $e) {
-                continue;
-            }
-            $items['items'][] = $preparedData;
-        }
-        if (!$items['items']) {
-            return $count;
-        }
-        //bulk update
-        $response = $this->apiAdapter->execute(
-            ApiAdapter::BULK_CREATE_CONTENT,
-            null,
-            $this->json->serialize($items)
-        );
-        if ($response['success']) {
-            $count += $response['data']['total_elements'];
-        }
-        $productIds = [];
-        foreach ($response['data']['items'] as $item) {
-            $productIds[] = $item['id'];
-        }
-        $where = [
-            'product_id IN (?)' => $productIds,
-            'store_id = ?' => $storeId
-        ];
-        if ($response['success']) {
-            $connection->update(
-                $connection->getTableName('datatrics_content_store'),
-                [
-                    'status' => 'Synced',
-                    'update_msg' => '',
-                    'update_attempts' => 0
-                ],
-                $where
-            );
-        } else {
-            $connection->update(
-                $connection->getTableName('datatrics_content_store'),
-                [
-                    'status' => 'Error',
-                    'update_msg' => ''
-                ],
-                $where
-            );
-        }
-        return $count;
+        $this->commandContentUpdate->prepareData($productIds, $storeId);
     }
 }

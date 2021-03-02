@@ -176,7 +176,7 @@ interface RepositoryInterface
      *
      * @return string
      */
-    public function getProductSyncSource(int $storeId = null) : string;
+    public function getSyncSource(int $storeId = null) : string;
 
     /**
      * Get current store

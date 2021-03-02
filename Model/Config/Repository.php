@@ -657,7 +657,7 @@ class Repository implements ConfigRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function getProductSyncSource(int $storeId = null): string
+    public function getSyncSource(int $storeId = null): string
     {
         $scope = $scope ?? ScopeInterface::SCOPE_STORE;
         return $this->getStoreValue(

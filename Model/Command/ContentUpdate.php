@@ -74,9 +74,9 @@ class ContentUpdate
     private $collector;
 
     /**
-     * @var ProgressBar
+     * @var ProgressBar|null
      */
-    private $progressBar;
+    private $progressBar = null;
 
     /**
      * @var array
@@ -163,12 +163,12 @@ class ContentUpdate
      */
     public function run(InputInterface $input, OutputInterface $output)
     {
-        if (!$this->configRepository->isProductSyncEnabled()) {
+        $storeId = $input->getOption('store-id');
+        if (!$this->configRepository->isProductSyncEnabled((int)$storeId)) {
             $output->writeln('Product syncronisation disabled');
             return 0;
         }
         $this->isDry = (bool)$input->getOption('dry');
-        $storeId = $input->getOption('store-id');
 
         $connection = $this->contentResource->getConnection();
         $select = $connection->select()->from(
@@ -188,9 +188,8 @@ class ContentUpdate
             return 0;
         }
         $productIds = $connection->fetchCol($select, 'product_id');
-        $attempts = $connection->fetchPairs($select);
         $this->initProgressBar($output, count($productIds));
-        $this->prepareData($productIds, $storeId, $attempts);
+        $this->prepareData($productIds, $storeId);
         return 0;
     }
 
@@ -213,12 +212,13 @@ class ContentUpdate
     }
 
     /**
+     * Collect products data and push to platform
+     *
      * @param array $productIds
      * @param string|int $storeId
-     * @param string|int $attempts
      * @return int
      */
-    private function prepareData($productIds, $storeId, $attempts)
+    public function prepareData($productIds, $storeId)
     {
         $connection = $this->contentResource->getConnection();
         $count = 0;
@@ -229,7 +229,7 @@ class ContentUpdate
         foreach ($data as $id => $product) {
             $preparedData = [
                 "itemid" => $id,
-                "source" => $this->configRepository->getProductSyncSource((int)$storeId),
+                "source" => $this->configRepository->getSyncSource((int)$storeId),
                 "item" => $product
             ];
             try {
@@ -253,8 +253,13 @@ class ContentUpdate
             null,
             $this->json->serialize($items)
         );
-        if ($response['success']) {
+        if (!$response['success'] || !isset($response['data']['total_elements'])) {
+            return $count;
+        }
+        if ($response['success'] == true) {
             $count += $response['data']['total_elements'];
+        } else {
+            return $count;
         }
         $productIds = [];
         foreach ($response['data']['items'] as $item) {
@@ -264,7 +269,7 @@ class ContentUpdate
             'product_id IN (?)' => $productIds,
             'store_id = ?' => $storeId
         ];
-        if ($response['success']) {
+        if ($response['success'] == true) {
             $connection->update(
                 $connection->getTableName('datatrics_content_store'),
                 [
@@ -284,9 +289,10 @@ class ContentUpdate
                 $where
             );
         }
-        $this->progressBar->setMessage((string)$count, 'content');
-        $this->progressBar->advance($count);
-
+        if ($this->progressBar) {
+            $this->progressBar->setMessage((string)$count, 'content');
+            $this->progressBar->advance($count);
+        }
         return $count;
     }
 }

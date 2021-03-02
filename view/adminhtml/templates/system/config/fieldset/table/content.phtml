@@ -1,0 +1,65 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * @var $block Datatrics\Connect\Block\Adminhtml\System\Config\Form\Table\Content
+ */
+
+?>
+<div class="mm-block-datatrics-content">
+    <span class="title"><?= $block->escapeHtml(__('Linked Stores')); ?></span>
+    <?= $block->escapeHtml(__('Each store view will have their own content and sources.')); ?>
+    <table class="mm-block-datatrics-content-table">
+        <thead>
+        <tr>
+            <th><?= $block->escapeHtml(__('Storeview')); ?></th>
+            <th><?= $block->escapeHtml(__('Project ID')); ?></th>
+            <th><?= $block->escapeHtml(__('Source')); ?></th>
+            <th><?= $block->escapeHtml(__('Status')); ?></th>
+            <th><?= $block->escapeHtml(__('Totals')); ?></th>
+            <th><?= $block->escapeHtml(__('Actions')); ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($block->getContentStoreData() as $contentStore): ?>
+            <tr>
+                <td>
+                    <p><?= $block->escapeHtml($contentStore['name']); ?></p>
+                    <p><small><?= $block->escapeHtml($contentStore['code']); ?></small></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml($contentStore['project_id']); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml($contentStore['source']); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml(__($contentStore['status'])); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml(__('Items: %1', $contentStore['totals']['items'])); ?></p>
+                    <p><?= $block->escapeHtml(__('Invalidated: %1', $contentStore['totals']['invalidated'])); ?></p>
+                </td>
+                <td>
+                    <p>
+                        <a href="<?= $block->escapeUrl($contentStore['content_add_url']); ?>">
+                            <?= $block->escapeHtml(__('Run add all items')); ?>
+                        </a>
+                    </p>
+                    <p>
+                        <a href="<?= $block->escapeUrl($contentStore['content_invalidate_url']); ?>">
+                            <?= $block->escapeHtml(__('Invalidate all items')); ?>
+                        </a>
+                    </p>
+                    <p>
+                        <a href="<?= $block->escapeUrl($contentStore['content_update_url']); ?>">
+                            <?= $block->escapeHtml(__('Update all invalid items')); ?>
+                        </a>
+                    </p>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
