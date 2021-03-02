@@ -1,0 +1,85 @@
+{
+    "datatrics_content": {
+        "column": {
+            "entity_id": true,
+            "content_id": true,
+            "parent_id": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "DATATRICS_CONTENT_CONTENT_ID_CATALOG_PRODUCT_ENTITY_ENTITY_ID": true
+        }
+    },
+    "datatrics_content_store": {
+        "column": {
+            "entity_id": true,
+            "product_id": true,
+            "store_id": true,
+            "update_msg": true,
+            "update_attempts": true,
+            "status": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "DATATRICS_CONTENT_STORE_STORE_ID_STORE_STORE_ID": true
+        }
+    },
+    "datatrics_sales": {
+        "column": {
+            "entity_id": true,
+            "order_id": true,
+            "profile_id": true,
+            "store_id": true,
+            "created_at": true,
+            "updated_at": true,
+            "email": true,
+            "total": true,
+            "update_msg": true,
+            "items": true,
+            "update_attempts": true,
+            "status": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "DATATRICS_SALES_ORDER_ID_SALES_ORDER_ENTITY_ID": true,
+            "DATATRICS_SALES_STORE_ID_STORE_STORE_ID": true
+        }
+    },
+    "datatrics_profile": {
+        "column": {
+            "entity_id": true,
+            "customer_id": true,
+            "store_id": true,
+            "profile_id": true,
+            "address_id": true,
+            "firstname": true,
+            "prefix": true,
+            "lastname": true,
+            "name": true,
+            "email": true,
+            "datatrics_email": true,
+            "company": true,
+            "address": true,
+            "country": true,
+            "city": true,
+            "zip": true,
+            "phone": true,
+            "region": true,
+            "street": true,
+            "created_at": true,
+            "updated_at": true,
+            "update_msg": true,
+            "update_attempts": true,
+            "status": true
+        },
+        "index": {
+            "DATATRICS_PROFILE_CUSTOMER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "DATATRICS_PROFILE_STORE_ID_STORE_STORE_ID": true
+        }
+    }
+}
