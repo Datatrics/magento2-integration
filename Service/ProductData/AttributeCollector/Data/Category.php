@@ -9,8 +9,8 @@ namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
 use Magento\Framework\App\ResourceConnection;
 use Magento\Store\Api\StoreRepositoryInterface;
-use Magento\Framework\App\ProductMetadata;
-use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Framework\EntityManager\MetadataPool;
 
 /**
  * Service class for category path for products
@@ -62,25 +62,25 @@ class Category
     private $categoryIds = [];
 
     /**
-     * @var bool
+     * @var string
      */
-    private $isCommerce;
+    private $linkField;
 
     /**
      * Category constructor.
      *
      * @param ResourceConnection $resource
      * @param StoreRepositoryInterface $storeRepository
-     * @param ProductMetadataInterface $productMetadata
+     * @param MetadataPool $metadataPool
      */
     public function __construct(
         ResourceConnection $resource,
         StoreRepositoryInterface $storeRepository,
-        ProductMetadataInterface $productMetadata
+        MetadataPool $metadataPool
     ) {
         $this->resource = $resource;
         $this->storeRepository = $storeRepository;
-        $this->isCommerce = ($productMetadata->getEdition() !== ProductMetadata::EDITION_NAME);
+        $this->linkField = $metadataPool->getMetadata(ProductInterface::class)->getLinkField();
     }
 
     /**
@@ -210,11 +210,7 @@ class Category
      */
     private function fetchCategoryNames()
     {
-        if ($this->isCommerce) {
-            $fields = ['entity_id' => 'row_id', 'value', 'store_id'];
-        } else {
-            $fields = ['entity_id', 'value', 'store_id'];
-        }
+        $fields = ['entity_id' => $this->linkField, 'value', 'store_id'];
         $connection = $this->resource->getConnection();
         $select = $connection->select()->from(
             ['eav_attribute' => $connection->getTableName('eav_attribute')],

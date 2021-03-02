@@ -8,10 +8,9 @@ declare(strict_types=1);
 namespace Datatrics\Connect\Service\ProductData;
 
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\App\ProductMetadata;
-use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Catalog\Api\Data\ProductInterface;
 
 /**
  * Filter class
@@ -35,20 +34,23 @@ class Filter
      * @var string
      */
     private $entityId;
+
     /**
-     * Data constructor.
+     * Filter constructor.
+     *
      * @param JsonSerializer $json
      * @param ResourceConnection $resourceConnection
-     * @param ProductMetadataInterface $productMetadata
+     * @param MetadataPool $metadataPool
+     * @throws \Exception
      */
     public function __construct(
         JsonSerializer $json,
         ResourceConnection $resourceConnection,
-        ProductMetadataInterface $productMetadata
+        MetadataPool $metadataPool
     ) {
         $this->json = $json;
         $this->resourceConnection = $resourceConnection;
-        $this->entityId = ($productMetadata->getEdition() !== ProductMetadata::EDITION_NAME) ? 'row_id' : 'entity_id';
+        $this->entityId = $metadataPool->getMetadata(ProductInterface::class)->getLinkField();
     }
 
     public function execute($filter, $storeId = 0)
