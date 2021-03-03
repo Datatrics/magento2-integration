@@ -23,7 +23,7 @@
                showInWebsite="1" showInStore="1">
             <label>Add disabled products</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/product_filter/add_disabled</config_path>
+            <config_path>datatrics_connect_product/product_filter/add_disabled</config_path>
         </field>
         <field id="heading_visibility" translate="label comment" type="text" sortOrder="3" showInDefault="1"
                showInWebsite="1" showInStore="1">
@@ -35,13 +35,13 @@
                showInWebsite="1" showInStore="1">
             <label>Enable</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/product_filter/visbility_enabled</config_path>
+            <config_path>datatrics_connect_product/product_filter/visbility_enabled</config_path>
         </field>
         <field id="visbility" translate="label" type="multiselect" sortOrder="5" showInDefault="1"
                showInWebsite="1" showInStore="1">
             <label>Only add products with the following Visibility</label>
             <source_model>Datatrics\Connect\Model\Source\ProductVisibility</source_model>
-            <config_path>datatrics_connect/product_filter/visbility</config_path>
+            <config_path>datatrics_connect_product/product_filter/visbility</config_path>
             <comment>Add products with the selected visibility.</comment>
             <depends>
                 <field id="visbility_enabled">1</field>
@@ -57,13 +57,13 @@
                showInWebsite="1" showInStore="1">
             <label>Enable</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/product_filter/category_enabled</config_path>
+            <config_path>datatrics_connect_product/product_filter/category_enabled</config_path>
         </field>
         <field id="category_type" translate="label" type="select" sortOrder="12" showInDefault="1"
                showInWebsite="1" showInStore="1">
             <label>Type of filter</label>
             <source_model>Datatrics\Connect\Model\Source\CategoryTypeList</source_model>
-            <config_path>datatrics_connect/product_filter/category_type</config_path>
+            <config_path>datatrics_connect_product/product_filter/category_type</config_path>
             <depends>
                 <field id="category_enabled">1</field>
             </depends>
@@ -72,7 +72,7 @@
                showInWebsite="1" showInStore="1">
             <label>Category</label>
             <source_model>Datatrics\Connect\Model\Source\CategoryList</source_model>
-            <config_path>datatrics_connect/product_filter/category</config_path>
+            <config_path>datatrics_connect_product/product_filter/category</config_path>
             <depends>
                 <field id="category_enabled">1</field>
             </depends>
@@ -97,7 +97,7 @@
                showInStore="1">
             <label>Enable</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/product_filter/stock</config_path>
+            <config_path>datatrics_connect_product/product_filter/stock</config_path>
         </field>
         <field id="heading_filters" translate="label comment" type="text" sortOrder="30" showInDefault="1"
                showInWebsite="1" showInStore="1">
@@ -108,14 +108,14 @@
                showInStore="1">
             <label>Enabled</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/product_filter/filters</config_path>
+            <config_path>datatrics_connect_product/product_filter/filters</config_path>
         </field>
         <field id="filters_data" translate="label" type="select" sortOrder="32" showInDefault="1"
                showInWebsite="1" showInStore="1">
             <label>Filter Conditions</label>
             <frontend_model>Datatrics\Connect\Block\Adminhtml\System\Config\Form\Field\Filters</frontend_model>
             <backend_model>Datatrics\Connect\Model\Config\Backend\Serialized\Filters</backend_model>
-            <config_path>datatrics_connect/product_filter/filters_data</config_path>
+            <config_path>datatrics_connect_product/product_filter/filters_data</config_path>
             <depends>
                 <field id="filters">1</field>
             </depends>

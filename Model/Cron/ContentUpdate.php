@@ -126,7 +126,7 @@ class ContentUpdate
     {
         $this->deleteProducts();
         foreach ($this->storeManager->getList() as $store) {
-            if (!$this->configRepository->isEnabled((int)$store->getId())) {
+            if (!$this->configRepository->isEnabled((int)$store->getId()) || $store->getId() == 0) {
                 continue;
             }
             if ($store->getIsActive()

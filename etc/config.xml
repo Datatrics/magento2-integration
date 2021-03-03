@@ -8,14 +8,16 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-        <datatrics_connect>
+        <datatrics_connect_general>
             <general>
                 <version>v1.2.0</version>
                 <enable>0</enable>
+                <source>Magento 2</source>
                 <debug>0</debug>
             </general>
+        </datatrics_connect_general>
+        <datatrics_connect_product>
             <product_sync>
-                <source>Magento 2</source>
                 <cron>0 * * * *</cron>
             </product_sync>
             <product_data>
@@ -24,12 +26,18 @@
                 <description>description</description>
                 <short_description>short_description</short_description>
             </product_data>
+        </datatrics_connect_product>
+        <datatrics_connect_order>
             <order_sync>
                 <cron>0 * * * *</cron>
             </order_sync>
+        </datatrics_connect_order>
+        <datatrics_connect_customer>
             <customer_sync>
                 <cron>0 * * * *</cron>
             </customer_sync>
+        </datatrics_connect_customer>
+        <datatrics_connect_tracking>
             <tracking>
                 <enable>1</enable>
                 <product>1</product>
@@ -37,6 +45,6 @@
                 <cart>1</cart>
                 <conversion>1</conversion>
             </tracking>
-        </datatrics_connect>
+        </datatrics_connect_tracking>
     </default>
 </config>

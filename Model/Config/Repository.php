@@ -661,7 +661,7 @@ class Repository implements ConfigRepositoryInterface
     {
         $scope = $scope ?? ScopeInterface::SCOPE_STORE;
         return $this->getStoreValue(
-            self::XML_PATH_PRODUCT_SYNC_SOURCE,
+            self::XML_PATH_SOURCE,
             $storeId,
             $scope
         ) ?? 'Magento 2';

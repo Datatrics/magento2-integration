@@ -16,73 +16,78 @@ interface RepositoryInterface
     const EXTENSION_CODE = 'Datatrics_Connect';
 
     /* General */
-    const XML_PATH_EXTENSION_VERSION = 'datatrics_connect/general/version';
-    const XML_PATH_EXTENSION_ENABLE = 'datatrics_connect/general/enable';
-    const XML_PATH_API_KEY = 'datatrics_connect/general/api_key';
-    const XML_PATH_PROJECT_ID = 'datatrics_connect/general/project_id';
-    const XML_PATH_DEBUG = 'datatrics_connect/general/debug';
+    const XML_PATH_EXTENSION_VERSION = 'datatrics_connect_general/general/version';
+    const XML_PATH_EXTENSION_ENABLE = 'datatrics_connect_general/general/enable';
+    const XML_PATH_API_KEY = 'datatrics_connect_general/general/api_key';
+    const XML_PATH_PROJECT_ID = 'datatrics_connect_general/general/project_id';
+    const XML_PATH_SOURCE = 'datatrics_connect_general/general/source';
+    const XML_PATH_DEBUG = 'datatrics_connect_general/general/debug';
 
     /* Content */
-    const XML_PATH_SKU = 'datatrics_connect/product_data/sku';
-    const XML_PATH_NAME = 'datatrics_connect/product_data/name';
-    const XML_PATH_DESCRIPTION = 'datatrics_connect/product_data/description';
-    const XML_PATH_SHORT_DESCRIPTION = 'datatrics_connect/product_data/short_description';
-    const XML_PATH_PRODUCT_IMAGE = 'datatrics_connect/product_data/image';
-    const XML_PATH_PRODUCT_SYNC_ENABLED = 'datatrics_connect/product_sync/enable';
-    const XML_PATH_PRODUCT_SYNC_SOURCE = 'datatrics_connect/product_sync/source';
-    const XML_PATH_EXTRA_FIELDS = 'datatrics_connect/advanced_options/extra_fields';
-    const XML_PATH_INVENTORY = 'datatrics_connect/advanced_options/inventory';
-    const XML_PATH_INVENTORY_FIELDS = 'datatrics_connect/advanced_options/inventory_fields';
+    const XML_PATH_SKU = 'datatrics_connect_product/product_data/sku';
+    const XML_PATH_NAME = 'datatrics_connect_product/product_data/name';
+    const XML_PATH_DESCRIPTION = 'datatrics_connect_product/product_data/description';
+    const XML_PATH_SHORT_DESCRIPTION = 'datatrics_connect_product/product_data/short_description';
+    const XML_PATH_PRODUCT_IMAGE = 'datatrics_connect_product/product_data/image';
+    const XML_PATH_PRODUCT_SYNC_ENABLED = 'datatrics_connect_product/product_sync/enable';
+    const XML_PATH_EXTRA_FIELDS = 'datatrics_connect_product/advanced_options/extra_fields';
+    const XML_PATH_INVENTORY = 'datatrics_connect_product/advanced_options/inventory';
+    const XML_PATH_INVENTORY_FIELDS = 'datatrics_connect_product/advanced_options/inventory_fields';
 
     /* Content -> Product types: Configurable */
-    const XML_PATH_USE_CONFIGURABLE_PRODUCTS = 'datatrics_connect/types/configurable';
-    const XML_PATH_CONFIGURABLE_USE_PARENT_URL_FOR_SIMPLES = 'datatrics_connect/types/configurable_link';
-    const XML_PATH_CONFIGURABLE_USE_PARENT_IMAGES_FOR_SIMPLES = 'datatrics_connect/types/configurable_image';
-    const XML_PATH_CONFIGURABLE_USE_PARENT_DATA_FOR_SIMPLES = 'datatrics_connect/types/configurable_parent_atts';
-    const XML_PATH_CONFIGURABLE_USE_NON_VISIBLE_FALLBACK = 'datatrics_connect/types/configurable_nonvisible';
+    const XML_PATH_USE_CONFIGURABLE_PRODUCTS
+        = 'datatrics_connect_product/types/configurable';
+    const XML_PATH_CONFIGURABLE_USE_PARENT_URL_FOR_SIMPLES
+        = 'datatrics_connect_product/types/configurable_link';
+    const XML_PATH_CONFIGURABLE_USE_PARENT_IMAGES_FOR_SIMPLES
+        = 'datatrics_connect_product/types/configurable_image';
+    const XML_PATH_CONFIGURABLE_USE_PARENT_DATA_FOR_SIMPLES
+        = 'datatrics_connect_product/types/configurable_parent_atts';
+    const XML_PATH_CONFIGURABLE_USE_NON_VISIBLE_FALLBACK
+        = 'datatrics_connect_product/types/configurable_nonvisible';
 
     /* Content -> Product types: Bundle */
-    const XML_PATH_USE_BUNDLE_PRODUCTS = 'datatrics_connect/types/bundle';
-    const XML_PATH_BUNDLE_USE_PARENT_URL_FOR_SIMPLES = 'datatrics_connect/types/bundle_link';
-    const XML_PATH_BUNDLE_USE_PARENT_IMAGES_FOR_SIMPLES = 'datatrics_connect/types/bundle_image';
-    const XML_PATH_BUNDLE_USE_PARENT_DATA_FOR_SIMPLES = 'datatrics_connect/types/bundle_parent_atts';
-    const XML_PATH_BUNDLE_USE_NON_VISIBLE_FALLBACK = 'datatrics_connect/types/bundle_nonvisible';
+    const XML_PATH_USE_BUNDLE_PRODUCTS = 'datatrics_connect_product/types/bundle';
+    const XML_PATH_BUNDLE_USE_PARENT_URL_FOR_SIMPLES = 'datatrics_connect_product/types/bundle_link';
+    const XML_PATH_BUNDLE_USE_PARENT_IMAGES_FOR_SIMPLES = 'datatrics_connect_product/types/bundle_image';
+    const XML_PATH_BUNDLE_USE_PARENT_DATA_FOR_SIMPLES = 'datatrics_connect_product/types/bundle_parent_atts';
+    const XML_PATH_BUNDLE_USE_NON_VISIBLE_FALLBACK = 'datatrics_connect_product/types/bundle_nonvisible';
 
     /* Content -> Product types: Grouped */
-    const XML_PATH_USE_GROUPED_PRODUCTS = 'datatrics_connect/types/grouped';
-    const XML_PATH_GROUPED_USE_PARENT_URL_FOR_SIMPLES = 'datatrics_connect/types/grouped_link';
-    const XML_PATH_GROUPED_USE_PARENT_IMAGES_FOR_SIMPLES = 'datatrics_connect/types/grouped_image';
-    const XML_PATH_GROUPED_USE_PARENT_DATA_FOR_SIMPLES = 'datatrics_connect/types/grouped_parent_atts';
-    const XML_PATH_GROUPED_USE_NON_VISIBLE_FALLBACK = 'datatrics_connect/types/grouped_nonvisible';
+    const XML_PATH_USE_GROUPED_PRODUCTS = 'datatrics_connect_product/types/grouped';
+    const XML_PATH_GROUPED_USE_PARENT_URL_FOR_SIMPLES = 'datatrics_connect_product/types/grouped_link';
+    const XML_PATH_GROUPED_USE_PARENT_IMAGES_FOR_SIMPLES = 'datatrics_connect_product/types/grouped_image';
+    const XML_PATH_GROUPED_USE_PARENT_DATA_FOR_SIMPLES = 'datatrics_connect_product/types/grouped_parent_atts';
+    const XML_PATH_GROUPED_USE_NON_VISIBLE_FALLBACK = 'datatrics_connect_product/types/grouped_nonvisible';
 
     /* Filters */
-    const XML_PATH_ADD_DISABLED_PRODUCTS = 'datatrics_connect/product_filter/add_disabled';
-    const XML_PATH_FILTER_BY_VISIBILITY = 'datatrics_connect/product_filter/visbility_enabled';
-    const XML_PATH_VISIBILITY = 'datatrics_connect/product_filter/visbility';
-    const XML_PATH_RESTRICT_BY_CATEGORY = 'datatrics_connect/product_filter/category_enabled';
-    const XML_PATH_EXCLUDE_OR_INCLUDE_BY_CATEGORY = 'datatrics_connect/product_filter/category_type';
-    const XML_PATH_CATEGORY = 'datatrics_connect/product_filter/category';
-    const XML_PATH_EXCLUDE_OUT_OF_STOCK = 'datatrics_connect/product_filter/stock';
-    const XML_PATH_FILTERS_DATA = 'datatrics_connect/product_filter/filters_data';
+    const XML_PATH_ADD_DISABLED_PRODUCTS = 'datatrics_connect_product/product_filter/add_disabled';
+    const XML_PATH_FILTER_BY_VISIBILITY = 'datatrics_connect_product/product_filter/visbility_enabled';
+    const XML_PATH_VISIBILITY = 'datatrics_connect_product/product_filter/visbility';
+    const XML_PATH_RESTRICT_BY_CATEGORY = 'datatrics_connect_product/product_filter/category_enabled';
+    const XML_PATH_EXCLUDE_OR_INCLUDE_BY_CATEGORY = 'datatrics_connect_product/product_filter/category_type';
+    const XML_PATH_CATEGORY = 'datatrics_connect_product/product_filter/category';
+    const XML_PATH_EXCLUDE_OUT_OF_STOCK = 'datatrics_connect_product/product_filter/stock';
+    const XML_PATH_FILTERS_DATA = 'datatrics_connect_product/product_filter/filters_data';
 
     /* Profile */
-    const XML_PATH_CUSTOMER_ENABLED = 'datatrics_connect/customer_sync/enable';
-    const XML_PATH_CUSTOMER_LIMIT = 'datatrics_connect/customer_sync/limit_customer_group';
-    const XML_PATH_CUSTOMER_GROUP = 'datatrics_connect/customer_sync/customer_group';
-    const XML_PATH_CUSTOMER_CRON = 'datatrics_connect/customer_sync/cron';
-    const XML_PATH_CUSTOMER_CRON_CUSTOM = 'datatrics_connect/customer_sync/cron_custom';
+    const XML_PATH_CUSTOMER_ENABLED = 'datatrics_connect_customer/customer_sync/enable';
+    const XML_PATH_CUSTOMER_LIMIT = 'datatrics_connect_customer/customer_sync/limit_customer_group';
+    const XML_PATH_CUSTOMER_GROUP = 'datatrics_connect_customer/customer_sync/customer_group';
+    const XML_PATH_CUSTOMER_CRON = 'datatrics_connect_customer/customer_sync/cron';
+    const XML_PATH_CUSTOMER_CRON_CUSTOM = 'datatrics_connect_customer/customer_sync/cron_custom';
 
     /* Sales */
-    const XML_PATH_ORDER_ENABLED = 'datatrics_connect/order_sync/enable';
-    const XML_PATH_ORDER_STATE_LIMIT = 'datatrics_connect/order_sync/limit_order_state';
-    const XML_PATH_ORDER_STATE = 'datatrics_connect/order_sync/order_state';
-    const XML_PATH_ORDER_CUSTOMER_LIMIT = 'datatrics_connect/order_sync/limit_customer_group';
-    const XML_PATH_ORDER_CUSTOMER_GROUP = 'datatrics_connect/order_sync/customer_group';
-    const XML_PATH_ORDER_CRON = 'datatrics_connect/order_sync/cron';
-    const XML_PATH_ORDER_CRON_CUSTOM = 'datatrics_connect/order_sync/cron_custom';
+    const XML_PATH_ORDER_ENABLED = 'datatrics_connect_order/order_sync/enable';
+    const XML_PATH_ORDER_STATE_LIMIT = 'datatrics_connect_order/order_sync/limit_order_state';
+    const XML_PATH_ORDER_STATE = 'datatrics_connect_order/order_sync/order_state';
+    const XML_PATH_ORDER_CUSTOMER_LIMIT = 'datatrics_connect_order/order_sync/limit_customer_group';
+    const XML_PATH_ORDER_CUSTOMER_GROUP = 'datatrics_connect_order/order_sync/customer_group';
+    const XML_PATH_ORDER_CRON = 'datatrics_connect_order/order_sync/cron';
+    const XML_PATH_ORDER_CRON_CUSTOM = 'datatrics_connect_order/order_sync/cron_custom';
 
     /* Tracking */
-    const XML_PATH_TRACKING_ENABLED = 'datatrics_connect/tracking/enable';
+    const XML_PATH_TRACKING_ENABLED = 'datatrics_connect_tracking/tracking/enable';
 
     /**
      * Get sync filters

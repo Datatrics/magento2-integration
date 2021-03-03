@@ -7,15 +7,15 @@
     <group id="default">
         <job instance="Datatrics\Connect\Model\Cron\SalesUpdate"
              method="execute" name="datatrics_sales_update">
-            <config_path>datatrics_connect/order_sync/cron</config_path>
+            <config_path>datatrics_connect_order/order_sync/cron</config_path>
         </job>
         <job instance="Datatrics\Connect\Model\Cron\ProfileUpdate"
              method="execute" name="datatrics_profile_update">
-            <config_path>datatrics_connect/customer_sync/cron</config_path>
+            <config_path>datatrics_connect_customer/customer_sync/cron</config_path>
         </job>
         <job instance="Datatrics\Connect\Model\Cron\ContentUpdate"
              method="execute" name="datatrics_content_update">
-            <config_path>datatrics_connect/product_sync/cron</config_path>
+            <config_path>datatrics_connect_product/product_sync/cron</config_path>
         </job>
         <job instance="Datatrics\Connect\Model\Cron\ContentMaintenance"
              method="execute" name="datatrics_content_maintenance">

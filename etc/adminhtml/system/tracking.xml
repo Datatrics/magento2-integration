@@ -24,14 +24,14 @@
                showInStore="1">
             <label>Enabled</label>
             <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
-            <config_path>datatrics_connect/tracking/enable</config_path>
+            <config_path>datatrics_connect_tracking/tracking/enable</config_path>
         </field>
 
         <field id="product" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1"
                showInStore="1">
             <label>Product view tracking</label>
             <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
-            <config_path>datatrics_connect/tracking/product</config_path>
+            <config_path>datatrics_connect_tracking/tracking/product</config_path>
             <depends>
                 <field id="enable">1</field>
             </depends>
@@ -41,7 +41,7 @@
                showInStore="1">
             <label>Category view tracking</label>
             <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
-            <config_path>datatrics_connect/tracking/category</config_path>
+            <config_path>datatrics_connect_tracking/tracking/category</config_path>
             <depends>
                 <field id="enable">1</field>
             </depends>
@@ -51,7 +51,7 @@
                showInStore="1">
             <label>Shopping cart tracking</label>
             <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
-            <config_path>datatrics_connect/tracking/cart</config_path>
+            <config_path>datatrics_connect_tracking/tracking/cart</config_path>
             <depends>
                 <field id="enable">1</field>
             </depends>
@@ -61,7 +61,7 @@
                showInStore="1">
             <label>Sales tracking</label>
             <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
-            <config_path>datatrics_connect/tracking/conversion</config_path>
+            <config_path>datatrics_connect_tracking/tracking/conversion</config_path>
             <depends>
                 <field id="enable">1</field>
             </depends>

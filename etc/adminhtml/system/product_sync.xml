@@ -15,13 +15,14 @@
                showInStore="1">
             <label>Enabled</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/product_sync/enable</config_path>
+            <config_path>datatrics_connect_product/product_sync/enable</config_path>
         </field>
         <field id="cron" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1"
                showInStore="1">
             <label>Automatic Synchronize Limits</label>
             <source_model>Datatrics\Connect\Model\Source\Frequency</source_model>
-            <config_path>datatrics_connect/product_sync/cron</config_path>
+            <config_path>datatrics_connect_product/product_sync/cron</config_path>
+            <!--backend_model>Datatrics\Connect\Model\Config\Backend\ProductsCron</backend_model-->
             <depends>
                 <field id="enable">1</field>
             </depends>
@@ -29,7 +30,7 @@
         <field id="cron_custom" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1"
                showInStore="1">
             <label>Custom Cron</label>
-            <config_path>datatrics_connect/product_sync/cron_custom</config_path>
+            <config_path>datatrics_connect_product/product_sync/cron_custom</config_path>
             <depends>
                 <field id="enable">1</field>
                 <field id="cron">custom</field>

@@ -137,10 +137,6 @@
         <plugin name="datatrics_customer_status" type="Datatrics\Connect\Plugin\CustomerGridCollection"/>
     </type>
 
-    <type name="Magento\Config\Model\Config">
-        <plugin name="datatrics_section_fix" type="Datatrics\Connect\Plugin\BeforeSetSection"/>
-    </type>
-
     <!-- Adapter block start -->
     <preference for="Magento\Framework\HTTP\Client\Curl"
                 type="Datatrics\Connect\Model\API\CurlExtra"/>

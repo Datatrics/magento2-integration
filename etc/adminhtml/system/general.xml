@@ -19,24 +19,24 @@
                showInStore="0">
             <label>Enabled</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/general/enable</config_path>
+            <config_path>datatrics_connect_general/general/enable</config_path>
         </field>
         <field id="api_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
                showInStore="1">
             <label>API Key</label>
-            <config_path>datatrics_connect/general/api_key</config_path>
+            <config_path>datatrics_connect_general/general/api_key</config_path>
             <comment><![CDATA[You can obtain the Datatrics API key <a href="https://app.datatrics.com/profile/api-keys" target="_blank">here</a>.]]></comment>
         </field>
         <field id="project_id" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1"
                showInStore="1">
             <label>Project ID</label>
-            <config_path>datatrics_connect/general/project_id</config_path>
+            <config_path>datatrics_connect_general/general/project_id</config_path>
             <comment><![CDATA[You can obtain the Datatrics Project ID <a href="https://app.datatrics.com/project/settings" target="_blank">here</a>.]]></comment>
         </field>
         <field id="source" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1"
                showInStore="1" canRestore="1">
             <label>Source</label>
-            <config_path>datatrics_connect/product_sync/source</config_path>
+            <config_path>datatrics_connect_general/general/source</config_path>
         </field>
         <field id="button" translate="label" type="button" sortOrder="100" showInDefault="1"
                showInWebsite="0" showInStore="1">
