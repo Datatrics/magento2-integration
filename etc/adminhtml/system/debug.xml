@@ -20,7 +20,7 @@
                showInStore="1">
             <label>Debug Mode</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/general/debug</config_path>
+            <config_path>datatrics_connect_general/general/debug</config_path>
         </field>
         <field id="debug_button" translate="label" type="button" sortOrder="12" showInDefault="1"
                showInWebsite="0" showInStore="0">

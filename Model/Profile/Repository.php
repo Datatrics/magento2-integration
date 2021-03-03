@@ -210,8 +210,9 @@ class Repository implements ProfileRepository
      */
     public function prepareProfileData($customer, bool $forceUpdate = false)
     {
-        
+
         $customer = $this->customer->load($customer->getId());
+        $storeId = (int)$customer->getStoreId();
         if (!$this->configRepository->getCustomerSyncEnabled()) {
             return 0;
         }
@@ -223,7 +224,7 @@ class Repository implements ProfileRepository
         }
         $profileId = $this->encryptor->getHash(
             $customer->getEmail(),
-            $this->configRepository->getProjectId()
+            $this->configRepository->getProjectId($storeId)
         );
         if ($this->resource->isExists($customer->getId(), 'customer_id')) {
             if (!$forceUpdate) {
@@ -241,7 +242,7 @@ class Repository implements ProfileRepository
                 ->setProfileId((string)$profileId)
                 ->setCustomerId((int)$customer->getId());
         }
-        $profile->setStoreId((int)$customer->getStoreId())
+        $profile->setStoreId($storeId)
             ->setStatus(self::STATUS['queued']);
         $profile->setData(
             array_merge(
@@ -269,12 +270,13 @@ class Repository implements ProfileRepository
      */
     public function prepareGuestProfileData(Order $order)
     {
-        if (!$this->configRepository->getCustomerSyncEnabled()) {
+        $storeId = (int)$order->getStoreId();
+        if (!$this->configRepository->getCustomerSyncEnabled($storeId)) {
             return 0;
         }
         $profileId = $this->encryptor->getHash(
             $order->getCustomerEmail(),
-            $this->configRepository->getProjectId()
+            $this->configRepository->getProjectId($storeId)
         );
         if ($this->resource->getIdByProfile($profileId)) {
             return 0;
@@ -282,7 +284,7 @@ class Repository implements ProfileRepository
             $profile = $this->create()
                 ->setProfileId((string)$profileId);
         }
-        $profile->setStoreId((int)$order->getStoreId())
+        $profile->setStoreId($storeId)
             ->setStatus(self::STATUS['queued']);
         $profile->setAddressId(
             (int)$order->getBillingAddress()->getId()

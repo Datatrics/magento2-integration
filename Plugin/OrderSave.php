@@ -7,8 +7,11 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Plugin;
 
+use Datatrics\Connect\Api\Content\RepositoryInterface as ContentRepository;
+use Datatrics\Connect\Api\Log\RepositoryInterface as LogRepository;
 use Datatrics\Connect\Api\Profile\RepositoryInterface as ProfileRepository;
 use Datatrics\Connect\Api\Sales\RepositoryInterface as SaleRepository;
+use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Customer\Model\ResourceModel\Customer\Collection as CustomerCollection;
 use Magento\Sales\Model\Order;
 
@@ -34,19 +37,43 @@ class OrderSave
     protected $customerCollection;
 
     /**
+     * @var ContentRepository
+     */
+    private $contentRepository;
+
+    /**
+     * @var ContentResource
+     */
+    private $contentResource;
+
+    /**
+     * @var LogRepository
+     */
+    private $logRepository;
+
+    /**
      * OrderPlaced constructor.
      * @param ProfileRepository $profileRepository
      * @param SaleRepository $saleRepository
      * @param CustomerCollection $customerCollection
+     * @param ContentRepository $contentRepository
+     * @param ContentResource $contentResource
+     * @param LogRepository $logRepository
      */
     public function __construct(
         ProfileRepository $profileRepository,
         SaleRepository $saleRepository,
-        CustomerCollection $customerCollection
+        CustomerCollection $customerCollection,
+        ContentRepository $contentRepository,
+        ContentResource $contentResource,
+        LogRepository $logRepository
     ) {
         $this->profileRepository = $profileRepository;
         $this->saleRepository = $saleRepository;
         $this->customerCollection = $customerCollection;
+        $this->contentRepository = $contentRepository;
+        $this->contentResource = $contentResource;
+        $this->logRepository = $logRepository;
     }
 
     /**
@@ -66,6 +93,27 @@ class OrderSave
                 $this->profileRepository->prepareProfileData($customers->getFirstItem());
             }
         }
+        $productIds = [];
+        foreach ($order->getAllItems() as $item) {
+            $productIds[] = $item->getProductId();
+        }
+        $this->invalidateProducts($productIds);
         return $order;
+    }
+
+    /**
+     * @param array $productIds
+     */
+    private function invalidateProducts($productIds = [])
+    {
+        $connection = $this->contentResource->getConnection();
+        foreach ($productIds as $productId) {
+            $this->logRepository->addDebugLog('Product', 'ID ' . $productId . ' invalidated');
+        }
+        $connection->update(
+            $connection->getTableName('datatrics_content_store'),
+            ['status' => 'Queued for Update'],
+            ['product_id in (?)' => $productIds]
+        );
     }
 }

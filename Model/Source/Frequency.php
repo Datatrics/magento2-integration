@@ -60,11 +60,11 @@ class Frequency implements OptionSourceInterface
                 [
                     'value' => '*/5 * * * *',
                     'label' => __('Every 5 minutes')
-                ],
-                [
+                ]
+                /*[
                     'value' => 'custom',
                     'label' => __('Custom')
-                ],
+                ],*/
             ];
         }
         return $this->options;

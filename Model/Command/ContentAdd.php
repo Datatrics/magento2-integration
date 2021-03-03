@@ -50,19 +50,42 @@ class ContentAdd
      */
     public function run(InputInterface $input, OutputInterface $output)
     {
+        return $this->addProducts(null, $output);
+    }
+
+    /**
+     * @param null|int $storeId
+     * @param null|OutputInterface $output
+     * @return int
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function addProducts($storeId = null, $output = null)
+    {
         $connection = $this->contentResource->getConnection();
-        $selectStores = $connection->select()->from(
-            $connection->getTableName('store'),
-            'store_id'
-        );
         $stores = [];
-        foreach ($connection->fetchAll($selectStores) as $store) {
-            $stores[] = $store['store_id'];
+        if (!$storeId) {
+            $selectStores = $connection->select()->from(
+                $connection->getTableName('store'),
+                'store_id'
+            );
+            foreach ($connection->fetchAll($selectStores) as $store) {
+                $stores[] = $store['store_id'];
+            }
+        } else {
+            $stores[] = $storeId;
         }
         $selectContent = $connection->select()->from(
             $connection->getTableName('datatrics_content'),
             'content_id'
         );
+        if ($storeId) {
+            $selectContent->joinLeft(
+                ['datatrics_content_store' => $connection->getTableName('datatrics_content_store')],
+                'content_id = product_id',
+                []
+            )->where('datatrics_content_store.store_id = ?', $storeId);
+        }
+
         $select = $connection->select()->from(
             $connection->getTableName('catalog_product_entity'),
             'entity_id'
@@ -76,15 +99,17 @@ class ContentAdd
             ->group('entity_id')->limit(50000);
         $result = $connection->fetchAll($select);
 
-        $progressBar = new \Symfony\Component\Console\Helper\ProgressBar($output, count($result));
-        $progressBar->setMessage('0', 'product');
-        $progressBar->setFormat(
-            '<info>Content</info> %current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s%
+        if ($output) {
+            $progressBar = new \Symfony\Component\Console\Helper\ProgressBar($output, count($result));
+            $progressBar->setMessage('0', 'product');
+            $progressBar->setFormat(
+                '<info>Content</info> %current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s%
     <info>⏺ Created:    </info>%product%'
-        );
-        $output->writeln('<info>Adding content.</info>');
-        $progressBar->start();
-        $progressBar->display();
+            );
+            $output->writeln('<info>Adding content.</info>');
+            $progressBar->start();
+            $progressBar->display();
+        }
         $count = 0;
         $this->contentResource->beginTransaction();
         $pool = 0;
@@ -97,8 +122,10 @@ class ContentAdd
                 ->setParentId((string)$entity['parent_id']);
             if ($pool == 1000) {
                 $pool = 0;
-                $progressBar->setMessage((string)$count, 'product');
-                $progressBar->advance(1000);
+                if ($output) {
+                    $progressBar->setMessage((string)$count, 'product');
+                    $progressBar->advance(1000);
+                }
             }
             foreach ($stores as $store) {
                 $data[] = [
@@ -109,7 +136,9 @@ class ContentAdd
             }
             $this->contentRepository->save($content);
         }
-        $progressBar->setMessage((string)$count, 'product');
+        if ($output) {
+            $progressBar->setMessage((string)$count, 'product');
+        }
         if ($data) {
             $connection->insertArray(
                 $connection->getTableName('datatrics_content_store'),
@@ -118,8 +147,10 @@ class ContentAdd
             );
         }
         $this->contentResource->commit();
-        $progressBar->finish();
-        $output->writeln('');
+        if ($output) {
+            $progressBar->finish();
+            $output->writeln('');
+        }
         return $count;
     }
 }

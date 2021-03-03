@@ -27,7 +27,7 @@
                showInStore="1">
             <label>Use Configurable/Simple Products</label>
             <source_model>Datatrics\Connect\Model\Source\Configurable\Option</source_model>
-            <config_path>datatrics_connect/types/configurable</config_path>
+            <config_path>datatrics_connect_product/types/configurable</config_path>
             <comment>
                 <![CDATA[<strong>Recommended:</strong> Only Linked Simple Products. Selecting this option
                     will export linked simple products that are part of a configurable product. This option is
@@ -38,7 +38,7 @@
                showInStore="1">
             <label>Use Parent URL for Simples</label>
             <source_model>Datatrics\Connect\Model\Source\Configurable\Link</source_model>
-            <config_path>datatrics_connect/types/configurable_link</config_path>
+            <config_path>datatrics_connect_product/types/configurable_link</config_path>
             <depends>
                 <field id="configurable" separator=",">simple,both</field>
             </depends>
@@ -52,7 +52,7 @@
             <label>Use Parent Image for Simples</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <!--source_model>Datatrics\Connect\Model\Source\Configurable\Image</source_model-->
-            <config_path>datatrics_connect/types/configurable_image</config_path>
+            <config_path>datatrics_connect_product/types/configurable_image</config_path>
             <depends>
                 <field id="configurable" separator=",">simple,both</field>
             </depends>
@@ -68,7 +68,7 @@
             <depends>
                 <field id="configurable" separator=",">simple,both</field>
             </depends>
-            <config_path>datatrics_connect/types/configurable_parent_atts</config_path>
+            <config_path>datatrics_connect_product/types/configurable_parent_atts</config_path>
             <comment>
                 <![CDATA[Select the attributes that you want to use from the parent configurable product. It
                     is not recommended to select the attributes that need to be unique for the simples,
@@ -83,7 +83,7 @@
                 <![CDATA[<strong>Recommended:</strong> Yes. This selecting will use the logic for the attribute
                     fallback and relations on simples with the visibility "Not Visible Individually". Simples that are
                     visible in the catalog are treated as "normal" simple products without relations.]]></comment>
-            <config_path>datatrics_connect/types/configurable_nonvisible</config_path>
+            <config_path>datatrics_connect_product/types/configurable_nonvisible</config_path>
             <depends>
                 <field id="configurable" separator=",">simple,both</field>
             </depends>
@@ -101,7 +101,7 @@
                showInStore="1">
             <label>Use Bundle Products</label>
             <source_model>Datatrics\Connect\Model\Source\Bundle\Option</source_model>
-            <config_path>datatrics_connect/types/bundle</config_path>
+            <config_path>datatrics_connect_product/types/bundle</config_path>
             <comment>
                 <![CDATA[<strong>Recommended:</strong> Only Bundle Product. Selecting this option will export the
                     bundle product by itself to Datatrics.]]></comment>
@@ -111,7 +111,7 @@
                showInStore="1">
             <label>Use Parent URL for Simples</label>
             <source_model>Datatrics\Connect\Model\Source\Bundle\Link</source_model>
-            <config_path>datatrics_connect/types/bundle_link</config_path>
+            <config_path>datatrics_connect_product/types/bundle_link</config_path>
             <depends>
                 <field id="bundle" separator=",">simple,both</field>
             </depends>
@@ -125,7 +125,7 @@
             <label>Use Parent Image for Simples</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <!--source_model>Datatrics\Connect\Model\Source\Bundle\Image</source_model-->
-            <config_path>datatrics_connect/types/bundle_image</config_path>
+            <config_path>datatrics_connect_product/types/bundle_image</config_path>
             <depends>
                 <field id="bundle" separator=",">simple,both</field>
             </depends>
@@ -138,7 +138,7 @@
                showInWebsite="1" showInStore="1">
             <label>Use Parent Data for Simples</label>
             <source_model>Datatrics\Connect\Model\Source\Bundle\ParentAttributes</source_model>
-            <config_path>datatrics_connect/types/bundle_parent_atts</config_path>
+            <config_path>datatrics_connect_product/types/bundle_parent_atts</config_path>
             <depends>
                 <field id="bundle" separator=",">simple,both</field>
             </depends>
@@ -151,7 +151,7 @@
                showInWebsite="1" showInStore="1">
             <label>Use Fallback only on Non Visible Simples</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/types/bundle_nonvisible</config_path>
+            <config_path>datatrics_connect_product/types/bundle_nonvisible</config_path>
             <comment>
                 <![CDATA[<strong>Recommended:</strong> Yes. This selecting will use the logic for the attribute
                     fallback and relations on simples with the visibility "Not Visible Individually". Simples that are
@@ -173,7 +173,7 @@
                showInStore="1">
             <label>Use Grouped Products</label>
             <source_model>Datatrics\Connect\Model\Source\Grouped\Option</source_model>
-            <config_path>datatrics_connect/types/grouped</config_path>
+            <config_path>datatrics_connect_product/types/grouped</config_path>
             <comment>
                 <![CDATA[<strong>Recommended:</strong> Only Grouped Product. Selecting this option will export the
                     bundle product by itself to Datatrics.]]></comment>
@@ -183,7 +183,7 @@
                showInStore="1">
             <label>Use Parent URL for Simples</label>
             <source_model>Datatrics\Connect\Model\Source\Grouped\Link</source_model>
-            <config_path>datatrics_connect/types/grouped_link</config_path>
+            <config_path>datatrics_connect_product/types/grouped_link</config_path>
             <depends>
                 <field id="grouped" separator=",">simple,both</field>
             </depends>
@@ -197,7 +197,7 @@
             <label>Use Parent Image for Simples</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <!--source_model>Datatrics\Connect\Model\Source\Grouped\Image</source_model-->
-            <config_path>datatrics_connect/types/grouped_image</config_path>
+            <config_path>datatrics_connect_product/types/grouped_image</config_path>
             <depends>
                 <field id="grouped" separator=",">simple,both</field>
             </depends>
@@ -210,7 +210,7 @@
                showInStore="1">
             <label>Parent Price</label>
             <source_model>Datatrics\Connect\Model\Source\Grouped\Price</source_model>
-            <config_path>datatrics_connect/types/grouped_parent_price</config_path>
+            <config_path>datatrics_connect_product/types/grouped_parent_price</config_path>
             <depends>
                 <field id="grouped" separator=",">parent,both</field>
             </depends>
@@ -220,7 +220,7 @@
                showInWebsite="1" showInStore="1">
             <label>Use Parent Data for Simples</label>
             <source_model>Datatrics\Connect\Model\Source\Grouped\ParentAttributes</source_model>
-            <config_path>datatrics_connect/types/grouped_parent_atts</config_path>
+            <config_path>datatrics_connect_product/types/grouped_parent_atts</config_path>
             <depends>
                 <field id="grouped" separator=",">simple,both</field>
             </depends>
@@ -233,7 +233,7 @@
                showInWebsite="1" showInStore="1">
             <label>Use Fallback only on Non Visible Simples</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/types/grouped_nonvisible</config_path>
+            <config_path>datatrics_connect_product/types/grouped_nonvisible</config_path>
             <comment>
                 <![CDATA[<strong>Recommended:</strong> Yes. This selecting will use the logic for the attribute
                     fallback and relations on simples with the visibility "Not Visible Individually". Simples that are

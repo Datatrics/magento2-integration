@@ -102,6 +102,7 @@ class CategoryUpdate
      */
     public function run(InputInterface $input, OutputInterface $output)
     {
+        $this->storeId = (int)$input->getOption('store-id');
         $this->isDry = (bool)$input->getOption('dry');
         /* prepare collector to run */
         $this->collector->addData('map', ['name'], 'attributeMapper');
@@ -115,7 +116,7 @@ class CategoryUpdate
         $this->collector->addData('entity_type_code', 'catalog_category', 'attributeMapper');
         $this->collector->addData('type', 'category', 'url');
         $data = $this->collector->execute(['url', 'attributeMapper']);
-        $result = $this->prepareData($entityIds, $data);
+        $this->prepareData($entityIds, $data);
         return 0;
     }
 
@@ -128,7 +129,7 @@ class CategoryUpdate
         foreach ($entityIds as $entityId) {
             $items["items"][] = [
                 "itemid" => $entityId,
-                "source" => "Magento 2",
+                "source" => $this->configRepository->getSyncSource($this->storeId),
                 "item" => [
                     "categoryid" => $entityId,
                     "name" => $this->getAttribure($entityId, $data, 'name'),

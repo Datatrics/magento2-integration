@@ -7,9 +7,9 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
-use Magento\Framework\App\ProductMetadata;
-use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\EntityManager\MetadataPool;
 
 /**
  * Service class to collect configurable keys for simple products
@@ -40,14 +40,15 @@ class ConfigurableKey
      * Price constructor.
      *
      * @param ResourceConnection $resource
-     * @param ProductMetadataInterface $productMetadata
+     * @param MetadataPool $metadataPool
+     * @throws \Exception
      */
     public function __construct(
         ResourceConnection $resource,
-        ProductMetadataInterface $productMetadata
+        MetadataPool $metadataPool
     ) {
         $this->resource = $resource;
-        $this->entityId = ($productMetadata->getEdition() !== ProductMetadata::EDITION_NAME) ? 'row_id' : 'entity_id';
+        $this->entityId = $metadataPool->getMetadata(ProductInterface::class)->getLinkField();
     }
 
     /**

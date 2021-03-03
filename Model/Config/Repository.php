@@ -657,11 +657,11 @@ class Repository implements ConfigRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function getProductSyncSource(int $storeId = null): string
+    public function getSyncSource(int $storeId = null): string
     {
         $scope = $scope ?? ScopeInterface::SCOPE_STORE;
         return $this->getStoreValue(
-            self::XML_PATH_PRODUCT_SYNC_SOURCE,
+            self::XML_PATH_SOURCE,
             $storeId,
             $scope
         ) ?? 'Magento 2';

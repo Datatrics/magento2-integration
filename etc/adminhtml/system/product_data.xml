@@ -20,14 +20,14 @@
                showInWebsite="1" showInStore="1">
             <label>SKU</label>
             <source_model>Datatrics\Connect\Model\Source\Attributes</source_model>
-            <config_path>datatrics_connect/product_data/sku</config_path>
+            <config_path>datatrics_connect_product/product_data/sku</config_path>
             <comment>Select the attribute associate with the product name. Suggested field: Product Name</comment>
         </field>
         <field id="name" translate="label comment" type="select" sortOrder="2" showInDefault="1"
                showInWebsite="1" showInStore="1">
             <label>Name</label>
             <source_model>Datatrics\Connect\Model\Source\Attributes</source_model>
-            <config_path>datatrics_connect/product_data/name</config_path>
+            <config_path>datatrics_connect_product/product_data/name</config_path>
             <comment>Select the attribute associate with the product SKU. Suggested field: SKU</comment>
         </field>
         <field id="description" translate="label comment" type="select" sortOrder="3"
@@ -35,7 +35,7 @@
                showInWebsite="1" showInStore="1">
             <label>Description</label>
             <source_model>Datatrics\Connect\Model\Source\Attributes</source_model>
-            <config_path>datatrics_connect/product_data/description</config_path>
+            <config_path>datatrics_connect_product/product_data/description</config_path>
             <comment>Select the attribute associated with the product description. Suggested field: Description
             </comment>
         </field>
@@ -44,7 +44,7 @@
                showInWebsite="1" showInStore="1">
             <label>Short Description</label>
             <source_model>Datatrics\Connect\Model\Source\Attributes</source_model>
-            <config_path>datatrics_connect/product_data/short_description</config_path>
+            <config_path>datatrics_connect_product/product_data/short_description</config_path>
             <comment>Select the attribute associated with the product short description. Suggested field: Short
                 Description
             </comment>
@@ -61,7 +61,7 @@
                showInStore="1">
             <label>Source</label>
             <source_model>Datatrics\Connect\Model\Source\ImageSource</source_model>
-            <config_path>datatrics_connect/product_data/image</config_path>
+            <config_path>datatrics_connect_product/product_data/image</config_path>
         </field>
         <field id="heading_stock" translate="label comment" type="text" sortOrder="8" showInDefault="1"
                showInWebsite="1" showInStore="1">
@@ -74,13 +74,13 @@
                showInStore="1">
             <label>Include</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>datatrics_connect/advanced_options/inventory</config_path>
+            <config_path>datatrics_connect_product/advanced_options/inventory</config_path>
         </field>
         <field id="inventory_fields" translate="label" type="multiselect" sortOrder="10" showInDefault="1"
                showInWebsite="1" showInStore="1">
             <label>Fields</label>
             <source_model>Datatrics\Connect\Model\Source\Inventory</source_model>
-            <config_path>datatrics_connect/advanced_options/inventory_fields</config_path>
+            <config_path>datatrics_connect_product/advanced_options/inventory_fields</config_path>
             <depends>
                 <field id="inventory">1</field>
             </depends>
@@ -98,7 +98,7 @@
             <label>Extra Fields</label>
             <frontend_model>Datatrics\Connect\Block\Adminhtml\System\Config\Form\Field\ExtraFields</frontend_model>
             <backend_model>Datatrics\Connect\Model\Config\Backend\Serialized\ExtraFields</backend_model>
-            <config_path>datatrics_connect/advanced_options/extra_fields</config_path>
+            <config_path>datatrics_connect_product/advanced_options/extra_fields</config_path>
         </field>
     </group>
 </include>

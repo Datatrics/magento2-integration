@@ -125,11 +125,12 @@ class ProfileUpdate
      */
     private function prepareData($profile)
     {
+        $storeId = (int)$profile->getStoreId();
         return [
-            "projectid" => $this->configRepository->getProjectId(),
+            "projectid" => $this->configRepository->getProjectId($storeId),
             "profileid" => $profile->getProfileId(),
             "objecttype" => "profile",
-            "source" => 'Magento2',
+            "source" => $this->configRepository->getSyncSource($storeId),
             "profile" => $profile->getData()
         ];
     }

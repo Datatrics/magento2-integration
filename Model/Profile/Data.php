@@ -46,7 +46,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, ProfileData
      */
     public function getCustomerId(): int
     {
-        return $this->getData(self::CUSTOMER_ID);
+        return (int)$this->getData(self::CUSTOMER_ID);
     }
 
     /**
@@ -62,7 +62,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, ProfileData
      */
     public function getAddressId(): int
     {
-        return $this->getData(self::ADDRESS_ID);
+        return (int)$this->getData(self::ADDRESS_ID);
     }
 
     /**
@@ -78,7 +78,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, ProfileData
      */
     public function getStoreId(): int
     {
-        return $this->getData(self::STORE_ID);
+        return (int)$this->getData(self::STORE_ID);
     }
 
     /**

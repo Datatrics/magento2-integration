@@ -5,16 +5,20 @@
   -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
-        <job instance="Datatrics\Connect\Model\Cron\SalesUpdate" method="execute" name="sales_update">
-            <config_path>datatrics_connect/order_sync/cron</config_path>
+        <job instance="Datatrics\Connect\Model\Cron\SalesUpdate"
+             method="execute" name="datatrics_sales_update">
+            <config_path>datatrics_connect_order/order_sync/cron</config_path>
         </job>
-        <job instance="Datatrics\Connect\Model\Cron\ProfileUpdate" method="execute" name="profile_update">
-            <config_path>datatrics_connect/customer_sync/cron</config_path>
+        <job instance="Datatrics\Connect\Model\Cron\ProfileUpdate"
+             method="execute" name="datatrics_profile_update">
+            <config_path>datatrics_connect_customer/customer_sync/cron</config_path>
         </job>
-        <job instance="Datatrics\Connect\Model\Cron\ContentUpdate" method="execute" name="profile_update">
-            <config_path>datatrics_connect/product_sync/cron</config_path>
+        <job instance="Datatrics\Connect\Model\Cron\ContentUpdate"
+             method="execute" name="datatrics_content_update">
+            <config_path>datatrics_connect_product/product_sync/cron</config_path>
         </job>
-        <job instance="Datatrics\Connect\Model\Cron\ContentMaintenance" method="execute" name="content_maintenance">
+        <job instance="Datatrics\Connect\Model\Cron\ContentMaintenance"
+             method="execute" name="datatrics_content_maintenance">
             <schedule>0 2 * * *</schedule>
         </job>
     </group>

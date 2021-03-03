@@ -29,6 +29,7 @@
             <include path="Datatrics_Connect::system/product_data.xml"/>
             <include path="Datatrics_Connect::system/product_filter.xml"/>
             <include path="Datatrics_Connect::system/product_types.xml"/>
+            <include path="Datatrics_Connect::system/product_table.xml"/>
         </section>
         <section id="datatrics_connect_customer" translate="label" type="text" sortOrder="30" showInDefault="1"
                  showInWebsite="1" showInStore="1">

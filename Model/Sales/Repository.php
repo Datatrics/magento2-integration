@@ -208,17 +208,21 @@ class Repository implements SalesRepository
      */
     public function prepareSaleData(Order $order)
     {
-        if (!$this->configRepository->getOrderSyncEnabled()) {
+        $storeId = (int)$order->getStoreId();
+        if (!$this->configRepository->getOrderSyncEnabled($storeId)) {
             return 0;
         }
-        if ($this->configRepository->getOrderSyncStateRestriction()) {
-            $states = explode(',', $this->configRepository->getOrderSyncState());
+        if ($this->configRepository->getOrderSyncStateRestriction($storeId)) {
+            $states = explode(',', $this->configRepository->getOrderSyncState($storeId));
             if (!in_array($order->getState(), $states)) {
                 return 0;
             }
         }
-        if ($this->configRepository->getOrderSyncCustomerRestriction()) {
-            $customerGroups = explode(',', $this->configRepository->getOrderSyncCustomerGroup());
+        if ($this->configRepository->getOrderSyncCustomerRestriction($storeId)) {
+            $customerGroups = explode(
+                ',',
+                $this->configRepository->getOrderSyncCustomerGroup($storeId)
+            );
             if (!in_array($order->getCustomerGroupId(), $customerGroups)) {
                 return 0;
             }
@@ -228,11 +232,11 @@ class Repository implements SalesRepository
         }
         $profileId = $this->encryptor->getHash(
             $order->getCustomerEmail(),
-            $this->configRepository->getProjectId()
+            $this->configRepository->getProjectId($storeId)
         );
         $sale = $this->create();
         $sale->setOrderId((int)$order->getId())
-            ->setStoreId((int)$order->getStoreId())
+            ->setStoreId($storeId)
             ->setStatus(self::STATUS['queued'])
             ->setEmail($order->getCustomerEmail())
             ->setTotal((float)$order->getGrandTotal())

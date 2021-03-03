@@ -66,14 +66,15 @@ class SalesUpdate
      */
     public function execute()
     {
-        if (!$this->configRepository->isEnabled()
-            || !$this->configRepository->getOrderSyncEnabled()
-        ) {
+        if (!$this->configRepository->isEnabled()) {
             return $this;
         }
         $collection = $this->salesCollectionFactory->create()
             ->addFieldToFilter('status', ['neq' => 'Synced']);
         foreach ($collection as $order) {
+            if (!$this->configRepository->getOrderSyncEnabled((int)$order->getStoreId())) {
+                continue;
+            }
             $response = $this->apiAdapter->execute(
                 ApiAdapter::CREATE_CONVERSION,
                 null,

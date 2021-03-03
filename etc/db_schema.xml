@@ -225,7 +225,6 @@
                 identity="false"
                 unsigned="true"
                 comment="Address ID"/>
-
         <column name="firstname"
                 xsi:type="varchar"
                 length="50"
@@ -250,6 +249,13 @@
                 xsi:type="varchar"
                 length="50"
                 nullable="true"
+                disabled="true"
+                comment="Email"/>
+        <column name="datatrics_email"
+                xsi:type="varchar"
+                length="50"
+                nullable="true"
+                onCreate="migrateDataFrom(email)"
                 comment="Email"/>
         <column name="company"
                 xsi:type="varchar"
