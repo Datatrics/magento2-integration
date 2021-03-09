@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Logger;
 
-use Monolog\Logger;
 use Magento\Framework\Serialize\Serializer\Json;
+use Monolog\Logger;
 
 /**
  * ErrorLogger logger class

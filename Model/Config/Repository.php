@@ -180,9 +180,9 @@ class Repository implements ConfigRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function isDebugMode(int $storeId = null): bool
+    public function isDebugMode(): bool
     {
-        return $this->isSetFlag(self::XML_PATH_DEBUG, $storeId);
+        return $this->isSetFlag(self::XML_PATH_DEBUG);
     }
 
     /**

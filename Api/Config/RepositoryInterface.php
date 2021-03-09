@@ -94,9 +94,7 @@ interface RepositoryInterface
     /**
      * Check if debug mode is enabled
      *
-     * @param int|null $storeId
-     *
      * @return bool
      */
-    public function isDebugMode(int $storeId = null): bool;
+    public function isDebugMode(): bool;
 }

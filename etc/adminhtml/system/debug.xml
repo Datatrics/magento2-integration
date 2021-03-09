@@ -16,8 +16,8 @@
             <comment><![CDATA[Enable this function to write debug records and log events, API calls, and other debugging-related information into a debug.log file.<br>Errors are always logged and written into the error.log file.]]></comment>
             <frontend_model>Datatrics\Connect\Block\Adminhtml\Datatrics\Heading</frontend_model>
         </field>
-        <field id="debug" translate="label" type="select" sortOrder="11" showInDefault="1" showInWebsite="1"
-               showInStore="1">
+        <field id="debug" translate="label" type="select" sortOrder="11" showInDefault="1" showInWebsite="0"
+               showInStore="0">
             <label>Debug Mode</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>datatrics_connect_general/general/debug</config_path>
