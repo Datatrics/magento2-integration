@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace Datatrics\Connect\Model\Cron;
 
 use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Api\Config\System\ProfileInterface as ProfileConfigRepository;
 use Datatrics\Connect\Model\Profile\CollectionFactory as ProfileCollectionFactory;
 use Magento\Framework\Serialize\Serializer\Json;
 
@@ -31,9 +31,9 @@ class ProfileUpdate
     private $apiAdapter;
 
     /**
-     * @var ConfigRepository
+     * @var ProfileConfigRepository
      */
-    private $configRepository;
+    private $profileConfigRepository;
 
     /**
      * @var Json
@@ -44,18 +44,18 @@ class ProfileUpdate
      * ProfileUpdate constructor.
      * @param ProfileCollectionFactory $profileCollectionFactory
      * @param ApiAdapter $apiAdapter
-     * @param ConfigRepository $configRepository
+     * @param ProfileConfigRepository $profileConfigRepository
      * @param Json $json
      */
     public function __construct(
         ProfileCollectionFactory $profileCollectionFactory,
         ApiAdapter $apiAdapter,
-        ConfigRepository $configRepository,
+        ProfileConfigRepository $profileConfigRepository,
         Json $json
     ) {
         $this->profileCollectionFactory = $profileCollectionFactory;
         $this->apiAdapter = $apiAdapter;
-        $this->configRepository = $configRepository;
+        $this->profileConfigRepository = $profileConfigRepository;
         $this->json = $json;
     }
 
@@ -66,13 +66,13 @@ class ProfileUpdate
      */
     public function execute()
     {
-        if (!$this->configRepository->isEnabled()) {
+        if (!$this->profileConfigRepository->isEnabled()) {
             return $this;
         }
         $collection = $this->profileCollectionFactory->create()
             ->addFieldToFilter('status', ['neq' => 'Synced']);
         foreach ($collection as $profile) {
-            if (!$this->configRepository->getCustomerSyncEnabled((int)$profile->getStoreId())) {
+            if (!$this->profileConfigRepository->isEnabled((int)$profile->getStoreId())) {
                 continue;
             }
             $response = $this->apiAdapter->execute(
@@ -100,10 +100,10 @@ class ProfileUpdate
     {
         $storeId = (int)$profile->getStoreId();
         return [
-            "projectid" => $this->configRepository->getProjectId($storeId),
+            "projectid" => $this->profileConfigRepository->getProjectId($storeId),
             "profileid" => $profile->getProfileId(),
             "objecttype" => "profile",
-            "source" => $this->configRepository->getSyncSource($storeId),
+            "source" => $this->profileConfigRepository->getSyncSource($storeId),
             "profile" => $profile->getData()
         ];
     }

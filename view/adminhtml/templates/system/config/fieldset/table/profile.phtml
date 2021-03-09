@@ -1,0 +1,47 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * @var $block Datatrics\Connect\Block\Adminhtml\System\Config\Form\Table\Profile
+ */
+
+?>
+<div class="mm-datatrics-table">
+    <span class="title"><?= $block->escapeHtml(__('Linked Stores')); ?></span>
+    <?= $block->escapeHtml(__('Each store view will have their own content and sources.')); ?>
+    <table class="mm-block-datatrics-table">
+        <thead>
+        <tr>
+            <th><?= $block->escapeHtml(__('Storeview')); ?></th>
+            <th><?= $block->escapeHtml(__('Project ID')); ?></th>
+            <th><?= $block->escapeHtml(__('Source')); ?></th>
+            <th><?= $block->escapeHtml(__('Status')); ?></th>
+            <th><?= $block->escapeHtml(__('Totals')); ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($block->getProfileStoreData() as $profileStore): ?>
+            <tr>
+                <td>
+                    <p><?= $block->escapeHtml($profileStore['name']); ?></p>
+                    <p><small><?= $block->escapeHtml($profileStore['code']); ?></small></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml($profileStore['project_id']); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml($profileStore['source']); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml(__($profileStore['status'])); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml(__('Total: %1', $profileStore['totals']['customers'])); ?></p>
+                    <p><?= $block->escapeHtml(__('Queued for update: %1', $profileStore['totals']['queued'])); ?></p>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>

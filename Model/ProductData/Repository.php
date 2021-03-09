@@ -7,11 +7,11 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\ProductData;
 
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Datatrics\Connect\Api\ProductData\RepositoryInterface as ProductData;
+use Datatrics\Connect\Service\ProductData\AttributeCollector\Data\Image;
 use Datatrics\Connect\Service\ProductData\Filter;
 use Datatrics\Connect\Service\ProductData\Type;
-use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 
 /**
  * ProductData repository class
@@ -22,34 +22,14 @@ class Repository implements ProductData
 {
 
     /**
-     * @var ConfigRepository
-     */
-    private $configRepository;
-
-    /**
-     * @var JsonSerializer
-     */
-    private $json;
-
-    /**
-     * @var array
-     */
-    private $entityIds;
-
-    private $type;
-
-    /**
      * Base attributes map to pull from product
      *
      * @var array
      */
     private $attributeMap = [
-        'description' => 'description',
-        'short_description' => 'short_description',
-        'image' => 'image',
-        'type_id'  => 'type_id',
-        'created_at' =>'created_at',
-        'updated_at' =>'updated_at',
+        'type_id' => 'type_id',
+        'created_at' => 'created_at',
+        'updated_at' => 'updated_at',
         'visibility' => 'visibility',
         'url' => 'url'
     ];
@@ -74,6 +54,7 @@ class Repository implements ProductData
         'created' => 'created_at',
         'type' => 'type_id',
         'image',
+        'additional_images',
         'categories' => 'category',
         'stock' => 'qty',
         'min_sale_qty',
@@ -83,70 +64,72 @@ class Repository implements ProductData
     ];
 
     /**
+     * @var ContentConfigRepository
+     */
+    private $contentConfigRepository;
+    /**
+     * @var array
+     */
+    private $entityIds;
+    /**
+     * @var Type
+     */
+    private $type;
+    /**
+     * @var Filter
+     */
+    private $filter;
+    /**
+     * @var Image
+     */
+    private $image;
+    /**
+     * @var array
+     */
+    private $imageData;
+
+    /**
      * Repository constructor.
-     * @param ConfigRepository $configRepository
-     * @param JsonSerializer $json
+     * @param ContentConfigRepository $contentConfigRepository
      * @param Filter $filter
      * @param Type $type
+     * @param Image $image
      */
     public function __construct(
-        ConfigRepository $configRepository,
-        JsonSerializer $json,
+        ContentConfigRepository $contentConfigRepository,
         Filter $filter,
-        Type $type
+        Type $type,
+        Image $image
     ) {
-        $this->configRepository = $configRepository;
-        $this->json = $json;
+        $this->contentConfigRepository = $contentConfigRepository;
+        $this->filter = $filter;
         $this->type = $type;
-        $this->entityIds = $filter->execute(
-            $this->configRepository->getFilters()
-        );
+        $this->image = $image;
     }
 
     /**
      * @inheritDoc
      */
-    public function getProductData($storeId = 0, array $entityIds = []): array
+    public function getProductData(int $storeId = 0, array $entityIds = []): array
     {
-        if ($entityIds) {
-            $this->entityIds = array_intersect($entityIds, $this->entityIds);
-        }
-        $this->collectAttributes();
-        $advancedFilters = $this->configRepository->getFiltersData((int)$storeId);
-        foreach ($advancedFilters as $filter) {
-            $this->attributeMap[] = $filter['attribute'];
-        }
-        $productsBehaviour = [
-            'configurable' => $this->configRepository->getConfigProductsBehaviour(),
-            'bundle' => $this->configRepository->getBundleProductsBehaviour(),
-            'grouped' => $this->configRepository->getGroupedProductsBehaviour()
-        ];
-        $extraParameters = [
-            'advanced' => [
-                'inventory' => $this->configRepository->getInventory(),
-                'inventory_fields' => $this->configRepository->getInventoryFields(),
-                'advanced_filters' => $advancedFilters
-            ]
-        ];
-        $data = $this->type->execute(
-            $this->entityIds,
-            $this->attributeMap,
-            $productsBehaviour,
-            $extraParameters,
-            $storeId
-        );
+        $this->collectIds($storeId, $entityIds);
+        $this->collectAttributes($storeId);
+        $this->imageData = $this->image->execute($entityIds, $storeId);
+        $productDataRows = $this->collectProductData($storeId);
+
         $result = [];
-        foreach ($data as $entityId => $datum) {
+        foreach ($productDataRows as $entityId => $productData) {
+            $this->addImageData($storeId, $entityId, $productData);
             foreach ($this->resultMap as $index => $attr) {
                 if (!is_int($index)) {
-                    if (array_key_exists($attr, $datum)) {
-                        $result[$entityId][$index] = $datum[$attr];
+                    if (array_key_exists($attr, $productData)) {
+                        $result[$entityId][$index] = $productData[$attr];
                     } else {
                         $result[$entityId][$index] = '';
                     }
                 } else {
-                    if (array_key_exists($attr, $datum)) {
-                        $result[$entityId][$attr] = $datum[$attr];
+                    if (array_key_exists($attr, $productData)) {
+                        $result[$entityId][$attr] = $productData[$attr];
                     } else {
                         $result[$entityId][$attr] = '';
                     }
@@ -158,31 +141,103 @@ class Repository implements ProductData
     }
 
     /**
-     *
+     * @param int $storeId
+     * @param array $entityIds
      */
-    private function collectAttributes()
+    private function collectIds(int $storeId, array $entityIds = []): void
     {
-        $this->attributeMap += [
-            'name' => $this->configRepository->getName(),
-            'sku' => $this->configRepository->getSku()
-        ];
-        if ($this->configRepository->getImage() == 'all') {
-            $this->attributeMap += [
-                'image' => 'image',
-                'small_image' => 'small_image',
-                'thumbnail' => 'thumbnail',
-                'swatch_image' => 'swatch_image'
-            ];
-        } else {
-            $this->attributeMap['image'] = $this->configRepository->getImage();
-        }
-        $extraFields = $this->json->unserialize(
-            $this->configRepository->getExtraFields()
+        $this->entityIds = $this->filter->execute(
+            $this->contentConfigRepository->getFilters($storeId)
         );
+        if ($entityIds) {
+            $this->entityIds = array_intersect($entityIds, $this->entityIds);
+        }
+    }
+
+    /**
+     * Attritbute collector
+     *
+     * @param int $storeId
+     */
+    private function collectAttributes(int $storeId = 0): void
+    {
+        $this->attributeMap += $this->contentConfigRepository->getAttributes($storeId);
+
+        $extraFields = $this->contentConfigRepository->getExtraFields($storeId);
         foreach ($extraFields as $field) {
             $this->attributeMap[$field['name']] = $field['attribute'];
             $this->resultMap[$field['name']] = $field['attribute'];
         }
+
+        $advancedFilters = $this->contentConfigRepository->getAdvancedFilters($storeId);
+        foreach ($advancedFilters as $filter) {
+            $this->attributeMap[] = $filter['attribute'];
+        }
+
         $this->attributeMap = array_filter($this->attributeMap);
+    }
+
+    /**
+     * @param int $storeId
+     * @return array
+     */
+    private function collectProductData(int $storeId): array
+    {
+        $productsBehaviour = [
+            'configurable' => $this->contentConfigRepository->getConfigProductsBehaviour($storeId),
+            'bundle' => $this->contentConfigRepository->getBundleProductsBehaviour($storeId),
+            'grouped' => $this->contentConfigRepository->getGroupedProductsBehaviour($storeId)
+        ];
+        $extraParameters = [
+            'advanced' => [
+                'inventory' => $this->contentConfigRepository->getInventory($storeId),
+                'inventory_fields' => $this->contentConfigRepository->getInventoryFields($storeId),
+                'advanced_filters' => $this->contentConfigRepository->getAdvancedFilters($storeId)
+            ]
+        ];
+
+        return $this->type->execute(
+            $this->entityIds,
+            $this->attributeMap,
+            $productsBehaviour,
+            $extraParameters,
+            $storeId
+        );
+    }
+
+    /**
+     * @param int $storeId
+     * @param int $entityId
+     * @param array $item
+     */
+    private function addImageData(int $storeId, int $entityId, array &$item)
+    {
+        $imageData = $this->imageData[$entityId] ?? null;
+        if ($imageData === null) {
+            return;
+        }
+
+        $imageConfig = $this->contentConfigRepository->getImageAttributes($storeId);
+        if (!isset($imageData[$storeId])) {
+            $storeId = 0;
+        }
+
+        ksort($imageData[$storeId]);
+        if (count($imageConfig) == 1) {
+            foreach ($imageData[$storeId] as $image) {
+                if (in_array($imageConfig['image'], $image['types'])) {
+                    $item['image'] = $image['file'];
+                }
+            }
+        } else {
+            $item['image'] = null;
+            foreach ($imageData[$storeId] as $index => $image) {
+                if ($item['image'] === null) {
+                    $item['image'] = $image['file'];
+                } else {
+                    $item['additional_images'][] = $image['file'];
+                }
+            }
+        }
     }
 }

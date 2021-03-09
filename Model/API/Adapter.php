@@ -132,9 +132,7 @@ class Adapter implements AdapterInterface
      */
     private function makeRequest($method, $id = null, $data = null)
     {
-        if ($this->configRepository->isDebugMode()) {
-            $this->logRepository->addDebugLog('Request', [$this->getUrl($method), $data]);
-        }
+        $this->logRepository->addDebugLog('Request', [$this->getUrl($method), $data]);
         switch ($method) {
             case self::GET_PROFILES:
             case self::GET_CONVERSIONS:
@@ -215,9 +213,7 @@ class Adapter implements AdapterInterface
             case 100:
             case 200:
             case 204:
-                if ($this->configRepository->isDebugMode()) {
-                    $this->logRepository->addDebugLog('Response', $result);
-                }
+                $this->logRepository->addDebugLog('Response', $result);
                 return [
                     'success' => true,
                     'message' => '',

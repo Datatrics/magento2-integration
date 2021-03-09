@@ -7,10 +7,11 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
-use Magento\Framework\App\ResourceConnection;
-use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\EntityManager\MetadataPool;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Api\StoreRepositoryInterface;
 
 /**
  * Service class for category path for products
@@ -30,37 +31,30 @@ class Category
      * @var ResourceConnection
      */
     private $resource;
-
     /**
      * @var array[]
      */
     private $entityIds;
-
     /**
      * @var StoreRepositoryInterface
      */
     private $storeRepository;
-
     /**
      * @var string
      */
     private $storeId;
-
     /**
      * @var string
      */
     private $format;
-
     /**
      * @var array
      */
     private $categoryNames = [];
-
     /**
      * @var array
      */
     private $categoryIds = [];
-
     /**
      * @var string
      */
@@ -90,9 +84,12 @@ class Category
      * [product_id] = [path1, path2, ..., pathN]
      *
      * @param array[] $entityIds array of product IDs
+     * @param string $storeId
+     * @param string $format
      * @return array[]
+     * @throws NoSuchEntityException
      */
-    public function execute($entityIds = [], string $storeId = '1', $format = 'raw'): array
+    public function execute(array $entityIds = [], string $storeId = '1', $format = 'raw'): array
     {
         $this->setData('entity_ids', $entityIds);
         $this->setData('store_id', $storeId);
@@ -101,61 +98,6 @@ class Category
         $data = $this->collectCategories();
         $data = $this->mergeNames($data);
         return $this->mergeUrl($data);
-    }
-
-    /**
-     * @param array $data
-     * @return mixed
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    private function mergeUrl($data)
-    {
-        $baseUrl = $this->storeRepository->getById((int)$this->storeId)->getBaseUrl();
-        $select = $this->resource->getConnection()
-            ->select()
-            ->from(
-                ['url_rewrite' => $this->resource->getTableName('url_rewrite')],
-                ['entity_id', 'request_path']
-            )->where('entity_id IN (?)', $this->categoryIds);
-        $url = $this->resource->getConnection()->fetchPairs($select);
-        foreach ($data as &$datum) {
-            foreach ($datum as &$item) {
-                if (array_key_exists($item['categoryid'], $url)) {
-                    $item['url'] = $baseUrl . $url[$item['categoryid']];
-                }
-            }
-        }
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRequiredParameters()
-    {
-        return self::REQIURE;
-    }
-
-    /**
-     * @param string $type
-     */
-    public function resetData($type = 'all')
-    {
-        if ($type == 'all') {
-            unset($this->entityIds);
-            unset($this->storeId);
-        }
-        switch ($type) {
-            case 'entity_ids':
-                unset($this->entityIds);
-                break;
-            case 'store_id':
-                unset($this->storeId);
-                break;
-            case 'format':
-                unset($this->format);
-                break;
-        }
     }
 
     /**
@@ -181,11 +123,32 @@ class Category
     }
 
     /**
+     * Collect categories name according store IDs
+     */
+    private function fetchCategoryNames()
+    {
+        $fields = ['entity_id' => $this->linkField, 'value', 'store_id'];
+        $connection = $this->resource->getConnection();
+        $select = $connection->select()->from(
+            ['eav_attribute' => $connection->getTableName('eav_attribute')],
+            []
+        )->joinLeft(
+            ['catalog_category_entity_varchar' => $connection->getTableName('catalog_category_entity_varchar')],
+            'catalog_category_entity_varchar.attribute_id = eav_attribute.attribute_id',
+            $fields
+        )->where('eav_attribute.attribute_code = ?', 'name')
+            ->where('catalog_category_entity_varchar.store_id IN (?)', [0, $this->storeId]);
+        foreach ($connection->fetchAll($select) as $item) {
+            $this->categoryNames[$item['entity_id']][$item['store_id']] = $item['value'];
+        }
+    }
+
+    /**
      * Get path data assigned to products
      *
      * @return array[]
      */
-    private function collectCategories()
+    private function collectCategories(): array
     {
         $path = [];
         $select = $this->resource->getConnection()
@@ -206,32 +169,11 @@ class Category
     }
 
     /**
-     * Collect categories name according store IDs
-     */
-    private function fetchCategoryNames()
-    {
-        $fields = ['entity_id' => $this->linkField, 'value', 'store_id'];
-        $connection = $this->resource->getConnection();
-        $select = $connection->select()->from(
-            ['eav_attribute' => $connection->getTableName('eav_attribute')],
-            []
-        )->joinLeft(
-            ['catalog_category_entity_varchar' => $connection->getTableName('catalog_category_entity_varchar')],
-            'catalog_category_entity_varchar.attribute_id = eav_attribute.attribute_id',
-            $fields
-        )->where('eav_attribute.attribute_code = ?', 'name')
-        ->where('catalog_category_entity_varchar.store_id IN (?)', [0, $this->storeId]);
-        foreach ($connection->fetchAll($select) as $item) {
-            $this->categoryNames[$item['entity_id']][$item['store_id']] = $item['value'];
-        }
-    }
-
-    /**
      * @param array $data
      * @return array
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
-    private function mergeNames($data)
+    private function mergeNames(array $data): array
     {
         $result = [];
         $rootCategoryId = $this->storeRepository->getById($this->storeId)->getRootCategoryId();
@@ -277,5 +219,62 @@ class Category
             }
         }
         return $result;
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    private function mergeUrl(array $data): array
+    {
+        $baseUrl = $this->storeRepository->getById((int)$this->storeId)->getBaseUrl();
+        $select = $this->resource->getConnection()
+            ->select()
+            ->from(
+                ['url_rewrite' => $this->resource->getTableName('url_rewrite')],
+                ['entity_id', 'request_path']
+            )
+            ->where('entity_id IN (?)', $this->categoryIds)
+            ->where('entity_type = \'category\'');
+        $url = $this->resource->getConnection()->fetchPairs($select);
+        foreach ($data as &$datum) {
+            foreach ($datum as &$item) {
+                if (array_key_exists($item['categoryid'], $url)) {
+                    $item['url'] = $baseUrl . $url[$item['categoryid']];
+                }
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRequiredParameters(): array
+    {
+        return self::REQIURE;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function resetData($type = 'all')
+    {
+        if ($type == 'all') {
+            unset($this->entityIds);
+            unset($this->storeId);
+        }
+        switch ($type) {
+            case 'entity_ids':
+                unset($this->entityIds);
+                break;
+            case 'store_id':
+                unset($this->storeId);
+                break;
+            case 'format':
+                unset($this->format);
+                break;
+        }
     }
 }

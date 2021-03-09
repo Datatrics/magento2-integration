@@ -24,7 +24,7 @@ use Datatrics\Connect\Model\Sales\DataFactory as DataFactory;
 use Datatrics\Connect\Api\Sales\RepositoryInterface as SalesRepository;
 use Datatrics\Connect\Api\Sales\SearchResultsInterfaceFactory as SearchResultsFactory;
 use Magento\Framework\Encryption\Encryptor;
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Api\Config\System\SalesInterface as SalesConfigRepository;
 use Magento\Framework\Serialize\Serializer\Json;
 
 /**
@@ -74,9 +74,9 @@ class Repository implements SalesRepository
     private $encryptor;
 
     /**
-     * @var ConfigRepository
+     * @var SalesConfigRepository
      */
-    private $configRepository;
+    private $salesConfigRepository;
 
     /**
      * @var Json
@@ -92,7 +92,7 @@ class Repository implements SalesRepository
      * @param DataFactory $dataFactory
      * @param LogRepository $logRepository
      * @param Encryptor $encryptor
-     * @param ConfigRepository $configRepository
+     * @param SalesConfigRepository $salesConfigRepository
      * @param Json $json
      * @param CollectionProcessorInterface|null $collectionProcessor
      */
@@ -104,7 +104,7 @@ class Repository implements SalesRepository
         DataFactory $dataFactory,
         LogRepository $logRepository,
         Encryptor $encryptor,
-        ConfigRepository $configRepository,
+        SalesConfigRepository $salesConfigRepository,
         Json $json,
         CollectionProcessorInterface $collectionProcessor = null
     ) {
@@ -115,7 +115,7 @@ class Repository implements SalesRepository
         $this->dataFactory = $dataFactory;
         $this->logRepository = $logRepository;
         $this->encryptor = $encryptor;
-        $this->configRepository = $configRepository;
+        $this->salesConfigRepository = $salesConfigRepository;
         $this->json = $json;
         $this->collectionProcessor = $collectionProcessor ?: ObjectManager::getInstance()
             ->get(CollectionProcessorInterface::class);
@@ -209,21 +209,16 @@ class Repository implements SalesRepository
     public function prepareSaleData(Order $order)
     {
         $storeId = (int)$order->getStoreId();
-        if (!$this->configRepository->getOrderSyncEnabled($storeId)) {
+        if (!$this->salesConfigRepository->isEnabled($storeId)) {
             return 0;
         }
-        if ($this->configRepository->getOrderSyncStateRestriction($storeId)) {
-            $states = explode(',', $this->configRepository->getOrderSyncState($storeId));
-            if (!in_array($order->getState(), $states)) {
+        if ($this->salesConfigRepository->getSyncStateRestriction($storeId)) {
+            if (!in_array($order->getState(), $this->salesConfigRepository->getSyncState($storeId))) {
                 return 0;
             }
         }
-        if ($this->configRepository->getOrderSyncCustomerRestriction($storeId)) {
-            $customerGroups = explode(
-                ',',
-                $this->configRepository->getOrderSyncCustomerGroup($storeId)
-            );
-            if (!in_array($order->getCustomerGroupId(), $customerGroups)) {
+        if ($this->salesConfigRepository->getSyncCustomerRestriction($storeId)) {
+            if (!in_array($order->getCustomerGroupId(), $this->salesConfigRepository->getSyncCustomerGroup($storeId))) {
                 return 0;
             }
         }
@@ -232,7 +227,7 @@ class Repository implements SalesRepository
         }
         $profileId = $this->encryptor->getHash(
             $order->getCustomerEmail(),
-            $this->configRepository->getProjectId($storeId)
+            $this->salesConfigRepository->getProjectId($storeId)
         );
         $sale = $this->create();
         $sale->setOrderId((int)$order->getId())

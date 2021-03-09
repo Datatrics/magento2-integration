@@ -8,6 +8,14 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Datatrics\Connect\Api\Config\RepositoryInterface"
                 type="Datatrics\Connect\Model\Config\Repository"/>
+    <preference for="Datatrics\Connect\Api\Config\System\ContentInterface"
+                type="Datatrics\Connect\Model\Config\System\ContentRepository"/>
+    <preference for="Datatrics\Connect\Api\Config\System\ProfileInterface"
+                type="Datatrics\Connect\Model\Config\System\ProfileRepository"/>
+    <preference for="Datatrics\Connect\Api\Config\System\SalesInterface"
+                type="Datatrics\Connect\Model\Config\System\SalesRepository"/>
+    <preference for="Datatrics\Connect\Api\Config\System\TrackingInterface"
+                type="Datatrics\Connect\Model\Config\System\TrackingRepository"/>
     <preference for="Datatrics\Connect\Api\Log\RepositoryInterface"
                 type="Datatrics\Connect\Model\Log\Repository"/>
     <preference for="Datatrics\Connect\Api\Selftest\RepositoryInterface"

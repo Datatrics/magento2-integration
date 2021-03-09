@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace Datatrics\Connect\Model\Cron;
 
 use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Datatrics\Connect\Api\ProductData\RepositoryInterface as ProductDataRepository;
 use Magento\Framework\Serialize\Serializer\Json;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
@@ -35,9 +35,9 @@ class ContentUpdate
     private $apiAdapter;
 
     /**
-     * @var ConfigRepository
+     * @var ContentConfigRepository
      */
-    private $configRepository;
+    private $contentConfigRepository;
 
     /**
      * @var Json
@@ -68,7 +68,7 @@ class ContentUpdate
      * ContentUpdate constructor.
      * @param ContentResource $contentResource
      * @param ApiAdapter $apiAdapter
-     * @param ConfigRepository $configRepository
+     * @param ContentConfigRepository $contentConfigRepository
      * @param Json $json
      * @param StoreRepositoryInterface $storeManager
      * @param ProductCollection $productCollection
@@ -78,7 +78,7 @@ class ContentUpdate
     public function __construct(
         ContentResource $contentResource,
         ApiAdapter $apiAdapter,
-        ConfigRepository $configRepository,
+        ContentConfigRepository $contentConfigRepository,
         Json $json,
         StoreRepositoryInterface $storeManager,
         ProductCollection $productCollection,
@@ -87,7 +87,7 @@ class ContentUpdate
     ) {
         $this->contentResource = $contentResource;
         $this->apiAdapter = $apiAdapter;
-        $this->configRepository = $configRepository;
+        $this->contentConfigRepository = $contentConfigRepository;
         $this->json = $json;
         $this->storeManager = $storeManager;
         $this->productCollection = $productCollection;
@@ -126,11 +126,11 @@ class ContentUpdate
     {
         $this->deleteProducts();
         foreach ($this->storeManager->getList() as $store) {
-            if (!$this->configRepository->isEnabled((int)$store->getId()) || $store->getId() == 0) {
+            if (!$this->contentConfigRepository->isEnabled((int)$store->getId()) || $store->getId() == 0) {
                 continue;
             }
             if ($store->getIsActive()
-                && $this->configRepository->isProductSyncEnabled((int)$store->getId())
+                && $this->contentConfigRepository->isEnabled((int)$store->getId())
             ) {
                 $this->processStoreData($store->getId());
             }

@@ -101,9 +101,9 @@ class Type
         $parentAttributeToUse = [];
         $extraProductsToLoad = [];
         $parentAttributes = [
-            'configurable' => explode(',', $productsBehaviour['configurable']['use_parent_attributes']),
-            'grouped' => explode(',', $productsBehaviour['grouped']['use_parent_attributes']),
-            'bundle' => explode(',', $productsBehaviour['bundle']['use_parent_attributes'])
+            'configurable' => $productsBehaviour['configurable']['use_parent_attributes'],
+            'grouped' => $productsBehaviour['grouped']['use_parent_attributes'],
+            'bundle' => $productsBehaviour['bundle']['use_parent_attributes']
         ];
         if ($productsBehaviour['configurable']['use_parent_url']) {
             $parentAttributes['configurable'][] = 'url';

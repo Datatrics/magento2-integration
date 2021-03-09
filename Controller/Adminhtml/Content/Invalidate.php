@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Controller\Adminhtml\Content;
 
+use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\ResponseInterface;
@@ -22,22 +23,44 @@ class Invalidate extends Action
 {
 
     /**
+     * Error Message: not enabled
+     */
+    const ERROR_MSG_ENABLED = 'Content sync not enabled for this store, please enable this first.';
+
+    /**
+     * Error Message: no items available
+     */
+    const ERROR_MSG_NO_ITEMS = 'No product(s) available to invalidate.';
+
+    /**
+     * Success Message: update
+     */
+    const SUCCESS_MSG = '%1 product(s) were invalidated and queued for update.';
+
+    /**
      * @var ContentResource
      */
     private $contentResource;
+    /**
+     * @var ContentConfigRepository
+     */
+    private $contentConfigRepository;
 
     /**
      * Check constructor.
      *
      * @param Action\Context $context
      * @param ContentResource $contentResource
+     * @param ContentConfigRepository $contentConfigRepository
      */
     public function __construct(
         Action\Context $context,
-        ContentResource $contentResource
+        ContentResource $contentResource,
+        ContentConfigRepository $contentConfigRepository
     ) {
         $this->messageManager = $context->getMessageManager();
         $this->contentResource = $contentResource;
+        $this->contentConfigRepository = $contentConfigRepository;
         parent::__construct($context);
     }
 
@@ -47,16 +70,34 @@ class Invalidate extends Action
     public function execute()
     {
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+        $storeId = (int)$this->getRequest()->getParam('store_id');
+
+        if (!$this->contentConfigRepository->isEnabled($storeId)) {
+            $msg = self::ERROR_MSG_ENABLED;
+            $this->messageManager->addErrorMessage(__($msg));
+            return $resultRedirect->setPath(
+                $this->_redirect->getRefererUrl()
+            );
+        }
+
         $connection = $this->contentResource->getConnection();
         $where = [
-            'store_id = ?' => $this->getRequest()->getParam('store_id')
+            'store_id = ?' => $storeId
         ];
         $count = $connection->update(
             $connection->getTableName('datatrics_content_store'),
             ['status' => 'Queued for Update'],
             $where
         );
-        $this->messageManager->addSuccessMessage(__('%1 product(s) was invalidated', $count));
+
+        if ($count > 0) {
+            $msg = self::SUCCESS_MSG;
+            $this->messageManager->addSuccessMessage(__($msg, $count));
+        } else {
+            $msg = self::ERROR_MSG_NO_ITEMS;
+            $this->messageManager->addNoticeMessage(__($msg));
+        }
+
         return $resultRedirect->setPath(
             $this->_redirect->getRefererUrl()
         );

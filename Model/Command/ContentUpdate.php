@@ -10,7 +10,7 @@ namespace Datatrics\Connect\Model\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Magento\Framework\Serialize\Serializer\Json;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Datatrics\Connect\Service\Product\Data\AttributeMapper;
@@ -39,9 +39,9 @@ class ContentUpdate
     private $apiAdapter;
 
     /**
-     * @var ConfigRepository
+     * @var ContentConfigRepository
      */
-    private $configRepository;
+    private $contentConfigRepository;
 
     /**
      * @var Json
@@ -132,7 +132,7 @@ class ContentUpdate
      * ContentUpdate constructor.
      * @param ContentResource $contentResource
      * @param ApiAdapter $apiAdapter
-     * @param ConfigRepository $configRepository
+     * @param ContentConfigRepository $contentConfigRepository
      * @param Json $json
      * @param StoreRepositoryInterface $storeManager
      * @param ProductCollection $productCollection
@@ -141,7 +141,7 @@ class ContentUpdate
     public function __construct(
         ContentResource $contentResource,
         ApiAdapter $apiAdapter,
-        ConfigRepository $configRepository,
+        ContentConfigRepository $contentConfigRepository,
         Json $json,
         StoreRepositoryInterface $storeManager,
         ProductCollection $productCollection,
@@ -149,7 +149,7 @@ class ContentUpdate
     ) {
         $this->contentResource = $contentResource;
         $this->apiAdapter = $apiAdapter;
-        $this->configRepository = $configRepository;
+        $this->contentConfigRepository = $contentConfigRepository;
         $this->json = $json;
         $this->storeManager = $storeManager;
         $this->productCollection = $productCollection;
@@ -163,8 +163,8 @@ class ContentUpdate
      */
     public function run(InputInterface $input, OutputInterface $output)
     {
-        $storeId = $input->getOption('store-id');
-        if (!$this->configRepository->isProductSyncEnabled((int)$storeId)) {
+        $storeId = (int)$input->getOption('store-id');
+        if (!$this->contentConfigRepository->isEnabled($storeId)) {
             $output->writeln('Product syncronisation disabled');
             return 0;
         }
@@ -215,10 +215,10 @@ class ContentUpdate
      * Collect products data and push to platform
      *
      * @param array $productIds
-     * @param string|int $storeId
+     * @param int $storeId
      * @return int
      */
-    public function prepareData($productIds, $storeId)
+    public function prepareData(array $productIds, int $storeId)
     {
         $connection = $this->contentResource->getConnection();
         $count = 0;
@@ -229,7 +229,7 @@ class ContentUpdate
         foreach ($data as $id => $product) {
             $preparedData = [
                 "itemid" => $id,
-                "source" => $this->configRepository->getSyncSource((int)$storeId),
+                "source" => $this->contentConfigRepository->getSyncSource((int)$storeId),
                 "item" => $product
             ];
             try {
