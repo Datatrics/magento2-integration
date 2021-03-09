@@ -7,12 +7,14 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Controller\Adminhtml\Content;
 
+use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
+use Datatrics\Connect\Model\Command\ContentAdd;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\ResponseInterface;
-use Datatrics\Connect\Model\Command\ContentAdd;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class Add
@@ -23,14 +25,32 @@ class Add extends Action
 {
 
     /**
+     * Error Message: not enabled
+     */
+    const ERROR_MSG_ENABLED = 'Content sync not enabled for this store, please enable this first.';
+
+    /**
+     * Error Message: no items available
+     */
+    const ERROR_MSG_NO_ITEMS = 'Could not find any products to add to content table.';
+
+    /**
+     * Success Message: update
+     */
+    const SUCCESS_MSG = '%1 product(s) were added to content table.';
+
+    /**
      * @var ContentResource
      */
     private $contentResource;
-
     /**
      * @var ContentAdd
      */
     private $contentAdd;
+    /**
+     * @var ContentConfigRepository
+     */
+    private $contentConfigRepository;
 
     /**
      * Check constructor.
@@ -38,28 +58,47 @@ class Add extends Action
      * @param Action\Context $context
      * @param ContentResource $contentResource
      * @param ContentAdd $contentAdd
+     * @param ContentConfigRepository $contentConfigRepository
      */
     public function __construct(
         Action\Context $context,
         ContentResource $contentResource,
-        ContentAdd $contentAdd
+        ContentAdd $contentAdd,
+        ContentConfigRepository $contentConfigRepository
     ) {
         $this->messageManager = $context->getMessageManager();
         $this->contentResource = $contentResource;
         $this->contentAdd = $contentAdd;
+        $this->contentConfigRepository = $contentConfigRepository;
         parent::__construct($context);
     }
 
     /**
      * @return ResponseInterface|ResultInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function execute()
     {
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-        $storeId = $this->getRequest()->getParam('store_id');
+        $storeId = (int)$this->getRequest()->getParam('store_id');
+
+        if (!$this->contentConfigRepository->isEnabled($storeId)) {
+            $msg = self::ERROR_MSG_ENABLED;
+            $this->messageManager->addErrorMessage(__($msg));
+            return $resultRedirect->setPath(
+                $this->_redirect->getRefererUrl()
+            );
+        }
+
         $count = $this->contentAdd->addProducts($storeId);
-        $this->messageManager->addSuccessMessage(__('%1 product(s) was added', $count));
+        if ($count > 0) {
+            $msg = self::SUCCESS_MSG;
+            $this->messageManager->addSuccessMessage(__($msg, $count));
+        } else {
+            $msg = self::ERROR_MSG_NO_ITEMS;
+            $this->messageManager->addNoticeMessage(__($msg));
+        }
+
         return $resultRedirect->setPath(
             $this->_redirect->getRefererUrl()
         );

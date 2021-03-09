@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Block\Adminhtml\System\Config\Form\Table;
 
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Datatrics\Connect\Api\Log\RepositoryInterface as LogRepository;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Backend\Block\Template\Context;
@@ -30,9 +30,9 @@ class Content extends Template implements RendererInterface
     protected $_template = 'Datatrics_Connect::system/config/fieldset/table/content.phtml';
 
     /**
-     * @var ConfigRepository
+     * @var ContentConfigRepository
      */
-    private $configRepository;
+    private $contentConfigRepository;
     /**
      * @var StoreManagerInterface
      */
@@ -50,19 +50,19 @@ class Content extends Template implements RendererInterface
      * Content constructor.
      * @param Context $context
      * @param StoreManagerInterface $storeManager
-     * @param ConfigRepository $configRepository
+     * @param ContentConfigRepository $contentConfigRepository
      * @param LogRepository $logRepository
      * @param ContentResource $contentResource
      */
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
-        ConfigRepository $configRepository,
+        ContentConfigRepository $contentConfigRepository,
         LogRepository $logRepository,
         ContentResource $contentResource
     ) {
         $this->storeManager = $storeManager;
-        $this->configRepository = $configRepository;
+        $this->contentConfigRepository = $contentConfigRepository;
         $this->logRepository = $logRepository;
         $this->contentResource = $contentResource;
         parent::__construct($context);
@@ -101,9 +101,9 @@ class Content extends Template implements RendererInterface
                     'code' => $store->getCode(),
                     'name' => $store->getName(),
                     'is_active' => $store->getIsActive() ? 'Enabled' : 'Disabled',
-                    'status' => $this->configRepository->isProductSyncEnabled($storeId) ? 'Enabled' : 'Disabled',
-                    'project_id' => $this->configRepository->getProjectId($storeId),
-                    'source' => $this->configRepository->getSyncSource($storeId),
+                    'status' => $this->contentConfigRepository->isEnabled($storeId) ? 'Enabled' : 'Disabled',
+                    'project_id' => $this->contentConfigRepository->getProjectId($storeId),
+                    'source' => $this->contentConfigRepository->getSyncSource($storeId),
                     'totals' => $this->getContentData($storeId),
                     'content_add_url' => $this->getUrl('datatrics/content/add', ['store_id' => $storeId]),
                     'content_invalidate_url' => $this->getUrl(

@@ -74,10 +74,12 @@ class Data
 
     /**
      * @param array $entityIds
+     * @param array $attributeMap
+     * @param array $extraParameters
      * @param int $storeId
      * @return array
      */
-    public function execute(array $entityIds, $attributeMap, $extraParameters, $storeId)
+    public function execute(array $entityIds, array $attributeMap, array $extraParameters, int $storeId): array
     {
         $result = $this->attributeMapper->execute(
             $entityIds,
@@ -116,7 +118,11 @@ class Data
             $result = $this->stock->execute(
                 $entityIds
             );
-            $inventoryFields = explode(',', $extraParameters['advanced']['inventory_fields']);
+            if (!is_array($extraParameters['advanced']['inventory_fields'])) {
+                $inventoryFields = explode(',', $extraParameters['advanced']['inventory_fields']);
+            } else {
+                $inventoryFields = $extraParameters['advanced']['inventory_fields'];
+            }
 
             //adding default inventory data
             $inventoryFields = array_merge(

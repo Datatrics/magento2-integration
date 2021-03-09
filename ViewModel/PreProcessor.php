@@ -10,7 +10,7 @@ namespace Datatrics\Connect\ViewModel;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Datatrics\Connect\Service\Pixel\TemplatePreparator;
 use Datatrics\Connect\Service\Pixel\TemplateResolver;
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Api\Config\System\TrackingInterface as TrackingConfigRepository;
 
 /**
  * PreProcessor data class
@@ -34,27 +34,27 @@ class PreProcessor implements ArgumentInterface
     private $variableProcessors;
 
     /**
-     * @var ConfigRepository
+     * @var TrackingConfigRepository
      */
-    private $configRepository;
+    private $trackingConfigRepository;
 
     /**
      * PreProcessor constructor.
      * @param TemplatePreparator $templatePreparator
      * @param TemplateResolver $templateResolver
-     * @param ConfigRepository $configRepository
+     * @param TrackingConfigRepository $trackingConfigRepository
      * @param mixed $variableProcessors
      */
     public function __construct(
         TemplatePreparator $templatePreparator,
         TemplateResolver $templateResolver,
-        ConfigRepository $configRepository,
+        TrackingConfigRepository $trackingConfigRepository,
         $variableProcessors
     ) {
         $this->templatePreparator = $templatePreparator;
         $this->templateResolver = $templateResolver;
         $this->variableProcessors = $variableProcessors;
-        $this->configRepository = $configRepository;
+        $this->trackingConfigRepository = $trackingConfigRepository;
     }
 
     /**
@@ -66,7 +66,7 @@ class PreProcessor implements ArgumentInterface
         $template,
         $variableProcessor
     ): string {
-        if (!$this->configRepository->isTrackingEnabled()) {
+        if (!$this->trackingConfigRepository->isEnabled()) {
             return '';
         }
         $html = $this->templateResolver->execute($template)['data'];

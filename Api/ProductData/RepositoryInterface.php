@@ -16,9 +16,9 @@ interface RepositoryInterface
     /**
      * Get formatted product data
      *
-     * @param int|string $storeId
+     * @param int $storeId
      * @param array $entityIds
      * @return array
      */
-    public function getProductData($storeId = 0, array $entityIds = []): array;
+    public function getProductData(int $storeId = 0, array $entityIds = []): array;
 }

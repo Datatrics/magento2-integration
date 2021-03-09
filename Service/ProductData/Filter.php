@@ -57,18 +57,18 @@ class Filter
     {
         $this->storeId = $storeId;
         if ($filter['filter_by_visibility']) {
-            $entityIds = $this->filterVisibility(explode(',', $filter['visibility']));
+            $entityIds = $this->filterVisibility($filter['visibility']);
         } else {
             $entityIds = $this->filterVisibility([1,2,3,4]);
         }
-        if (!$filter['add_disabled_products']) {
+        if (!empty($filter['add_disabled_products'])) {
             $entityIds = $this->filterEnabledStatus($entityIds);
         }
         if ($filter['restrict_by_category']) {
             $entityIds = $this->filterByCategories(
                 $entityIds,
                 $filter['category_restriction_behaviour'],
-                explode(',', $filter['category'])
+                $filter['category']
             );
         }
         return $entityIds;

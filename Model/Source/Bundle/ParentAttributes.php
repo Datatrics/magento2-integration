@@ -7,9 +7,8 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\Source\Bundle;
 
+use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Magento\Framework\Data\OptionSourceInterface;
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
-use Magento\Framework\Serialize\Serializer\Json;
 
 /**
  * Attributes Option Source model
@@ -25,27 +24,19 @@ class ParentAttributes implements OptionSourceInterface
     public $options = null;
 
     /**
-     * @var Json
+     * @var ContentConfigRepository
      */
-    private $json;
-
-    /**
-     * @var ConfigRepository
-     */
-    private $configRepository;
+    private $contentConfigRepository;
 
     /**
      * ParentAttributes constructor.
      *
-     * @param ConfigRepository $configRepository
-     * @param Json $json
+     * @param ContentConfigRepository $contentConfigRepository
      */
     public function __construct(
-        ConfigRepository $configRepository,
-        Json $json
+        ContentConfigRepository $contentConfigRepository
     ) {
-        $this->configRepository = $configRepository;
-        $this->json = $json;
+        $this->contentConfigRepository = $contentConfigRepository;
     }
 
     /**
@@ -59,13 +50,10 @@ class ParentAttributes implements OptionSourceInterface
             ['value' => 'description', 'label' => 'Description'],
             ['value' => 'short_description', 'label' => 'Short Description'],
         ];
-        $extraFields = $this->configRepository->getExtraFields();
+        $extraFields = $this->contentConfigRepository->getExtraFields();
         if (!$extraFields) {
             return $this->options;
         }
-        $extraFields = $this->json->unserialize(
-            $extraFields
-        );
         foreach ($extraFields as $field) {
             $this->options[] = [
                 'value' => $field['attribute'],

@@ -21,14 +21,14 @@
             <label>SKU</label>
             <source_model>Datatrics\Connect\Model\Source\Attributes</source_model>
             <config_path>datatrics_connect_product/product_data/sku</config_path>
-            <comment>Select the attribute associate with the product name. Suggested field: Product Name</comment>
+            <comment>Select the attribute associate with the product SKU. Suggested field: SKU</comment>
         </field>
         <field id="name" translate="label comment" type="select" sortOrder="2" showInDefault="1"
                showInWebsite="1" showInStore="1">
             <label>Name</label>
             <source_model>Datatrics\Connect\Model\Source\Attributes</source_model>
             <config_path>datatrics_connect_product/product_data/name</config_path>
-            <comment>Select the attribute associate with the product SKU. Suggested field: SKU</comment>
+            <comment>Select the attribute associate with the product name. Suggested field: Product Name</comment>
         </field>
         <field id="description" translate="label comment" type="select" sortOrder="3"
                showInDefault="1"

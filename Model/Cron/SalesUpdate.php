@@ -9,7 +9,8 @@ namespace Datatrics\Connect\Model\Cron;
 
 use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
 use Datatrics\Connect\Model\Sales\CollectionFactory as SaleCollectionFactory;
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Api\Config\System\SalesInterface as SalesConfigRepository;
+use Datatrics\Connect\Model\Sales\Data;
 use Magento\Framework\Serialize\Serializer\Json;
 
 /**
@@ -31,9 +32,9 @@ class SalesUpdate
     private $apiAdapter;
 
     /**
-     * @var ConfigRepository
+     * @var SalesConfigRepository
      */
-    private $configRepository;
+    private $salesConfigRepository;
 
     /**
      * @var Json
@@ -44,18 +45,18 @@ class SalesUpdate
      * SaleUpdate constructor.
      * @param SaleCollectionFactory $salesCollectionFactory
      * @param ApiAdapter $apiAdapter
-     * @param ConfigRepository $configRepository
+     * @param SalesConfigRepository $salesConfigRepository
      * @param Json $json
      */
     public function __construct(
         SaleCollectionFactory $salesCollectionFactory,
         ApiAdapter $apiAdapter,
-        ConfigRepository $configRepository,
+        SalesConfigRepository $salesConfigRepository,
         Json $json
     ) {
         $this->salesCollectionFactory = $salesCollectionFactory;
         $this->apiAdapter = $apiAdapter;
-        $this->configRepository = $configRepository;
+        $this->salesConfigRepository = $salesConfigRepository;
         $this->json = $json;
     }
 
@@ -66,13 +67,13 @@ class SalesUpdate
      */
     public function execute()
     {
-        if (!$this->configRepository->isEnabled()) {
+        if (!$this->salesConfigRepository->isEnabled()) {
             return $this;
         }
         $collection = $this->salesCollectionFactory->create()
             ->addFieldToFilter('status', ['neq' => 'Synced']);
         foreach ($collection as $order) {
-            if (!$this->configRepository->getOrderSyncEnabled((int)$order->getStoreId())) {
+            if (!$this->salesConfigRepository->isEnabled((int)$order->getStoreId())) {
                 continue;
             }
             $response = $this->apiAdapter->execute(
@@ -93,7 +94,7 @@ class SalesUpdate
     /**
      * Prepare data to push
      *
-     * @param \Datatrics\Connect\Model\Sales\Data $sale
+     * @param Data $sale
      * @return array
      */
     private function prepareData($sale)
@@ -102,8 +103,8 @@ class SalesUpdate
         $conversionData['items'] = $this->json->unserialize($conversionData['items']);
         return [
             "conversionid" => $sale->getOrderId(),
-            "projectid" => $this->configRepository->getProjectId(),
-            "source" => 'Magento2',
+            "projectid" => $this->salesConfigRepository->getProjectId((int)$sale->getStoreId()),
+            "source" => $this->salesConfigRepository->getSyncSource((int)$sale->getStoreId()),
             "conversion" => $conversionData
         ];
     }

@@ -11,7 +11,6 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
-use Magmodules\Channable\Setup\Tables\ChannableReturns;
 
 /**
  * Class UpgradeData
