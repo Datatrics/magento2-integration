@@ -37,6 +37,7 @@
             <tab>datatrics</tab>
             <resource>Datatrics_Connect::config_customer</resource>
             <include path="Datatrics_Connect::system/customer_sync.xml"/>
+            <include path="Datatrics_Connect::system/customer_table.xml"/>
         </section>
         <section id="datatrics_connect_order" translate="label" type="text" sortOrder="40" showInDefault="1"
                  showInWebsite="1" showInStore="1">
@@ -44,6 +45,7 @@
             <tab>datatrics</tab>
             <resource>Datatrics_Connect::config_order</resource>
             <include path="Datatrics_Connect::system/order_sync.xml"/>
+            <include path="Datatrics_Connect::system/order_table.xml"/>
         </section>
         <section id="datatrics_connect_tracking" translate="label" type="text" sortOrder="50" showInDefault="1"
                  showInWebsite="1" showInStore="1">

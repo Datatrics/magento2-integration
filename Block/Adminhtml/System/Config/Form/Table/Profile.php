@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Block\Adminhtml\System\Config\Form\Table;
 
-use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
+use Datatrics\Connect\Api\Config\System\ProfileInterface as ProfileConfigRepository;
 use Datatrics\Connect\Api\Log\RepositoryInterface as LogRepository;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Backend\Block\Template\Context;
@@ -17,9 +17,9 @@ use Magento\Framework\View\Element\Template;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
- * Content Table Block for system config
+ * Profile Table Block for system config
  */
-class Content extends Template implements RendererInterface
+class Profile extends Template implements RendererInterface
 {
 
     /**
@@ -27,12 +27,12 @@ class Content extends Template implements RendererInterface
      *
      * @var string
      */
-    protected $_template = 'Datatrics_Connect::system/config/fieldset/table/content.phtml';
+    protected $_template = 'Datatrics_Connect::system/config/fieldset/table/profile.phtml';
 
     /**
-     * @var ContentConfigRepository
+     * @var ProfileConfigRepository
      */
-    private $contentConfigRepository;
+    private $profileConfigRepository;
     /**
      * @var StoreManagerInterface
      */
@@ -50,19 +50,19 @@ class Content extends Template implements RendererInterface
      * Content constructor.
      * @param Context $context
      * @param StoreManagerInterface $storeManager
-     * @param ContentConfigRepository $contentConfigRepository
+     * @param ProfileConfigRepository $profileConfigRepository
      * @param LogRepository $logRepository
      * @param ContentResource $contentResource
      */
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
-        ContentConfigRepository $contentConfigRepository,
+        ProfileConfigRepository $profileConfigRepository,
         LogRepository $logRepository,
         ContentResource $contentResource
     ) {
         $this->storeManager = $storeManager;
-        $this->contentConfigRepository = $contentConfigRepository;
+        $this->profileConfigRepository = $profileConfigRepository;
         $this->logRepository = $logRepository;
         $this->contentResource = $contentResource;
         parent::__construct($context);
@@ -86,11 +86,11 @@ class Content extends Template implements RendererInterface
     }
 
     /**
-     * Returns content configuration data array for all stores
+     * Returns profile configuration data array for all stores
      *
      * @return array
      */
-    public function getContentStoreData(): array
+    public function getProfileStoreData(): array
     {
         $storeData = [];
         foreach ($this->storeManager->getStores() as $store) {
@@ -101,19 +101,10 @@ class Content extends Template implements RendererInterface
                     'code' => $store->getCode(),
                     'name' => $store->getName(),
                     'is_active' => $store->getIsActive() ? 'Enabled' : 'Disabled',
-                    'status' => $this->contentConfigRepository->isEnabled($storeId) ? 'Enabled' : 'Disabled',
-                    'project_id' => $this->contentConfigRepository->getProjectId($storeId),
-                    'source' => $this->contentConfigRepository->getSyncSource($storeId),
-                    'totals' => $this->getContentData($storeId),
-                    'content_add_url' => $this->getUrl('datatrics/content/add', ['store_id' => $storeId]),
-                    'content_invalidate_url' => $this->getUrl(
-                        'datatrics/content/invalidate',
-                        ['store_id' => $storeId]
-                    ),
-                    'content_update_url' => $this->getUrl(
-                        'datatrics/content/update',
-                        ['store_id' => $storeId]
-                    )
+                    'status' => $this->profileConfigRepository->isEnabled($storeId) ? 'Enabled' : 'Disabled',
+                    'project_id' => $this->profileConfigRepository->getProjectId($storeId),
+                    'source' => $this->profileConfigRepository->getSyncSource($storeId),
+                    'totals' => $this->getProfileData($storeId),
                 ];
             } catch (\Exception $e) {
                 $this->logRepository->addErrorLog('LocalizedException', $e->getMessage());
@@ -128,17 +119,17 @@ class Content extends Template implements RendererInterface
      * @param int $storeId
      * @return array
      */
-    private function getContentData(int $storeId): array
+    private function getProfileData(int $storeId): array
     {
         $totals = [];
         $connection = $this->contentResource->getConnection();
         $selectContent = $connection->select()->from(
-            $connection->getTableName('datatrics_content_store'),
-            'product_id'
+            $connection->getTableName('datatrics_profile'),
+            'entity_id'
         )->where('store_id = ?', $storeId);
-        $totals['items'] = count($connection->fetchAll($selectContent));
+        $totals['customers'] = count($connection->fetchAll($selectContent));
         $selectContent->where('status = ?', 'Queued for Update');
-        $totals['invalidated'] = count($connection->fetchAll($selectContent));
+        $totals['queued'] = count($connection->fetchAll($selectContent));
         return $totals;
     }
 }
