@@ -55,7 +55,7 @@ class ContentInvalidate
             $stores = [$storeId];
         } else {
             $selectStores = $connection->select()->from(
-                $connection->getTableName('store'),
+                $this->contentResource->getTable('store'),
                 'store_id'
             );
             $stores = [];
@@ -72,7 +72,7 @@ class ContentInvalidate
             $where['product_id IN (?)'] = [$input->getArguments()['product-id']];
         }
         return $connection->update(
-            $connection->getTableName('datatrics_content_store'),
+            $this->contentResource->getTable('datatrics_content_store'),
             ['status' => 'Queued for Update'],
             $where
         );

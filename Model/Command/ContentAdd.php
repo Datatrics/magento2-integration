@@ -65,7 +65,7 @@ class ContentAdd
         $stores = [];
         if (!$storeId) {
             $selectStores = $connection->select()->from(
-                $connection->getTableName('store'),
+                $this->contentResource->getTable('store'),
                 'store_id'
             );
             foreach ($connection->fetchAll($selectStores) as $store) {
@@ -75,23 +75,23 @@ class ContentAdd
             $stores[] = $storeId;
         }
         $selectContent = $connection->select()->from(
-            $connection->getTableName('datatrics_content'),
+            $this->contentResource->getTable('datatrics_content'),
             'content_id'
         );
         if ($storeId) {
             $selectContent->joinLeft(
-                ['datatrics_content_store' => $connection->getTableName('datatrics_content_store')],
+                ['datatrics_content_store' => $this->contentResource->getTable('datatrics_content_store')],
                 'content_id = product_id',
                 []
             )->where('datatrics_content_store.store_id = ?', $storeId);
         }
 
         $select = $connection->select()->from(
-            $connection->getTableName('catalog_product_entity'),
+            $this->contentResource->getTable('catalog_product_entity'),
             'entity_id'
         )->joinLeft(
-            ['super_link' => $connection->getTableName('catalog_product_super_link')],
-            'super_link.product_id =' . $connection->getTableName('catalog_product_entity') . '.entity_id',
+            ['super_link' => $this->contentResource->getTable('catalog_product_super_link')],
+            'super_link.product_id =' . $this->contentResource->getTable('catalog_product_entity') . '.entity_id',
             [
                 'parent_id' => 'GROUP_CONCAT(parent_id)'
             ]
@@ -141,7 +141,7 @@ class ContentAdd
         }
         if ($data) {
             $connection->insertArray(
-                $connection->getTableName('datatrics_content_store'),
+                $this->contentResource->getTable('datatrics_content_store'),
                 ['product_id', 'store_id', 'status'],
                 $data
             );

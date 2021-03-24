@@ -28,7 +28,7 @@ class OrderGridCollection
         }
 
         if ($collection->getMainTable() === $collection->getResource()->getTable('sales_order_grid')) {
-            $joinTable = $collection->getTable('datatrics_sales');
+            $joinTable = $collection->getResource()->getTable('datatrics_sales');
             $collection->getSelect()->joinLeft(
                 ['datatrics_sales' => $joinTable],
                 'main_table.entity_id = datatrics_sales.order_id',

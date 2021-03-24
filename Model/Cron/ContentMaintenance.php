@@ -84,14 +84,14 @@ class ContentMaintenance
     {
         $connection = $this->contentResource->getConnection();
         $selectMagentoProducts = $connection->select()->from(
-            $connection->getTableName('catalog_product_entity'),
+            $this->contentResource->getTable('catalog_product_entity'),
             [
                 'entity_id'
             ]
         );
         $magentoProductIds = $connection->fetchCol($selectMagentoProducts, 'entity_id');
         $selectDatatricsProducts = $connection->select()->from(
-            $connection->getTableName('datatrics_content'),
+            $this->contentResource->getTable('datatrics_content'),
             [
                 'content_id'
             ]
@@ -99,7 +99,7 @@ class ContentMaintenance
         $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts, 'content_id');
         $toDelete = array_diff($datatricsProductIds, $magentoProductIds);
         $connection->update(
-            $connection->getTableName('datatrics_content_store'),
+            $this->contentResource->getTable('datatrics_content_store'),
             ['status' => 'Queued for Delete'],
             ['product_id IN (?)' => $toDelete]
         );
@@ -125,14 +125,14 @@ class ContentMaintenance
     {
         $connection = $this->contentResource->getConnection();
         $selectMagentoProducts = $connection->select()->from(
-            $connection->getTableName('catalog_product_entity'),
+            $this->contentResource->getTable('catalog_product_entity'),
             [
                 'entity_id'
             ]
         );
         $magentoProductIds = $connection->fetchCol($selectMagentoProducts, 'entity_id');
         $selectDatatricsProducts = $connection->select()->from(
-            $connection->getTableName('catalog_product_entity'),
+            $this->contentResource->getTable('catalog_product_entity'),
             [
                 'product_id'
             ]
@@ -152,7 +152,7 @@ class ContentMaintenance
     {
         $connection = $this->contentResource->getConnection();
         $selectStores = $connection->select()->from(
-            $connection->getTableName('store'),
+            $this->contentResource->getTable('store'),
             'store_id'
         );
         $stores = [];
@@ -160,11 +160,11 @@ class ContentMaintenance
             $stores[] = $store['store_id'];
         }
         $select = $connection->select()->from(
-            $connection->getTableName('catalog_product_entity'),
+            $this->contentResource->getTable('catalog_product_entity'),
             'entity_id'
         )->joinLeft(
-            ['super_link' => $connection->getTableName('catalog_product_super_link')],
-            'super_link.product_id =' . $connection->getTableName('catalog_product_entity') . '.entity_id',
+            ['super_link' => $this->contentResource->getTable('catalog_product_super_link')],
+            'super_link.product_id =' . $this->contentResource->getTable('catalog_product_entity') . '.entity_id',
             [
                 'parent_id' => 'GROUP_CONCAT(parent_id)'
             ]
@@ -188,7 +188,7 @@ class ContentMaintenance
         }
         if ($data) {
             $connection->insertArray(
-                $connection->getTableName('datatrics_content_store'),
+                $this->contentResource->getTable('datatrics_content_store'),
                 ['product_id', 'store_id', 'status'],
                 $data
             );

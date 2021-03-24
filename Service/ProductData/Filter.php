@@ -78,10 +78,10 @@ class Filter
     {
         $connection = $this->resourceConnection->getConnection();
         $select = $connection->select()->distinct()->from(
-            ['catalog_product_entity_int' => $connection->getTableName('catalog_product_entity_int')],
+            ['catalog_product_entity_int' => $this->resourceConnection->getTableName('catalog_product_entity_int')],
             [$this->entityId]
         )->joinLeft(
-            ['eav_attribute' => $connection->getTableName('eav_attribute')],
+            ['eav_attribute' => $this->resourceConnection->getTableName('eav_attribute')],
             'eav_attribute.attribute_id = catalog_product_entity_int.attribute_id',
             []
         )->where('value IN (?)', $visibility)
@@ -94,10 +94,10 @@ class Filter
     {
         $connection = $this->resourceConnection->getConnection();
         $select = $connection->select()->distinct()->from(
-            ['catalog_product_entity_int' => $connection->getTableName('catalog_product_entity_int')],
+            ['catalog_product_entity_int' => $this->resourceConnection->getTableName('catalog_product_entity_int')],
             [$this->entityId, 'value']
         )->joinLeft(
-            ['eav_attribute' => $connection->getTableName('eav_attribute')],
+            ['eav_attribute' => $this->resourceConnection->getTableName('eav_attribute')],
             'eav_attribute.attribute_id = catalog_product_entity_int.attribute_id',
             []
         )->where('value = ?', 1)
@@ -114,7 +114,7 @@ class Filter
     ) {
         $connection = $this->resourceConnection->getConnection();
         $select = $connection->select()->distinct()->from(
-            ['catalog_category_product' => $connection->getTableName('catalog_category_product')],
+            ['catalog_category_product' => $this->resourceConnection->getTableName('catalog_category_product')],
             'product_id'
         )->where('product_id in (?)', $entityIds);
         if ($behaviour == 'in') {

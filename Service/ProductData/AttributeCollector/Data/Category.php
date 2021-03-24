@@ -130,10 +130,10 @@ class Category
         $fields = ['entity_id' => $this->linkField, 'value', 'store_id'];
         $connection = $this->resource->getConnection();
         $select = $connection->select()->from(
-            ['eav_attribute' => $connection->getTableName('eav_attribute')],
+            ['eav_attribute' => $this->resource->getTableName('eav_attribute')],
             []
         )->joinLeft(
-            ['catalog_category_entity_varchar' => $connection->getTableName('catalog_category_entity_varchar')],
+            ['catalog_category_entity_varchar' => $this->resource->getTableName('catalog_category_entity_varchar')],
             'catalog_category_entity_varchar.attribute_id = eav_attribute.attribute_id',
             $fields
         )->where('eav_attribute.attribute_code = ?', 'name')

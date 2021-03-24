@@ -195,7 +195,7 @@ class UpgradeData implements UpgradeDataInterface
             $connection = $this->resourceConnection->getConnection();
             foreach (self::FIELDS as $oldField => $newField) {
                 $connection->update(
-                    $connection->getTableName('core_config_data'),
+                    $this->resourceConnection->getTableName('core_config_data'),
                     ['path' => $newField],
                     ['path = ?' => $oldField]
                 );

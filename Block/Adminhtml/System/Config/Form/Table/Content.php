@@ -133,7 +133,7 @@ class Content extends Template implements RendererInterface
         $totals = [];
         $connection = $this->contentResource->getConnection();
         $selectContent = $connection->select()->from(
-            $connection->getTableName('datatrics_content_store'),
+            $this->contentResource->getTable('datatrics_content_store'),
             'product_id'
         )->where('store_id = ?', $storeId);
         $totals['items'] = count($connection->fetchAll($selectContent));

@@ -90,7 +90,7 @@ class Update extends Action
 
         $connection = $this->contentResource->getConnection();
         $selectProductIds = $connection->select()->from(
-            $connection->getTableName('datatrics_content_store'),
+            $this->contentResource->getTable('datatrics_content_store'),
             ['product_id']
         )->where('status = ?', 'Queued for Update')
             ->where('store_id = ?', $storeId);

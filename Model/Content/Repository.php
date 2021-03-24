@@ -205,7 +205,7 @@ class Repository implements ContentRepository
     {
         $connection = $this->resource->getConnection();
         $selectContent = $connection->select()->from(
-            $connection->getTableName('datatrics_content_store'),
+            $this->resource->getTable('datatrics_content_store'),
             [
                 'product_id',
                 'store_id',
@@ -225,7 +225,7 @@ class Repository implements ContentRepository
         }
         // invalidating
         $invalidated = $connection->update(
-            $connection->getTableName('datatrics_content_store'),
+            $this->resource->getTable('datatrics_content_store'),
             ['status' => 0],
             ['product_id in (?)' => $toInvalidate]
         );
@@ -250,7 +250,7 @@ class Repository implements ContentRepository
     {
         $connection = $this->resource->getConnection();
         $selectStores = $connection->select()->from(
-            $connection->getTableName('store'),
+            $this->resource->getTable('store'),
             'store_id'
         );
         $stores = [];
@@ -258,11 +258,11 @@ class Repository implements ContentRepository
             $stores[] = $store['store_id'];
         }
         $select = $connection->select()->from(
-            $connection->getTableName('catalog_product_entity'),
+            $this->resource->getTable('catalog_product_entity'),
             'entity_id'
         )->joinLeft(
-            ['super_link' => $connection->getTableName('catalog_product_super_link')],
-            'super_link.product_id =' . $connection->getTableName('catalog_product_entity') . '.entity_id',
+            ['super_link' => $this->resource->getTable('catalog_product_super_link')],
+            'super_link.product_id =' . $this->resource->getTable('catalog_product_entity') . '.entity_id',
             [
                 'parent_id' => 'GROUP_CONCAT(parent_id)'
             ]
@@ -287,7 +287,7 @@ class Repository implements ContentRepository
         }
         if ($data) {
             $connection->insertArray(
-                $connection->getTableName('datatrics_content_store'),
+                $this->resource->getTable('datatrics_content_store'),
                 ['product_id', 'store_id'],
                 $data
             );
