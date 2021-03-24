@@ -147,11 +147,11 @@ class ContentRepository extends ConfigRepository implements ContentInterface
      *
      * @param int $storeId
      *
-     * @return bool
+     * @return string
      */
-    private function configurableProductUrl(int $storeId): bool
+    private function configurableProductUrl(int $storeId): string
     {
-        return $this->isSetFlag(self::XML_PATH_CONFIG_USE_PARENT_URL_FOR_SIMPLES, $storeId);
+        return $this->getStoreValue(self::XML_PATH_CONFIG_USE_PARENT_URL_FOR_SIMPLES, $storeId);
     }
 
     /**
@@ -224,11 +224,11 @@ class ContentRepository extends ConfigRepository implements ContentInterface
      *
      * @param int $storeId
      *
-     * @return bool
+     * @return string
      */
-    private function bundleProductUrl(int $storeId): bool
+    private function bundleProductUrl(int $storeId): string
     {
-        return $this->isSetFlag(self::XML_PATH_BUNDLE_USE_PARENT_URL_FOR_SIMPLES, $storeId);
+        return $this->getStoreValue(self::XML_PATH_BUNDLE_USE_PARENT_URL_FOR_SIMPLES, $storeId);
     }
 
     /**
@@ -301,11 +301,11 @@ class ContentRepository extends ConfigRepository implements ContentInterface
      *
      * @param int $storeId
      *
-     * @return bool
+     * @return string
      */
-    public function groupedProductUrl(int $storeId): bool
+    public function groupedProductUrl(int $storeId): string
     {
-        return $this->isSetFlag(self::XML_PATH_GROUPED_USE_PARENT_URL_FOR_SIMPLES, $storeId);
+        return $this->getStoreValue(self::XML_PATH_GROUPED_USE_PARENT_URL_FOR_SIMPLES, $storeId);
     }
 
     /**

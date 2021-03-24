@@ -7,10 +7,11 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData;
 
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Datatrics\Connect\Service\ProductData\AttributeCollector\Data\AttributeMapper;
 use Datatrics\Connect\Service\ProductData\AttributeCollector\Data\ConfigurableKey;
-use Magento\Framework\App\ResourceConnection;
+use Datatrics\Connect\Service\ProductData\AttributeCollector\Data\Parents;
 
 /**
  * Type class
@@ -22,41 +23,27 @@ class Type
      * @var JsonSerializer
      */
     private $json;
-
     /**
      * @var AttributeMapper
      */
     private $attributeMapper;
-
     /**
      * @var ResourceConnection
      */
     private $resourceConnection;
-
     /**
      * @var ConfigurableKey
      */
     private $configurableKey;
-
     /**
      * @var Data
      */
     private $data;
 
     /**
-     * @var int
+     * @var Parents
      */
-    private $storeId = 0;
-
-    /**
-     * @var array
-     */
-    private $simpleProductData = [];
-
-    /**
-     * @var array
-     */
-    private $configProductData = [];
+    private $parents;
 
     /**
      * Data constructor.
@@ -65,62 +52,72 @@ class Type
      * @param ResourceConnection $resourceConnection
      * @param Data $data
      * @param ConfigurableKey $configurableKey
+     * @param Parents $parents
      */
     public function __construct(
         JsonSerializer $json,
         AttributeMapper $attributeMapper,
         ResourceConnection $resourceConnection,
         Data $data,
-        ConfigurableKey $configurableKey
+        ConfigurableKey $configurableKey,
+        Parents $parents
     ) {
         $this->json = $json;
         $this->attributeMapper = $attributeMapper;
         $this->resourceConnection = $resourceConnection;
         $this->data = $data;
         $this->configurableKey = $configurableKey;
+        $this->parents = $parents;
     }
 
+    /**
+     * @param array $entityIds
+     * @param array $attributeMap
+     * @param array $extraParameters
+     * @param int $storeId
+     * @param int $limit
+     * @param int $page
+     * @return array
+     */
     public function execute(
-        $entityIds,
-        $attributeMap,
-        $productsBehaviour,
-        $extraParameters,
-        $storeId = 0,
-        $limit = 10000,
-        $page = 1
-    ) {
+        array $entityIds,
+        array $attributeMap,
+        array $extraParameters,
+        int $storeId = 0,
+        int $limit = 10000,
+        int $page = 1
+    ): array {
         $entityIds = array_chunk($entityIds, (int)$limit);
         if (isset($entityIds[$page - 1])) {
             $entityIds = $entityIds[$page - 1];
         } else {
             $entityIds = $entityIds[0];
         }
-        $this->storeId = $storeId;
-        $parents = $this->collectParents();
+        $parents = $this->parents->execute();
         $toUnset = [];
         $parentAttributeToUse = [];
         $extraProductsToLoad = [];
         $parentAttributes = [
-            'configurable' => $productsBehaviour['configurable']['use_parent_attributes'],
-            'grouped' => $productsBehaviour['grouped']['use_parent_attributes'],
-            'bundle' => $productsBehaviour['bundle']['use_parent_attributes']
+            'configurable' => $extraParameters['behaviour']['configurable']['use_parent_attributes'],
+            'grouped' => $extraParameters['behaviour']['grouped']['use_parent_attributes'],
+            'bundle' => $extraParameters['behaviour']['bundle']['use_parent_attributes']
         ];
-        if ($productsBehaviour['configurable']['use_parent_url']) {
+        if ($extraParameters['behaviour']['configurable']['use_parent_url']) {
             $parentAttributes['configurable'][] = 'url';
         }
-        if ($productsBehaviour['grouped']['use_parent_url']) {
+        if ($extraParameters['behaviour']['grouped']['use_parent_url']) {
             $parentAttributes['grouped'][] = 'url';
         }
-        if ($productsBehaviour['bundle']['use_parent_url']) {
+        if ($extraParameters['behaviour']['bundle']['use_parent_url']) {
             $parentAttributes['bundle'][] = 'url';
         }
-        if ($productsBehaviour['configurable']['use_parent_images']) {
+        if ($extraParameters['behaviour']['configurable']['use_parent_images']) {
             $parentAttributes['configurable'][] = 'image';
         }
-        if ($productsBehaviour['grouped']['use_parent_images']) {
+        if ($extraParameters['behaviour']['grouped']['use_parent_images']) {
             $parentAttributes['grouped'][] = 'image';
         }
-        if ($productsBehaviour['bundle']['use_parent_images']) {
+        if ($extraParameters['behaviour']['bundle']['use_parent_images']) {
             $parentAttributes['bundle'][] = 'image';
         }
         $parentType = false;
@@ -128,21 +125,22 @@ class Type
             if (!array_key_exists($entityId, $parents)) {
                 continue;
             }
+
             $keys = array_keys($parents[$entityId]);
             $parentId = reset($keys);
             $parentType = reset($parents[$entityId]);
-
-            if (!$productsBehaviour[$parentType]['use_parent_attributes']
-                && !$productsBehaviour[$parentType]['use_parent_url']
-                && !$productsBehaviour[$parentType]['use_parent_images']
+            if ($extraParameters['behaviour'][$parentType]['use'] == 'simple') {
+                $toUnset[] = $parentId;
+            } elseif ($extraParameters['behaviour'][$parentType]['use'] == 'parent') {
+                $toUnset[] = $entityId;
+            }
+            if (!$extraParameters['behaviour'][$parentType]['use_parent_attributes']
+                && !$extraParameters['behaviour'][$parentType]['use_parent_url']
+                && !$extraParameters['behaviour'][$parentType]['use_parent_images']
             ) {
                 continue;
             }
-            if ($productsBehaviour[$parentType]['use'] == 'simple') {
-                $toUnset[] = $parentId;
-            } elseif ($productsBehaviour[$parentType]['use'] == 'parent') {
-                $toUnset[] = $entityId;
-            }
+
             if (!empty($parentAttributes[$parentType])) {
                 foreach ($parentAttributes[$parentType] as $parentAttribute) {
                     $parentAttributeToUse[$entityId][$parentAttribute] = $parentId;
@@ -158,9 +156,9 @@ class Type
             $extraParameters,
             $storeId
         );
-        $keys = $this->configurableKey->execute(array_merge($entityIds, $extraProductsToLoad));
+        $configkeys = $this->configurableKey->execute(array_merge($entityIds, $extraProductsToLoad));
         foreach ($data as $entityId => $productData) {
-            $filtered = $this->checkExtraFilters($extraParameters['advanced']['advanced_filters'], $productData);
+            $filtered = $this->checkExtraFilters($extraParameters['filters']['custom'], $productData);
             if (!$filtered) {
                 $toUnset[] = $entityId;
             }
@@ -174,23 +172,41 @@ class Type
                         continue;
                     }
                     $data[$entityId][$parentAttribute] = $data[$parentId][$parentAttribute];
-                    if ($productsBehaviour[$parentType]['use_parent_url'] == 2 && $parentAttribute == 'url') {
-                        if (!array_key_exists($entityId, $keys)) {
+
+                    if ($extraParameters['behaviour'][$parentType]['use_parent_url'] == 2
+                        && $parentAttribute == 'url'
+                    ) {
+                        if (!array_key_exists($entityId, $configkeys)) {
                             continue;
                         }
-                        if (array_key_exists($this->storeId, $keys[$entityId][$parentId])) {
-                            $data[$entityId]['url'] .= $keys[$entityId][$parentId][$this->storeId];
+                        if (array_key_exists($storeId, $configkeys[$entityId][$parentId])) {
+                            $data[$entityId]['url'] .= $configkeys[$entityId][$parentId][$storeId];
                         } else {
-                            $data[$entityId]['url'] .= $keys[$entityId][$parentId][0];
+                            $data[$entityId]['url'] .= $configkeys[$entityId][$parentId][0];
                         }
                     }
                 }
+            }
+            if (isset($data[$entityId]['parent_id'])) {
+                $data[$entityId]['image_logic'] = $extraParameters['behaviour'][
+                $data[
+                $data[$entityId]['parent_id']
+                ]['type_id']]['use_parent_images'];
+            } else {
+                $data[$entityId]['image_logic'] = 0;
             }
         }
         return array_diff_key($data, array_flip($toUnset));
     }
 
-    private function checkExtraFilters($filters, $productData): bool
+    /**
+     * Validate filters on Product Data set
+     *
+     * @param array $filters
+     * @param array $productData
+     * @return bool
+     */
+    private function checkExtraFilters(array $filters, array $productData): bool
     {
         foreach ($filters as $filter) {
             if (!isset($productData[$filter['attribute']])) {
@@ -225,27 +241,5 @@ class Type
             }
         }
         return true;
-    }
-    /**
-     * Get parent products IDs
-     *
-     * @return array[]
-     */
-    private function collectParents()
-    {
-        $result = [];
-        $select = $this->resourceConnection->getConnection()
-            ->select()
-            ->from(
-                ['catalog_product_relation' => $this->resourceConnection->getTableName('catalog_product_relation')]
-            )->joinLeft(
-                ['catalog_product_entity' => $this->resourceConnection->getTableName('catalog_product_entity')],
-                'catalog_product_entity.entity_id = catalog_product_relation.parent_id',
-                'type_id'
-            );
-        foreach ($this->resourceConnection->getConnection()->fetchAll($select) as $item) {
-            $result[$item['child_id']][$item['parent_id']] = $item['type_id'];
-        }
-        return $result;
     }
 }

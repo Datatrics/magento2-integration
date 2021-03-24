@@ -17,7 +17,7 @@ use Magento\Framework\EntityManager\MetadataPool;
 class ConfigurableKey
 {
 
-    const REQIURE = [
+    const REQUIRE = [
         'entity_ids'
     ];
 
@@ -30,11 +30,10 @@ class ConfigurableKey
      * @var array
      */
     private $entityIds;
-
     /**
      * @var string
      */
-    private $entityId;
+    private $linkField;
 
     /**
      * Price constructor.
@@ -48,7 +47,7 @@ class ConfigurableKey
         MetadataPool $metadataPool
     ) {
         $this->resource = $resource;
-        $this->entityId = $metadataPool->getMetadata(ProductInterface::class)->getLinkField();
+        $this->linkField = $metadataPool->getMetadata(ProductInterface::class)->getLinkField();
     }
 
     /**
@@ -67,25 +66,11 @@ class ConfigurableKey
         return $this->collectKeys();
     }
 
-    public function getRequiredParameters()
-    {
-        return self::REQIURE;
-    }
-
-    public function resetData($type = 'all')
-    {
-        if ($type == 'all') {
-            unset($this->entityIds);
-            unset($this->type);
-        }
-        switch ($type) {
-            case 'entity_ids':
-                unset($this->entityIds);
-                break;
-        }
-    }
-
-    public function setData($type, $data)
+    /**
+     * @param string $type
+     * @param mixed $data
+     */
+    public function setData($type, $data): void
     {
         if (!$data) {
             return;
@@ -105,6 +90,8 @@ class ConfigurableKey
     private function collectKeys(): array
     {
         $result = [];
+        $condition = 'catalog_product_entity_int.attribute_id = catalog_product_super_attribute.attribute_id
+and catalog_product_entity_int.' . $this->linkField . ' = catalog_product_relation.child_id';
         $select = $this->resource->getConnection()
             ->select()->from(
                 ['catalog_product_relation' => $this->resource->getTableName('catalog_product_relation')]
@@ -114,8 +101,7 @@ class ConfigurableKey
                 'attribute_id'
             )->joinLeft(
                 ['catalog_product_entity_int' => $this->resource->getTableName('catalog_product_entity_int')],
-                'catalog_product_entity_int.attribute_id = catalog_product_super_attribute.attribute_id
-and catalog_product_entity_int.' . $this->entityId . ' = catalog_product_relation.child_id',
+                $condition,
                 ['value', 'store_id']
             )->where('child_id IN (?)', $this->entityIds);
         $keysData = $this->resource->getConnection()->fetchAll($select);
@@ -136,5 +122,29 @@ and catalog_product_entity_int.' . $this->entityId . ' = catalog_product_relatio
                 .= $item['attribute_id'] . '=' . $item['value'] . '&';
         }
         return $result;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRequiredParameters(): array
+    {
+        return self::REQUIRE;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function resetData($type = 'all'): void
+    {
+        if ($type == 'all') {
+            unset($this->entityIds);
+            unset($this->type);
+        }
+        switch ($type) {
+            case 'entity_ids':
+                unset($this->entityIds);
+                break;
+        }
     }
 }
