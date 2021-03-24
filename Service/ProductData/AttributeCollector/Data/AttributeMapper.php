@@ -76,7 +76,7 @@ class AttributeMapper
     /**
      * Store ID
      *
-     * @var int
+     * @var int|array
      */
     private $storeId;
 

@@ -56,7 +56,7 @@ class ProfileInvalidate
             $where['customer_id IN (?)'] = [$input->getArguments()['customer-id']];
         }
         return $connection->update(
-            $this->contentResource->getTable('datatrics_profile'),
+            $this->profileResource->getTable('datatrics_profile'),
             ['status' => 'Queued for Update'],
             $where
         );

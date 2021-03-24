@@ -325,7 +325,7 @@ class Category
 
     /**
      * @param array $data
-     * @return mixed
+     * @return array
      * @throws NoSuchEntityException
      */
     private function mergeUrl(array $data): array
