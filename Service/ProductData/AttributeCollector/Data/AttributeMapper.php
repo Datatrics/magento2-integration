@@ -7,16 +7,18 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
+use Exception;
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Catalog\Api\Data\ProductInterface;
 
 /**
  * Service class for attribute data
  */
 class AttributeMapper
 {
+
     /**
      * Values table pattern
      */
@@ -42,9 +44,9 @@ class AttributeMapper
     ];
 
     /**
-     *
+     * Required attributes
      */
-    const REQIURE = [
+    const REQUIRE = [
         'entity_ids',
         'store_id',
         'map',
@@ -56,8 +58,7 @@ class AttributeMapper
      *
      * @var array[]
      */
-    private $map = [
-    ];
+    private $map = [];
 
     /**
      * @var ResourceConnection
@@ -75,7 +76,7 @@ class AttributeMapper
     /**
      * Store ID
      *
-     * @var string|array
+     * @var int|array
      */
     private $storeId;
 
@@ -104,6 +105,10 @@ class AttributeMapper
     private $storeManager;
 
     /**
+     * @var ?string
+     */
+    private $mediaUrl = null;
+    /**
      * @var string
      */
     private $linkField;
@@ -114,7 +119,7 @@ class AttributeMapper
      * @param ResourceConnection $resource
      * @param StoreManagerInterface $storeManager
      * @param MetadataPool $metadataPool
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(
         ResourceConnection $resource,
@@ -132,7 +137,7 @@ class AttributeMapper
      * @param array[] $entityIds ID's of entities which attribute values should be fetched
      * @param array[] $map array of attribute codes
      * @param string $entityTypeCode allowed parameters is entity_type_code from eav_entity_type table
-     * @param string $storeId fetch attributes for specific store
+     * @param int $storeId fetch attributes for specific store
      *
      * @return array[] has form like [%attribute_code%][%entity_id%][%store_id%]
      */
@@ -140,7 +145,7 @@ class AttributeMapper
         array $entityIds = [],
         array $map = [],
         string $entityTypeCode = '',
-        string $storeId = 'all'
+        int $storeId = 0
     ): array {
         $this->attrOptions = $this->collectAttributeOptions();
         $this->setData('map', $map);
@@ -148,7 +153,7 @@ class AttributeMapper
         $this->setData('entity_type_code', $entityTypeCode);
         $this->setData('store_id', $storeId);
         $attributes = $this->getAttributes();
-        $this->getAttributeValue($attributes);
+        $this->collectAttributeValues($attributes);
         $this->collectExtraData();
         return $this->result;
     }
@@ -175,7 +180,7 @@ class AttributeMapper
     /**
      * @param string $type
      */
-    public function resetData($type = 'all')
+    public function resetData($type = 'all'): void
     {
         if ($type == 'all') {
             unset($this->entityIds);
@@ -203,7 +208,7 @@ class AttributeMapper
      * @param string $type
      * @param mixed $data
      */
-    public function setData($type, $data)
+    public function setData($type, $data): void
     {
         if (!$data) {
             return;
@@ -227,9 +232,9 @@ class AttributeMapper
     /**
      * @return array
      */
-    public function getRequiredParameters()
+    public function getRequiredParameters(): array
     {
-        return self::REQIURE;
+        return self::REQUIRE;
     }
 
     /**
@@ -238,15 +243,16 @@ class AttributeMapper
      * @param array[] $attributes 'attribute_id', 'attribute_code', 'backend_type', 'entity_table'
      *
      */
-    private function getAttributeValue(array $attributes)
+    private function collectAttributeValues(array $attributes): void
     {
         $tablesNonStatic = [];
         $attributeIdsNonStatic = [];
-        $attributeStaticCode = ['entity_id'];
+        $attributeStaticCode = ['entity_id', 'type_id'];
         $relations = [];
         $withUrl = [];
+
         foreach ($attributes as $attribute) {
-            if ($attribute['frontend_input']== 'media_image' || $attribute['frontend_input']== 'image') {
+            if ($attribute['frontend_input'] == 'media_image' || $attribute['frontend_input'] == 'image') {
                 $withUrl[] = $attribute['attribute_id'];
             }
             $relations[$attribute['attribute_id']] = $attribute['attribute_code'];
@@ -268,8 +274,8 @@ class AttributeMapper
                     $fields
                 );
             $select->where("{$this->linkField} IN (?)", $this->entityIds);
-            $select->where('attribute_id in (?)', $attributeIdsNonStatic)
-                ->where('store_id in (?)', $this->storeId);
+            $select->where('attribute_id in (?)', $attributeIdsNonStatic);
+            $select->where('store_id in (?)', $this->storeId);
             $result = $this->resource->getConnection()->fetchAll($select);
             foreach ($result as $item) {
                 if (array_key_exists($item['attribute_id'], $this->attrOptions)) {
@@ -288,15 +294,12 @@ class AttributeMapper
                     continue;
                 }
                 if (in_array($item['attribute_id'], $withUrl)) {
-                    $item['value'] = $this->storeManager->getStore()
-                           ->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)
-                        . 'catalog/product' . $item['value'];
+                    $item['value'] = $this->getMediaUrl('catalog/product' . $item['value']);
                 }
                 $this->result[$relations[$item['attribute_id']]][$item['entity_id']] =
                     str_replace(["\r", "\n"], '', (string)$item['value']);
             }
         }
-
         $select = $this->resource->getConnection()
             ->select()
             ->from(
@@ -316,6 +319,23 @@ class AttributeMapper
     }
 
     /**
+     * @param string $path
+     * @return string
+     */
+    private function getMediaUrl($path): string
+    {
+        if ($this->mediaUrl == null) {
+            try {
+                $this->mediaUrl = $this->storeManager->getStore()
+                    ->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+            } catch (\Exception $exception) {
+                $this->mediaUrl = '';
+            }
+        }
+        return $this->mediaUrl . $path;
+    }
+
+    /**
      * Fetch attributes data from eav_attribute table according provided map
      *
      * @return array[] 'attribute_id', 'entity_type_id', 'attribute_code' and 'backend_type'
@@ -325,7 +345,7 @@ class AttributeMapper
         $select = $this->resource->getConnection()
             ->select()
             ->from(
-                $this->resource->getTableName('eav_attribute'),
+                ['eav_attribute' => $this->resource->getTableName('eav_attribute')],
                 self::EAV_ATTRIBUTES_DATA_SET
             )->joinLeft(
                 ['eav_entity_type' => $this->resource->getTableName('eav_entity_type')],
@@ -337,15 +357,18 @@ class AttributeMapper
     }
 
     /**
+     * Attribute options collector
+     *
      * @return array
      */
-    private function collectAttributeOptions()
+    private function collectAttributeOptions(): array
     {
         $attrOptions = [];
+
         $select = $this->resource->getConnection()
             ->select()
             ->from(
-                $this->resource->getTableName('eav_attribute_option'),
+                ['eav_attribute_option' => $this->resource->getTableName('eav_attribute_option')],
                 ['attribute_id']
             )->joinLeft(
                 ['eav_attribute_option_value' => $this->resource->getTableName('eav_attribute_option_value')],
@@ -356,10 +379,12 @@ class AttributeMapper
                     'value'
                 ]
             );
+
         $options = $this->resource->getConnection()->fetchAll($select);
         foreach ($options as $option) {
             $attrOptions[$option['attribute_id']][$option['option_id']][$option['store_id']] = $option['value'];
         }
+
         return $attrOptions;
     }
 }

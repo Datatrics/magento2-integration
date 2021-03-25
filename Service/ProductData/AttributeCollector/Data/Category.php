@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
+use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\EntityManager\MetadataPool;
@@ -18,11 +19,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
  */
 class Category
 {
-
-    /**
-     *
-     */
-    const REQIURE = [
+    const REQUIRE = [
         'entity_ids',
         'store_id'
     ];
@@ -40,7 +37,7 @@ class Category
      */
     private $storeRepository;
     /**
-     * @var string
+     * @var int
      */
     private $storeId;
     /**
@@ -51,14 +48,30 @@ class Category
      * @var array
      */
     private $categoryNames = [];
+
     /**
      * @var array
      */
-    private $categoryIds = [];
+    private $excluded = [];
+
+    /**
+     * @var array
+     */
+    private $exclude = [];
+
     /**
      * @var string
      */
     private $linkField;
+
+    /**
+     * @var string
+     */
+    private $replaceName = '';
+    /**
+     * @var array
+     */
+    private $categoryIds = [];
 
     /**
      * Category constructor.
@@ -66,6 +79,7 @@ class Category
      * @param ResourceConnection $resource
      * @param StoreRepositoryInterface $storeRepository
      * @param MetadataPool $metadataPool
+     * @throws Exception
      */
     public function __construct(
         ResourceConnection $resource,
@@ -81,30 +95,47 @@ class Category
      * Get array of products with path of all assigned categories
      *
      * Structure of response
-     * [product_id] = [path1, path2, ..., pathN]
+     * [product_id] = [path1, path2, ..., pathN]catalog_category_entity_varchar
      *
      * @param array[] $entityIds array of product IDs
-     * @param string $storeId
+     * @param int $storeId
      * @param string $format
+     * @param array $extraParameters
      * @return array[]
      * @throws NoSuchEntityException
      */
-    public function execute(array $entityIds = [], string $storeId = '1', $format = 'raw'): array
-    {
+    public function execute(
+        $entityIds = [],
+        int $storeId = 0,
+        string $format = 'raw',
+        array $extraParameters = []
+    ): array {
+        if (isset($extraParameters['category']['exclude_attribute'])) {
+            $this->setData('exclude', $extraParameters['category']['exclude_attribute']);
+        }
+        if (isset($extraParameters['category']['replace_attribute'])) {
+            $this->setData('replaceName', $extraParameters['category']['replace_attribute']);
+        }
         $this->setData('entity_ids', $entityIds);
         $this->setData('store_id', $storeId);
         $this->setData('format', $format);
-        $this->fetchCategoryNames();
+        $this->collectCategoryNames();
+        if (isset($extraParameters['category']['exclude_attribute'])) {
+            $this->collectExcluded();
+        }
         $data = $this->collectCategories();
         $data = $this->mergeNames($data);
-        return $this->mergeUrl($data);
+        if (isset($extraParameters['category']['add_url'])) {
+            return $this->mergeUrl($data);
+        }
+        return $data;
     }
 
     /**
      * @param string $type
      * @param mixed $data
      */
-    public function setData($type, $data)
+    public function setData($type, $data): void
     {
         if (!$data) {
             return;
@@ -119,27 +150,77 @@ class Category
             case 'format':
                 $this->format = $data;
                 break;
+            case 'exclude':
+                $this->exclude = $data;
+                break;
+            case 'replaceName':
+                $this->replaceName = $data;
+                break;
         }
     }
 
     /**
      * Collect categories name according store IDs
      */
-    private function fetchCategoryNames()
+    private function collectCategoryNames(): void
     {
-        $fields = ['entity_id' => $this->linkField, 'value', 'store_id'];
+        $fields = [
+            'entity_id' => $this->linkField,
+            'value',
+            'store_id'
+        ];
         $connection = $this->resource->getConnection();
         $select = $connection->select()->from(
-            ['eav_attribute' => $connection->getTableName('eav_attribute')],
-            []
+            ['eav_attribute' => $this->resource->getTableName('eav_attribute')],
+            ['attribute_code']
         )->joinLeft(
-            ['catalog_category_entity_varchar' => $connection->getTableName('catalog_category_entity_varchar')],
+            ['catalog_category_entity_varchar' => $this->resource->getTableName('catalog_category_entity_varchar')],
             'catalog_category_entity_varchar.attribute_id = eav_attribute.attribute_id',
             $fields
-        )->where('eav_attribute.attribute_code = ?', 'name')
+        )->where('eav_attribute.attribute_code = ?', 'name');
+        if ($this->replaceName) {
+            $select->orWhere('eav_attribute.attribute_code = ?', $this->replaceName);
+        }
+
+        $select->where('catalog_category_entity_varchar.store_id IN (?)', [0, $this->storeId]);
+        foreach ($connection->fetchAll($select) as $item) {
+            if (!$item['value']) {
+                continue;
+            }
+            if (isset($this->categoryNames[$item['entity_id']][$item['store_id']])
+                && $item['attribute_code'] == 'name'
+                && $this->replaceName
+            ) {
+                continue;
+            }
+            $this->categoryNames[$item['entity_id']][$item['store_id']] = $item['value'];
+        }
+    }
+
+    /**
+     *
+     */
+    private function collectExcluded(): void
+    {
+        $fields = [
+            'entity_id' => $this->linkField,
+            'value',
+            'store_id'
+        ];
+        $connection = $this->resource->getConnection();
+        $select = $connection->select()->from(
+            ['eav_attribute' => $this->resource->getTableName('eav_attribute')],
+            ['attribute_code']
+        )->joinLeft(
+            ['catalog_category_entity_varchar' => $this->resource->getTableName('catalog_category_entity_int')],
+            'catalog_category_entity_varchar.attribute_id = eav_attribute.attribute_id',
+            $fields
+        )->where('eav_attribute.attribute_code = ?', $this->exclude['code'])
             ->where('catalog_category_entity_varchar.store_id IN (?)', [0, $this->storeId]);
         foreach ($connection->fetchAll($select) as $item) {
-            $this->categoryNames[$item['entity_id']][$item['store_id']] = $item['value'];
+            if ($item['value'] == $this->exclude['value']) {
+                $this->excluded[$item['store_id']][] = $item['entity_id'];
+            }
         }
     }
 
@@ -159,8 +240,11 @@ class Category
             )->joinLeft(
                 ['catalog_category_entity' => $this->resource->getTableName('catalog_category_entity')],
                 'catalog_category_entity.entity_id = catalog_category_product.category_id',
-                'path'
+                ['path']
             )->where('product_id IN (?)', $this->entityIds);
+        if ($this->excluded) {
+            $select->where('catalog_category_entity.' . $this->linkField . ' NOT IN (?)', $this->excluded);
+        }
         $result = $this->resource->getConnection()->fetchAll($select);
         foreach ($result as $item) {
             $path[$item['product_id']][] = $item['path'];
@@ -171,12 +255,12 @@ class Category
     /**
      * @param array $data
      * @return array
-     * @throws NoSuchEntityException
      */
     private function mergeNames(array $data): array
     {
         $result = [];
-        $rootCategoryId = $this->storeRepository->getById($this->storeId)->getRootCategoryId();
+        $realId = 0;
+        $rootCategoryId = $this->getRootCategoryId();
         foreach ($data as $entityId => $categoryPathes) {
             $usedPath = [];
             foreach ($categoryPathes as $categoryPath) {
@@ -190,10 +274,14 @@ class Category
                     continue;
                 }
                 $categoryNames = [];
-                foreach ($categoryIds as $categoryId) {
+                foreach ($categoryIds as &$categoryId) {
                     if (!array_key_exists($categoryId, $this->categoryNames)) {
                         continue;
                     }
+                    if (!in_array(end($categoryIds), $this->categoryIds)) {
+                        $this->categoryIds[] = end($categoryIds);
+                    }
+                    $realId = $categoryId;
                     if (!array_key_exists($this->storeId, $this->categoryNames[$categoryId])) {
                         $categoryNames[] = $this->categoryNames[$categoryId][0];
                     } else {
@@ -201,17 +289,19 @@ class Category
                     }
                 }
                 if ($this->format == 'raw') {
-                    $path = implode(' > ', $categoryNames);
-                    if (!in_array($path, $usedPath)) {
-                        if (!in_array(end($categoryIds), $this->categoryIds)) {
-                            $this->categoryIds[] = end($categoryIds);
+                    do {
+                        $path = implode(' > ', $categoryNames);
+                        if (!in_array($path, $usedPath)) {
+                            $result[$entityId][] = [
+                                'level' => $level,
+                                'path' => $path,
+                                'category_id' => $realId
+                            ];
                         }
-                        $result[$entityId][] = [
-                            'name' => $path,
-                            'categoryid' => end($categoryIds)
-                        ];
-                    }
-                    $usedPath[] = $path;
+                        $usedPath[] = $path;
+                        array_pop($categoryIds);
+                        $level--;
+                    } while ($level > 0);
                 } else {
                     $path = implode(' > ', $categoryNames);
                     $result[$entityId][] = $path;
@@ -219,6 +309,18 @@ class Category
             }
         }
         return $result;
+    }
+
+    /**
+     * @return int|null
+     */
+    private function getRootCategoryId()
+    {
+        try {
+            return $this->storeRepository->getById($this->storeId)->getRootCategoryId();
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 
     /**
@@ -234,14 +336,13 @@ class Category
             ->from(
                 ['url_rewrite' => $this->resource->getTableName('url_rewrite')],
                 ['entity_id', 'request_path']
-            )
-            ->where('entity_id IN (?)', $this->categoryIds)
-            ->where('entity_type = \'category\'');
+            )->where('entity_id IN (?)', $this->categoryIds)
+            ->where('entity_type = ?', 'category');
         $url = $this->resource->getConnection()->fetchPairs($select);
         foreach ($data as &$datum) {
             foreach ($datum as &$item) {
-                if (array_key_exists($item['categoryid'], $url)) {
-                    $item['url'] = $baseUrl . $url[$item['categoryid']];
+                if (array_key_exists($item['category_id'], $url)) {
+                    $item['url'] = $baseUrl . $url[$item['category_id']];
                 }
             }
         }
@@ -249,17 +350,19 @@ class Category
     }
 
     /**
-     * @return array
+     * Return Required Parameters
+     *
+     * @return string[]
      */
     public function getRequiredParameters(): array
     {
-        return self::REQIURE;
+        return self::REQUIRE;
     }
 
     /**
      * @param string $type
      */
-    public function resetData($type = 'all')
+    public function resetData(string $type = 'all'): void
     {
         if ($type == 'all') {
             unset($this->entityIds);
@@ -274,6 +377,9 @@ class Category
                 break;
             case 'format':
                 unset($this->format);
+                break;
+            case 'exclude':
+                unset($this->exclude);
                 break;
         }
     }

@@ -53,7 +53,7 @@ class InvalidateProduct implements ObserverInterface
         $product = $observer->getEvent()->getProduct();
         $this->logRepository->addDebugLog('Product', 'ID ' . $product->getId() . ' invalidated');
         $connection->update(
-            $connection->getTableName('datatrics_content_store'),
+            $this->contentResource->getTable('datatrics_content_store'),
             ['status' => 'Queued for Update'],
             ['product_id = ?' => $product->getId()]
         );

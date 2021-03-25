@@ -10,12 +10,13 @@ namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 use Magento\Catalog\Helper\Data as CatalogHelper;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\CatalogPrice;
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use Magento\CatalogRule\Model\ResourceModel\RuleFactory;
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\GroupedProduct\Model\Product\Type\Grouped;
 use Magento\Store\Model\StoreManagerInterface;
-use Psr\Log\LoggerInterface as Logger;
 
 /**
  * Service class for price data
@@ -23,41 +24,11 @@ use Psr\Log\LoggerInterface as Logger;
 class Price
 {
 
-    /**
-     *
-     */
-    const REQIURE = [
+    const REQUIRE = [
         'products',
         'grouped_price_type',
         'bundle_price_type'
     ];
-
-    private $price = null;
-    private $finalPrice = null;
-    private $specialPrice = null;
-    private $salesPrice = null;
-    private $rulePrice = null;
-    private $minPrice = null;
-
-    /**
-     * @var float|string|null
-     */
-    private $maxPrice = null;
-
-    /**
-     * @var float|string|null
-     */
-    private $totalPrice = null;
-
-    /**
-     * @var int|string|null
-     */
-    private $storeId = null;
-
-    /**
-     * @var int|string|null
-     */
-    private $websiteId = null;
 
     /**
      * @var CatalogPrice
@@ -79,45 +50,33 @@ class Price
      * @var TimezoneInterface
      */
     private $localeDate;
-
     /**
-     * @var array
-     */
-    private $taxClasses  = [];
-
-    /**
-     * @var Logger
-     */
-    private $logger;
-
-    /**
-     * @var string
-     */
-    private $bundlePriceType;
-
-    /**
-     * @var string
-     */
-    private $groupedPriceType;
-
-    /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\Collection;
-     */
-    private $products;
-
-    /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\Collection
+     * @var Collection
      */
     private $collectionFactory;
 
+    private $price = null;
+    private $finalPrice = null;
+    private $specialPrice = null;
+    private $salesPrice = null;
+    private $rulePrice = null;
+    private $minPrice = null;
+    private $maxPrice = null;
+    private $totalPrice = null;
+    private $websiteId = null;
+    private $taxClasses = [];
+    private $bundlePriceType = null;
+    private $groupedPriceType = null;
+    private $products = null;
+
     /**
      * Price constructor.
-     *
-     * @param CatalogPrice          $commonPriceModel
-     * @param RuleFactory           $resourceRuleFactory
-     * @param CatalogHelper         $catalogHelper
+     * @param CatalogPrice $commonPriceModel
+     * @param RuleFactory $resourceRuleFactory
+     * @param CatalogHelper $catalogHelper
      * @param StoreManagerInterface $storeManager
-     * @param TimezoneInterface     $localeDate
+     * @param TimezoneInterface $localeDate
+     * @param CollectionFactory $collectionFactory
      */
     public function __construct(
         CatalogPrice $commonPriceModel,
@@ -125,8 +84,7 @@ class Price
         CatalogHelper $catalogHelper,
         StoreManagerInterface $storeManager,
         TimezoneInterface $localeDate,
-        CollectionFactory $collectionFactory,
-        Logger $logger
+        CollectionFactory $collectionFactory
     ) {
         $this->commonPriceModel = $commonPriceModel;
         $this->resourceRuleFactory = $resourceRuleFactory;
@@ -134,28 +92,27 @@ class Price
         $this->storeManager = $storeManager;
         $this->localeDate = $localeDate;
         $this->collectionFactory = $collectionFactory->create();
-        $this->logger = $logger;
     }
 
     /**
      * @param array $productIds
      *
-     * @param string  $groupedPriceType options: min, max, total
-     * @param string  $bundlePriceType optins: min, max, total
-     *
+     * @param string $groupedPriceType options: min, max, total
+     * @param string $bundlePriceType optins: min, max, total
+     * @param int $storeId
      * @return array
      */
-    public function execute($productIds = [], $groupedPriceType = '', $bundlePriceType = ''): array
-    {
-        $result = [];
-        /** @phpstan-ignore-next-line */
-        $products = $this->collectionFactory->addFieldToFilter('entity_id', ['in' => $productIds])->addPriceData();
-        $this->setData('products', $products);
+    public function execute(
+        array $productIds = [],
+        string $groupedPriceType = '',
+        string $bundlePriceType = '',
+        int $storeId = 0
+    ): array {
+        $this->websiteId = $this->getWebsiteId((int)$storeId);
+        $this->setData('products', $this->getProductData($productIds));
         $this->setData('grouped_price_type', $groupedPriceType);
         $this->setData('bundle_price_type', $bundlePriceType);
         foreach ($this->products as $product) {
-            $this->storeId = $product->getStoreId();
-            $this->websiteId = $this->getWebsiteId();
             $this->setPrices($product, $this->groupedPriceType, $this->bundlePriceType);
             if (array_key_exists($product->getTaxClassId(), $this->taxClasses)) {
                 $percent = $this->taxClasses[$product->getTaxClassId()];
@@ -164,25 +121,86 @@ class Price
                 if ($this->price == 0) {
                     $percent = 1;
                 } else {
-                    $percent = $priceInclTax/$this->price;
+                    $percent = $priceInclTax / $this->price;
                 }
                 $this->taxClasses[$product->getTaxClassId()] = $percent;
             }
             $result[$product->getId()] = [
-                'price' => number_format($percent * $this->price, 2, '.', ' '),
-                'price_ex' => number_format($percent *  $this->price, 2, '.', ' '),
-                'final_price' => number_format($percent * $this->finalPrice, 2, '.', ' '),
-                'final_price_ex' => number_format($percent * $this->finalPrice, 2, '.', ' '),
-                'sales_price' => number_format($percent * $this->salesPrice, 2, '.', ' '),
-                'min_price' => number_format($percent * $this->minPrice, 2, '.', ' '),
-                'max_price' => number_format($percent * $this->maxPrice, 2, '.', ' '),
-                'total_price' => number_format($percent * $this->totalPrice, 2, '.', ' '),
+                'price' => $percent * $this->price,
+                'price_ex' => $percent * $this->price,
+                'final_price' => $percent * $this->finalPrice,
+                'final_price_ex' => $percent * $this->finalPrice,
+                'sales_price' => $percent * $this->salesPrice,
+                'min_price' => $percent * $this->minPrice,
+                'max_price' => $percent * $this->maxPrice,
+                'total_price' => $percent * $this->totalPrice,
                 'sales_date_range' => $this->getSpecialPriceDateRang($product),
                 'discount_perc' => $this->getDiscountPercentage(),
                 'tax' => abs(1 - $percent) * 100
             ];
         }
-        return $result;
+        return $result ?? [];
+    }
+
+    /**
+     * @param int $storeId
+     * @return int
+     */
+    private function getWebsiteId($storeId = 0): int
+    {
+        try {
+            return (int)$this->storeManager->getStore($storeId)->getWebsiteId();
+        } catch (\Exception $exception) {
+            return 0;
+        }
+    }
+
+    /**
+     * @param string $type
+     * @param mixed $data
+     */
+    public function setData($type, $data)
+    {
+        if (!$data) {
+            return;
+        }
+        switch ($type) {
+            case 'products':
+                $this->products = $data;
+                break;
+            case 'grouped_price_type':
+                $this->groupedPriceType = $data;
+                break;
+            case 'bundle_price_type':
+                $this->bundlePriceType = $data;
+                break;
+        }
+    }
+
+    /**
+     * @param array $productIds
+     * @return Collection|AbstractDb
+     */
+    private function getProductData(array $productIds = [])
+    {
+        $products = $this->collectionFactory
+            ->addFieldToSelect(['price', 'special_price'])
+            ->addFieldToFilter('entity_id', ['in' => $productIds]);
+
+        $products->getSelect()->joinLeft(
+            ['price_index' => $products->getTable('catalog_product_index_price')],
+            join(
+                ' AND ',
+                [
+                    'price_index.entity_id = e.entity_id',
+                    'price_index.website_id = ' . $this->websiteId,
+                    'price_index.customer_group_id = 0'
+                ]
+            ),
+            ['final_price', 'min_price', 'max_price']
+        );
+
+        return $products;
     }
 
     /**
@@ -190,7 +208,7 @@ class Price
      * @param string $groupedPriceType
      * @param string $bundlePriceType
      */
-    private function setPrices($product, $groupedPriceType, $bundlePriceType)
+    private function setPrices($product, $groupedPriceType, $bundlePriceType): void
     {
         switch ($product->getTypeId()) {
             case 'configurable':
@@ -217,10 +235,15 @@ class Price
             $this->minPrice = $this->finalPrice;
         }
 
+        if ($this->finalPrice == null && $this->specialPrice !== null) {
+            $this->finalPrice = $this->specialPrice;
+        }
+
         if ($this->minPrice !== null && $this->price == null) {
             $this->price = $this->minPrice;
         }
 
+        $this->salesPrice = null;
         if ($this->finalPrice !== null && ($this->price > $this->finalPrice)) {
             $this->salesPrice = $this->finalPrice;
         }
@@ -233,7 +256,7 @@ class Price
     /**
      * @param Product $product
      */
-    private function setConfigurablePrices($product)
+    private function setConfigurablePrices($product): void
     {
         /**
          * Check if config has a final_price (data catalog_product_index_price)
@@ -245,7 +268,7 @@ class Price
 
         $this->price = $product->getData('price');
         $this->finalPrice = $product->getData('final_price');
-        $this->specialPrice = $product->getSpecialPrice();
+        $this->specialPrice = $product->getData('special_price');
         $this->minPrice = $product['min_price'] >= 0 ? $product['min_price'] : null;
         $this->maxPrice = $product['max_price'] >= 0 ? $product['max_price'] : null;
     }
@@ -311,13 +334,9 @@ class Price
      * @param Product $product
      * @param string $bundlePriceType
      */
-    private function setBundlePrices($product, $bundlePriceType)
+    private function setBundlePrices($product, $bundlePriceType): void
     {
-        $this->price = $product->getPrice() != 0 ? $product->getPrice() : null;
-        $this->finalPrice = $product->getFinalPrice() != 0 ? $product->getFinalPrice() : null;
-        $this->specialPrice = $product->getSpecialPrice() != 0 ? $product->getFinalPrice() : null;
-        $this->minPrice = $product['min_price'] >= 0 ? $product['min_price'] : null;
-        $this->maxPrice = $product['max_price'] >= 0 ? $product['max_price'] : null;
+        $this->setSimplePrices($product);
 
         if ($bundlePriceType == 'max') {
             $this->price = $this->maxPrice;
@@ -335,11 +354,13 @@ class Price
      */
     private function setSimplePrices($product)
     {
-        $this->price = $product->getPrice() != 0 ? $product->getPrice() : null;
-        $this->finalPrice = $product->getFinalPrice() != 0 ? $product->getFinalPrice() : null;
-        $this->specialPrice = $product->getSpecialPrice() != 0 ? $product->getFinalPrice() : null;
-        $this->minPrice = (float)$product['min_price'] >= 0 ? $product['min_price'] : null;
-        $this->maxPrice = (float)$product['max_price'] >= 0 ? $product['max_price'] : null;
+        $this->price = $product->getData('price') !== (float)0 ? $product->getData('price') : null;
+        $this->finalPrice = $product->getData('final_price') !== (float)0
+            ? $product->getData('final_price') : null;
+        $this->specialPrice = $product->getData('special_price') !== (float)0
+            ? $product->getData('special_price') : null;
+        $this->minPrice = $product['min_price'] >= 0 ? $product['min_price'] : null;
+        $this->maxPrice = $product['max_price'] >= 0 ? $product['max_price'] : null;
     }
 
     /**
@@ -359,7 +380,7 @@ class Price
                 $product->getId()
             );
         } catch (\Exception $exception) {
-            $this->logger->error($exception->getMessage());
+            return (float)0;
         }
 
         if ($this->rulePrice !== null && $this->rulePrice !== false) {
@@ -401,6 +422,7 @@ class Price
         }
 
         if ($product->getSpecialFromDate() && $product->getSpecialToDate()) {
+
             /**
              * Todo use Magento date function
              */
@@ -419,8 +441,8 @@ class Price
      */
     private function getDiscountPercentage()
     {
-        if ((float)$this->price > 0 && (float)$this->salesPrice > 0) {
-            $discount = ((float)$this->salesPrice - (float)$this->price) / (float)$this->price;
+        if ($this->price > 0 && $this->salesPrice > 0) {
+            $discount = ($this->salesPrice - $this->price) / $this->price;
             $discount = $discount * -100;
             if ($discount > 0) {
                 return round($discount, 1) . '%';
@@ -430,24 +452,11 @@ class Price
     }
 
     /**
-     * @return int
+     * @return string[]
      */
-    private function getWebsiteId()
+    public function getRequiredParameters(): array
     {
-        try {
-            return (int)$this->storeManager->getStore($this->storeId)->getWebsiteId();
-        } catch (\Exception $exception) {
-            $this->logger->error($exception->getMessage());
-        }
-        return  0;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRequiredParameters()
-    {
-        return self::REQIURE;
+        return self::REQUIRE;
     }
 
     /**
@@ -469,28 +478,6 @@ class Price
                 break;
             case 'bundle_price_type':
                 unset($this->bundlePriceType);
-                break;
-        }
-    }
-
-    /**
-     * @param string $type
-     * @param string|\Magento\Catalog\Model\ResourceModel\Product\Collection $data
-     */
-    public function setData($type, $data)
-    {
-        if (!$data) {
-            return;
-        }
-        switch ($type) {
-            case 'products':
-                $this->products = $data;
-                break;
-            case 'grouped_price_type':
-                $this->groupedPriceType = $data;
-                break;
-            case 'bundle_price_type':
-                $this->bundlePriceType = $data;
                 break;
         }
     }

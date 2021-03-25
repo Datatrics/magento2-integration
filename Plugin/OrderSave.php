@@ -111,7 +111,7 @@ class OrderSave
             $this->logRepository->addDebugLog('Product', 'ID ' . $productId . ' invalidated');
         }
         $connection->update(
-            $connection->getTableName('datatrics_content_store'),
+            $this->contentResource->getTable('datatrics_content_store'),
             ['status' => 'Queued for Update'],
             ['product_id in (?)' => $productIds]
         );

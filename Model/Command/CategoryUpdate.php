@@ -108,7 +108,7 @@ class CategoryUpdate
         $this->collector->addData('map', ['name'], 'attributeMapper');
         $connection = $this->categoryResource->getConnection();
         $select = $connection->select()->from(
-            ['eav_attribute' => $connection->getTableName('catalog_category_entity')],
+            ['eav_attribute' => $this->categoryResource->getTable('catalog_category_entity')],
             'entity_id'
         );
         $entityIds = $connection->fetchCol($select, 'entity_id');

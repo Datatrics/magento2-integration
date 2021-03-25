@@ -21,27 +21,22 @@ class Data
      * @var JsonSerializer
      */
     private $json;
-
     /**
      * @var AttributeCollector\Data\AttributeMapper
      */
     private $attributeMapper;
-
     /**
      * @var AttributeCollector\Data\Url
      */
     private $url;
-
     /**
      * @var AttributeCollector\Data\Category
      */
     private $category;
-
     /**
      * @var AttributeCollector\Data\Stock
      */
     private $stock;
-
     /**
      * @var AttributeCollector\Data\Price
      */
@@ -79,14 +74,15 @@ class Data
      * @param int $storeId
      * @return array
      */
-    public function execute(array $entityIds, array $attributeMap, array $extraParameters, int $storeId): array
+    public function execute(array $entityIds, array $attributeMap, array $extraParameters, int $storeId = 0)
     {
         $result = $this->attributeMapper->execute(
             $entityIds,
             $attributeMap,
             'catalog_product',
-            (string)$storeId
+            $storeId
         );
+
         $data = [];
         foreach ($attributeMap as $targetCode => $attributeCode) {
             if (!isset($result[$attributeCode])) {
@@ -100,7 +96,7 @@ class Data
         $result = $this->url->execute(
             $entityIds,
             'product',
-            (string)$storeId
+            $storeId
         );
         foreach ($result as $urlEntityId => $url) {
             $data[$urlEntityId]['url'] = $url;
@@ -108,35 +104,33 @@ class Data
 
         $result = $this->category->execute(
             $entityIds,
-            (string)$storeId
+            $storeId,
+            'raw',
+            $extraParameters
         );
         foreach ($result as $entityId => $categoryData) {
             $data[$entityId]['category'] = $categoryData;
         }
 
-        if ($extraParameters['advanced']['inventory']) {
+        if ($extraParameters['stock']['inventory']) {
             $result = $this->stock->execute(
                 $entityIds
             );
-            if (!is_array($extraParameters['advanced']['inventory_fields'])) {
-                $inventoryFields = explode(',', $extraParameters['advanced']['inventory_fields']);
-            } else {
-                $inventoryFields = $extraParameters['advanced']['inventory_fields'];
-            }
 
-            //adding default inventory data
             $inventoryFields = array_merge(
-                $inventoryFields,
+                $extraParameters['stock']['inventory_fields'],
                 ['msi', 'salable_qty', 'reserved', 'is_in_stock']
             );
             foreach ($result as $entityId => $stockData) {
                 $data[$entityId] += array_intersect_key($stockData, array_flip($inventoryFields));
             }
         }
+
         $result = $this->price->execute(
             $entityIds,
-            'max',
-            'min'
+            $productsBehaviour['grouped']['price_logic'] ?? 'max',
+            $productsBehaviour['bundle']['price_logic'] ?? 'min',
+            $storeId
         );
         foreach ($result as $entityId => $priceData) {
             $data[$entityId] += $priceData;

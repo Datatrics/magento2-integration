@@ -85,7 +85,7 @@ class Invalidate extends Action
             'store_id = ?' => $storeId
         ];
         $count = $connection->update(
-            $connection->getTableName('datatrics_content_store'),
+            $this->contentResource->getTable('datatrics_content_store'),
             ['status' => 'Queued for Update'],
             $where
         );

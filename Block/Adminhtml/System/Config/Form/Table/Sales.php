@@ -124,7 +124,7 @@ class Sales extends Template implements RendererInterface
         $totals = [];
         $connection = $this->contentResource->getConnection();
         $selectContent = $connection->select()->from(
-            $connection->getTableName('datatrics_sales'),
+            $this->contentResource->getTable('datatrics_sales'),
             'entity_id'
         )->where('store_id = ?', $storeId);
         $totals['orders'] = count($connection->fetchAll($selectContent));

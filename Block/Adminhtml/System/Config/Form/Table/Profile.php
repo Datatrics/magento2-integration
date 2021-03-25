@@ -124,7 +124,7 @@ class Profile extends Template implements RendererInterface
         $totals = [];
         $connection = $this->contentResource->getConnection();
         $selectContent = $connection->select()->from(
-            $connection->getTableName('datatrics_profile'),
+            $this->contentResource->getTable('datatrics_profile'),
             'entity_id'
         )->where('store_id = ?', $storeId);
         $totals['customers'] = count($connection->fetchAll($selectContent));

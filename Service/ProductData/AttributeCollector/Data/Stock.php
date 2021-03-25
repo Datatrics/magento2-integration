@@ -15,8 +15,7 @@ use Magento\Framework\Module\Manager as ModuleManager;
  */
 class Stock
 {
-
-    const REQIURE = [
+    const REQUIRE = [
         'entity_ids'
     ];
 
@@ -24,12 +23,10 @@ class Stock
      * @var ResourceConnection
      */
     private $resource;
-
     /**
      * @var array[]
      */
     private $entityIds;
-
     /**
      * @var ModuleManager
      */
@@ -77,15 +74,16 @@ class Stock
      *      min_sale_qty
      * ]
      *
+     * @param bool $addMsi
      * @return array[]
      */
-    private function getNoMsiStock(): array
+    private function getNoMsiStock($addMsi = false): array
     {
         $result = [];
         $select = $this->resource->getConnection()
             ->select()
             ->from(
-                $this->resource->getTableName('cataloginventory_stock_item'),
+                ['cataloginventory_stock_item' => $this->resource->getTableName('cataloginventory_stock_item')],
                 [
                     'product_id',
                     'qty',
@@ -99,9 +97,7 @@ class Stock
                 'catalog_product_entity.entity_id = cataloginventory_stock_item.product_id',
                 ['sku']
             );
-        if ($this->resource->getConnection()->isTableExists(
-            $this->resource->getTableName('inventory_reservation')
-        )) {
+        if ($addMsi) {
             $select->joinLeft(
                 ['inventory_reservation' => $this->resource->getTableName('inventory_reservation')],
                 'inventory_reservation.sku = catalog_product_entity.sku',
@@ -112,26 +108,35 @@ class Stock
         $values = $this->resource->getConnection()->fetchAll($select);
 
         foreach ($values as $value) {
-            $value['reserved'] = ($value['reserved']) ?? 0;
             $result[$value['product_id']] =
                 [
                     'qty' => (int)$value['qty'],
                     'is_in_stock' => (int)$value['is_in_stock'],
-                    'reserved' => (int)$value['reserved'],
-                    'salable_qty' => (int)max($value['qty'], ($value['qty'] - ($value['reserved']) * -1 )),
                     'manage_stock' => (int)$value['manage_stock'],
                     'qty_increments' => (int)$value['qty_increments'],
                     'min_sale_qty' => (int)$value['min_sale_qty']
                 ];
+            if ($addMsi) {
+                $result[$value['product_id']] += [
+                    'reserved' => (int)$value['reserved'],
+                    'salable_qty' => (int)max($value['qty'], ($value['qty'] - ($value['reserved']) * -1)),
+                ];
+            }
         }
         return $result;
     }
 
-    public function getRequiredParameters()
+    /**
+     * @return string[]
+     */
+    public function getRequiredParameters(): array
     {
-        return self::REQIURE;
+        return self::REQUIRE;
     }
 
+    /**
+     * @param string $type
+     */
     public function resetData($type = 'all')
     {
         if ($type == 'all') {
@@ -144,6 +149,10 @@ class Stock
         }
     }
 
+    /**
+     * @param string $type
+     * @param mixed $data
+     */
     public function setData($type, $data)
     {
         if (!$data) {
@@ -187,11 +196,11 @@ class Stock
     private function collectMsi(array $channels): array
     {
         $channel = array_pop($channels);
-        $stockTablePrimary = sprintf('inventory_stock_%s', $channel);
+        $stockTablePrimary = $this->resource->getTableName(sprintf('inventory_stock_%s', $channel));
         $selectStock = $this->resource->getConnection()
             ->select()
             ->from(
-                $this->resource->getTableName($stockTablePrimary),
+                $stockTablePrimary,
                 [
                     'product_id',
                     'website_id',
@@ -236,7 +245,7 @@ class Stock
     {
         $channels = $this->getChannels();
         $stockData = $this->collectMsi($channels);
-        $result = $this->getNoMsiStock();
+        $result = $this->getNoMsiStock(true);
         foreach ($stockData as $value) {
             foreach ($channels as $channel) {
                 if (!array_key_exists($value['product_id'], $result)) {

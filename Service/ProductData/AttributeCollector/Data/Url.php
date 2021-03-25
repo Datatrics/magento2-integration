@@ -17,7 +17,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 class Url
 {
 
-    const REQIURE = [
+    const REQUIRE = [
         'entity_ids',
         'store_id',
         'type'
@@ -41,22 +41,18 @@ class Url
      * @var ResourceConnection
      */
     private $resource;
-
     /**
      * @var array
      */
     private $entityIds;
-
     /**
      * @var string
      */
     private $type;
-
     /**
      * @var string
      */
     private $storeId;
-
     /**
      * @var StoreRepositoryInterface
      */
@@ -84,11 +80,11 @@ class Url
      *
      * @param array[] $entityIds array with IDs or products, categories or pages
      * @param string $type category, cms-page or product
-     * @param string $storeId ID of store to fetch data
+     * @param int $storeId ID of store to fetch data
      *
      * @return array[]
      */
-    public function execute(array $entityIds = [], string $type = '', string $storeId = '0'): array
+    public function execute(array $entityIds = [], string $type = '', int $storeId = 0): array
     {
         $this->setData('entity_ids', $entityIds);
         $this->setData('store_id', $storeId);
@@ -97,32 +93,11 @@ class Url
         return $this->collectUrl();
     }
 
-    public function getRequiredParameters()
-    {
-        return self::REQIURE;
-    }
-
-    public function resetData($type = 'all')
-    {
-        if ($type == 'all') {
-            unset($this->entityIds);
-            unset($this->type);
-            unset($this->storeId);
-        }
-        switch ($type) {
-            case 'entity_ids':
-                unset($this->entityIds);
-                break;
-            case 'type':
-                unset($this->type);
-                break;
-            case 'store_id':
-                unset($this->storeId);
-                break;
-        }
-    }
-
-    public function setData($type, $data)
+    /**
+     * @param string $type
+     * @param mixed $data
+     */
+    public function setData($type, $data): void
     {
         if (!$data) {
             return;
@@ -152,17 +127,14 @@ class Url
             ->select()
             ->from(
                 $this->resource->getTableName('url_rewrite'),
-                [
-                    'entity_id',
-                    'request_path'
-                ]
+                ['entity_id', 'request_path']
             )->where('entity_id IN (?)', $this->entityIds)
             ->where('redirect_type = ?', 0)
             ->where('metadata IS NULL')
             ->where('store_id = ?', $this->storeId)
             ->where('entity_type = ?', $this->type);
         $values = $this->resource->getConnection()->fetchAll($select);
-        $storeUrl = $this->storeRepository->getById($this->storeId)->getBaseUrl();
+        $storeUrl = $this->getStoreUrl();
         foreach ($values as $value) {
             $result[$value['entity_id']] = sprintf(
                 self::URL_PATTERN,
@@ -180,5 +152,48 @@ class Url
             }
         }
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    private function getStoreUrl(): string
+    {
+        try {
+            return $this->storeRepository->getById($this->storeId)->getBaseUrl();
+        } catch (\Exception $exception) {
+            return '';
+        }
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRequiredParameters()
+    {
+        return self::REQUIRE;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function resetData($type = 'all')
+    {
+        if ($type == 'all') {
+            unset($this->entityIds);
+            unset($this->type);
+            unset($this->storeId);
+        }
+        switch ($type) {
+            case 'entity_ids':
+                unset($this->entityIds);
+                break;
+            case 'type':
+                unset($this->type);
+                break;
+            case 'store_id':
+                unset($this->storeId);
+                break;
+        }
     }
 }

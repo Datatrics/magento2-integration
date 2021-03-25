@@ -40,26 +40,26 @@ class Repository implements ProductData
      * @var array
      */
     private $resultMap = [
-        'name',
-        'parent_id',
-        'short_description',
-        'description',
-        'url',
-        'sku',
-        'price',
+        'name' => 'name',
+        'parent_id' => 'parent_id',
+        'short_description' => 'short_description',
+        'description' => 'description',
+        'url' => 'url',
+        'sku' => 'sku',
+        'price' => 'price',
         'special_price' => 'sales_price',
-        'min_price',
-        'max_price',
+        'min_price' => 'min_price',
+        'max_price' => 'max_price',
         'updated' => 'updated_at',
         'created' => 'created_at',
         'type' => 'type_id',
-        'image',
-        'additional_images',
+        'image' => 'image',
+        'additional_images' => 'additional_images',
         'categories' => 'category',
         'stock' => 'qty',
-        'min_sale_qty',
-        'qty_increments',
-        'manage_stock',
+        'min_sale_qty' => 'min_sale_qty',
+        'qty_increments' => 'qty_increments',
+        'manage_stock' => 'manage_stock',
         'in_stock' => 'is_in_stock'
     ];
 
@@ -115,25 +115,13 @@ class Repository implements ProductData
         $this->collectIds($storeId, $entityIds);
         $this->collectAttributes($storeId);
         $this->imageData = $this->image->execute($entityIds, $storeId);
-        $productDataRows = $this->collectProductData($storeId);
 
         $result = [];
-        foreach ($productDataRows as $entityId => $productData) {
+        foreach ($this->collectProductData($storeId) as $entityId => $productData) {
             $this->addImageData($storeId, $entityId, $productData);
+            $this->addCategoryData($productData);
             foreach ($this->resultMap as $index => $attr) {
-                if (!is_int($index)) {
-                    if (array_key_exists($attr, $productData)) {
-                        $result[$entityId][$index] = $productData[$attr];
-                    } else {
-                        $result[$entityId][$index] = '';
-                    }
-                } else {
-                    if (array_key_exists($attr, $productData)) {
-                        $result[$entityId][$attr] = $productData[$attr];
-                    } else {
-                        $result[$entityId][$attr] = '';
-                    }
-                }
+                $result[$entityId][$index] = $productData[$attr] ?? '';
             }
         }
 
@@ -183,23 +171,27 @@ class Repository implements ProductData
      */
     private function collectProductData(int $storeId): array
     {
-        $productsBehaviour = [
-            'configurable' => $this->contentConfigRepository->getConfigProductsBehaviour($storeId),
-            'bundle' => $this->contentConfigRepository->getBundleProductsBehaviour($storeId),
-            'grouped' => $this->contentConfigRepository->getGroupedProductsBehaviour($storeId)
-        ];
         $extraParameters = [
-            'advanced' => [
+            'filters' => [
+                'custom' => $this->contentConfigRepository->getAdvancedFilters($storeId)
+            ],
+            'category' => [
+                'add_url' => true,
+            ],
+            'stock' => [
                 'inventory' => $this->contentConfigRepository->getInventory($storeId),
                 'inventory_fields' => $this->contentConfigRepository->getInventoryFields($storeId),
-                'advanced_filters' => $this->contentConfigRepository->getAdvancedFilters($storeId)
+            ],
+            'behaviour' => [
+                'configurable' => $this->contentConfigRepository->getConfigProductsBehaviour($storeId),
+                'bundle' => $this->contentConfigRepository->getBundleProductsBehaviour($storeId),
+                'grouped' => $this->contentConfigRepository->getGroupedProductsBehaviour($storeId)
             ]
         ];
 
         return $this->type->execute(
             $this->entityIds,
             $this->attributeMap,
-            $productsBehaviour,
             $extraParameters,
             $storeId
         );
@@ -238,6 +230,22 @@ class Repository implements ProductData
                     $item['additional_images'][] = $image['file'];
                 }
             }
+        }
+    }
+
+    /**
+     * Add category data to productData array
+     *
+     * @param array $productData
+     */
+    private function addCategoryData(array &$productData): void
+    {
+        foreach ($productData['category'] as &$category) {
+            $category['name'] = $category['path'];
+            $category['categoryid'] = $category['category_id'];
+            unset($category['path']);
+            unset($category['level']);
+            unset($category['category_id']);
         }
     }
 }

@@ -172,7 +172,7 @@ class ContentUpdate
 
         $connection = $this->contentResource->getConnection();
         $select = $connection->select()->from(
-            $connection->getTableName('datatrics_content_store'),
+            $this->contentResource->getTable('datatrics_content_store'),
             [
                 'product_id',
                 'update_attempts'
@@ -271,7 +271,7 @@ class ContentUpdate
         ];
         if ($response['success'] == true) {
             $connection->update(
-                $connection->getTableName('datatrics_content_store'),
+                $this->contentResource->getTable('datatrics_content_store'),
                 [
                     'status' => 'Synced',
                     'update_msg' => '',
@@ -281,7 +281,7 @@ class ContentUpdate
             );
         } else {
             $connection->update(
-                $connection->getTableName('datatrics_content_store'),
+                $this->contentResource->getTable('datatrics_content_store'),
                 [
                     'status' => 'Error',
                     'update_msg' => ''

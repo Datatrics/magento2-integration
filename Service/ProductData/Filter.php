@@ -7,10 +7,11 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData;
 
-use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
-use Magento\Framework\EntityManager\MetadataPool;
-use Magento\Framework\App\ResourceConnection;
+use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Model\Product\Visibility;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\EntityManager\MetadataPool;
 
 /**
  * Filter class
@@ -19,51 +20,53 @@ class Filter
 {
 
     /**
-     * @var JsonSerializer
-     */
-    private $json;
-
-    /**
      * @var ResourceConnection
      */
     private $resourceConnection;
-
-    private $storeId;
-
     /**
      * @var string
      */
     private $entityId;
 
     /**
-     * Filter constructor.
-     *
-     * @param JsonSerializer $json
+     * Data constructor.
      * @param ResourceConnection $resourceConnection
      * @param MetadataPool $metadataPool
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(
-        JsonSerializer $json,
         ResourceConnection $resourceConnection,
         MetadataPool $metadataPool
     ) {
-        $this->json = $json;
         $this->resourceConnection = $resourceConnection;
         $this->entityId = $metadataPool->getMetadata(ProductInterface::class)->getLinkField();
     }
 
-    public function execute($filter, $storeId = 0)
+    /**
+     * Execute filters and return producty entity ids
+     *
+     * @param array $filter
+     * @param int $storeId
+     * @return array
+     */
+    public function execute(array $filter, int $storeId = 0): array
     {
-        $this->storeId = $storeId;
         if ($filter['filter_by_visibility']) {
-            $entityIds = $this->filterVisibility($filter['visibility']);
+            $visibility = is_array($filter['visibility']) ? $filter['visibility'] : explode(',', $filter['visibility']);
         } else {
-            $entityIds = $this->filterVisibility([1,2,3,4]);
+            $visibility = [
+                Visibility::VISIBILITY_NOT_VISIBLE,
+                Visibility::VISIBILITY_IN_CATALOG,
+                Visibility::VISIBILITY_IN_SEARCH,
+                Visibility::VISIBILITY_BOTH,
+            ];
         }
+        $entityIds = $this->filterVisibility($visibility);
+
         if (!empty($filter['add_disabled_products'])) {
             $entityIds = $this->filterEnabledStatus($entityIds);
         }
+
         if ($filter['restrict_by_category']) {
             $entityIds = $this->filterByCategories(
                 $entityIds,
@@ -74,14 +77,20 @@ class Filter
         return $entityIds;
     }
 
-    private function filterVisibility($visibility)
+    /**
+     * Filter entity ids to exclude products based on visibility
+     *
+     * @param array $visibility
+     * @return array
+     */
+    private function filterVisibility(array $visibility): array
     {
         $connection = $this->resourceConnection->getConnection();
         $select = $connection->select()->distinct()->from(
-            ['catalog_product_entity_int' => $connection->getTableName('catalog_product_entity_int')],
+            ['catalog_product_entity_int' => $this->resourceConnection->getTableName('catalog_product_entity_int')],
             [$this->entityId]
         )->joinLeft(
-            ['eav_attribute' => $connection->getTableName('eav_attribute')],
+            ['eav_attribute' => $this->resourceConnection->getTableName('eav_attribute')],
             'eav_attribute.attribute_id = catalog_product_entity_int.attribute_id',
             []
         )->where('value IN (?)', $visibility)
@@ -90,14 +99,20 @@ class Filter
         return $connection->fetchCol($select, 'catalog_product_entity_int.' . $this->entityId);
     }
 
-    private function filterEnabledStatus($entityIds)
+    /**
+     * Filter entity ids to exclude products with status disabled
+     *
+     * @param array $entityIds
+     * @return array
+     */
+    private function filterEnabledStatus(array $entityIds): array
     {
         $connection = $this->resourceConnection->getConnection();
         $select = $connection->select()->distinct()->from(
-            ['catalog_product_entity_int' => $connection->getTableName('catalog_product_entity_int')],
+            ['catalog_product_entity_int' => $this->resourceConnection->getTableName('catalog_product_entity_int')],
             [$this->entityId, 'value']
         )->joinLeft(
-            ['eav_attribute' => $connection->getTableName('eav_attribute')],
+            ['eav_attribute' => $this->resourceConnection->getTableName('eav_attribute')],
             'eav_attribute.attribute_id = catalog_product_entity_int.attribute_id',
             []
         )->where('value = ?', 1)
@@ -107,14 +122,22 @@ class Filter
         return $connection->fetchCol($select, 'catalog_product_entity_int.' . $this->entityId);
     }
 
+    /**
+     * Filter entity ids to exclude products based on category ids
+     *
+     * @param array $entityIds
+     * @param string $behaviour
+     * @param array $categoryIds
+     * @return array
+     */
     private function filterByCategories(
-        $entityIds,
-        $behaviour,
-        $categoryIds
-    ) {
+        array $entityIds,
+        string $behaviour,
+        array $categoryIds
+    ): array {
         $connection = $this->resourceConnection->getConnection();
         $select = $connection->select()->distinct()->from(
-            ['catalog_category_product' => $connection->getTableName('catalog_category_product')],
+            ['catalog_category_product' => $this->resourceConnection->getTableName('catalog_category_product')],
             'product_id'
         )->where('product_id in (?)', $entityIds);
         if ($behaviour == 'in') {
