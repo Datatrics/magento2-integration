@@ -187,7 +187,7 @@ class Type
                     }
                 }
             }
-            if (isset($data[$entityId]['parent_id'])) {
+            if (isset($data[$entityId]['parent_id']) && isset($data[$data[$entityId]['parent_id']])) {
                 $data[$entityId]['image_logic'] = $extraParameters['behaviour'][
                 $data[
                 $data[$entityId]['parent_id']
