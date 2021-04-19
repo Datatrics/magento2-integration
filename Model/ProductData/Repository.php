@@ -119,7 +119,9 @@ class Repository implements ProductData
         $result = [];
         foreach ($this->collectProductData($storeId) as $entityId => $productData) {
             $this->addImageData($storeId, $entityId, $productData);
-            $this->addCategoryData($productData);
+            if (isset($productData['category'])) {
+                $this->addCategoryData($productData);
+            }
             foreach ($this->resultMap as $index => $attr) {
                 $result[$entityId][$index] = $productData[$attr] ?? '';
             }
