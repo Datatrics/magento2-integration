@@ -32,7 +32,7 @@ interface DataInterface extends ExtensibleDataInterface
     const FIRSTNAME = 'firstname';
     const LASTNAME = 'lastname';
     const NAME = 'name';
-    const EMAIL = 'datatrics_email';
+    const EMAIL = 'email';
     const COMPANY = 'company';
     const ADDRESS = 'address';
     const COUNTRY = 'country';

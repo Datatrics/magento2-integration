@@ -249,13 +249,13 @@
                 xsi:type="varchar"
                 length="50"
                 nullable="true"
-                disabled="true"
+                onCreate="migrateDataFrom(datatrics_email)"
                 comment="Email"/>
         <column name="datatrics_email"
                 xsi:type="varchar"
                 length="50"
                 nullable="true"
-                onCreate="migrateDataFrom(email)"
+                disabled="true"
                 comment="Email"/>
         <column name="company"
                 xsi:type="varchar"
