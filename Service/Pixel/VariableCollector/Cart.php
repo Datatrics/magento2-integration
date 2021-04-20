@@ -38,7 +38,7 @@ class Cart
         $variables = [
             'products' => []
         ];
-        foreach ($this->cart->getQuote()->getAllItems() as $item) {
+        foreach ($this->cart->getQuote()->getAllVisibleItems() as $item) {
             $variables['products'][] = [
                 'sku' => $item->getSku(),
                 'name' => $item->getName(),

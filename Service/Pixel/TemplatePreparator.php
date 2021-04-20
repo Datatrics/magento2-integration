@@ -67,14 +67,14 @@ class TemplatePreparator
             $positionEnd = strpos(
                 $html,
                 sprintf('{{%s end}}', $key)
-            ) - strlen(sprintf('{{%s start}}', $key));
-            $html = str_replace(sprintf('{{%s start}}', $key), '', $html, $count);
-            $html = str_replace(sprintf('{{%s end}}', $key), '', $html, $count);
+            ) - $positionStart + strlen(sprintf('{{%s end}}', $key));
             $toReplace = substr($html, $positionStart, $positionEnd);
             $replace = '';
             foreach ($values as $subValue) {
                 $replace .= $this->applySimpleParameters($toReplace, $subValue);
             }
+            $replace = str_replace(sprintf('{{%s start}}', $key), '', $replace);
+            $replace = str_replace(sprintf('{{%s end}}', $key), '', $replace);
             $html = str_replace($toReplace, $replace, $html, $count);
         }
         return $html;

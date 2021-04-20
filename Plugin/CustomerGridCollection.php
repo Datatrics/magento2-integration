@@ -29,7 +29,10 @@ class CustomerGridCollection
                     ['datatrics_profile' => $leftJoinTableName],
                     "datatrics_profile.customer_id = main_table.entity_id",
                     ['status']
-                )->group('main_table.entity_id');
+                );
+            $where = $collection->getSelect()->getPart(\Magento\Framework\DB\Select::WHERE);
+
+            $collection->getSelect()->setPart(\Magento\Framework\DB\Select::WHERE, $where);
             $collection->addFilterToMap('status', 'datatrics_profile.status');
         }
         return $collection;

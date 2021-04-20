@@ -10,7 +10,7 @@
     <body>
         <referenceBlock name="head.additional">
             <block name="datatrics.pixel.product"
-                   ifconfig="datatrics_connect/tracking/product"
+                   ifconfig="datatrics_connect_tracking/tracking/product"
                    class="Magento\Framework\View\Element\Template"
                    after="datatrics.pixel.base"
                    template="Datatrics_Connect::pixel.phtml">
