@@ -7,16 +7,21 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\ViewModel;
 
-use Magento\Framework\View\Element\Block\ArgumentInterface;
+use Datatrics\Connect\Api\Config\System\TrackingInterface as TrackingConfigRepository;
 use Datatrics\Connect\Service\Pixel\TemplatePreparator;
 use Datatrics\Connect\Service\Pixel\TemplateResolver;
-use Datatrics\Connect\Api\Config\System\TrackingInterface as TrackingConfigRepository;
+use Magento\Framework\View\Element\Block\ArgumentInterface;
+use Magento\Framework\UrlInterface;
 
 /**
  * PreProcessor data class
  */
 class PreProcessor implements ArgumentInterface
 {
+    /**
+     *
+     */
+    const URL_PATH = 'datatrics/cart/get';
 
     /**
      * @var TemplatePreparator
@@ -34,6 +39,11 @@ class PreProcessor implements ArgumentInterface
     private $variableProcessors;
 
     /**
+     * @var UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
      * @var TrackingConfigRepository
      */
     private $trackingConfigRepository;
@@ -43,17 +53,20 @@ class PreProcessor implements ArgumentInterface
      * @param TemplatePreparator $templatePreparator
      * @param TemplateResolver $templateResolver
      * @param TrackingConfigRepository $trackingConfigRepository
+     * @param UrlInterface $urlBuilder
      * @param mixed $variableProcessors
      */
     public function __construct(
         TemplatePreparator $templatePreparator,
         TemplateResolver $templateResolver,
         TrackingConfigRepository $trackingConfigRepository,
+        UrlInterface $urlBuilder,
         $variableProcessors
     ) {
         $this->templatePreparator = $templatePreparator;
         $this->templateResolver = $templateResolver;
         $this->variableProcessors = $variableProcessors;
+        $this->urlBuilder = $urlBuilder;
         $this->trackingConfigRepository = $trackingConfigRepository;
     }
 
@@ -75,5 +88,13 @@ class PreProcessor implements ArgumentInterface
         }
         $variables = $this->variableProcessors[$variableProcessor]->execute();
         return $this->templatePreparator->execute($html, $variables);
+    }
+
+    /**
+     * @return string
+     */
+    public function getAjaxUrl()
+    {
+        return $this->urlBuilder->getUrl(self::URL_PATH);
     }
 }

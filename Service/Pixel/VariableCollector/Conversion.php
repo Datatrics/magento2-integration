@@ -55,7 +55,7 @@ class Conversion
             'shipping' => $order->getShippingAmount(),
             'discount' =>  $order->getDiscountAmount()
         ];
-        foreach ($order->getAllItems() as $item) {
+        foreach ($order->getAllVisibleItems() as $item) {
             $result['products'][] = [
                 'sku' => $item->getSku(),
                 'name' => $item->getName(),

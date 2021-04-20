@@ -162,4 +162,9 @@
         <plugin name="orderPlaceAfterPlugin" type="Datatrics\Connect\Plugin\OrderPlace" sortOrder="99" />
     </type>
 
+    <type name="Magento\Quote\Model\Quote">
+        <plugin name="quoteChanges"
+                type="Datatrics\Connect\Plugin\Quote" sortOrder="1" disabled="false" />
+    </type>
+
 </config>
