@@ -58,14 +58,14 @@ class Quote
      * Fire event after item was added to the cart (only after post request)
      *
      * @param QuoteModel $subject
-     * @param Item $result
+     * @param mixed $result
      * @param Product $product
      *
      * @return Item
      */
     public function afterAddProduct(
         QuoteModel $subject,
-        Item $result,
+        $result,
         Product $product
     ) {
         $this->checkoutSession->create()->setCartTrigger(true);
