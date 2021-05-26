@@ -239,7 +239,7 @@ class Category
                 'product_id'
             )->joinLeft(
                 ['catalog_category_entity' => $this->resource->getTableName('catalog_category_entity')],
-                'catalog_category_entity.entity_id = catalog_category_product.category_id',
+                "catalog_category_entity.{$this->linkField} = catalog_category_product.category_id",
                 ['path']
             )->where('product_id IN (?)', $this->entityIds);
         if ($this->excluded) {
