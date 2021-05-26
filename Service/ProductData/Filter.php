@@ -62,7 +62,9 @@ class Filter
             ];
         }
         $entityIds = $this->filterVisibility($visibility);
-
+        if ($storeId) {
+            $entityIds = $this->filterWebsite($entityIds, $storeId);
+        }
         if (!empty($filter['add_disabled_products'])) {
             $entityIds = $this->filterEnabledStatus($entityIds);
         }
@@ -97,6 +99,28 @@ class Filter
             ->where('attribute_code = ?', 'visibility')
             ->where('store_id IN (?)', [0]);
         return $connection->fetchCol($select, 'catalog_product_entity_int.' . $this->entityId);
+    }
+
+    /**
+     * Filter entity ids to exclude products by website
+     *
+     * @param array $entityIds
+     * @param int $storeId
+     * @return array
+     */
+    private function filterWebsite(array $entityIds, int $storeId): array
+    {
+        $connection = $this->resourceConnection->getConnection();
+        $select = $connection->select()->from(
+            ['store' => $this->resourceConnection->getTableName('store')],
+            []
+        )->joinLeft(
+            ['catalog_product_website' => $this->resourceConnection->getTableName('catalog_product_website')],
+            'catalog_product_website.website_id = store.website_id',
+            ['product_id']
+        )->where('store.store_id = ?', $storeId)
+            ->where('catalog_product_website.product_id in (?)', $entityIds);
+        return $connection->fetchCol($select, 'catalog_product_website.product_id');
     }
 
     /**

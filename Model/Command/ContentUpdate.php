@@ -188,8 +188,8 @@ class ContentUpdate
             return 0;
         }
         $productIds = $connection->fetchCol($select, 'product_id');
-        $this->initProgressBar($output, count($productIds));
-        $this->prepareData($productIds, $storeId);
+        $count = $this->prepareData($productIds, $storeId);
+        $this->initProgressBar($output, $count);
         return 0;
     }
 
