@@ -7,7 +7,9 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\EntityManager\MetadataPool;
 
 /**
  * Service class for category path for products
@@ -19,16 +21,24 @@ class Parents
      * @var ResourceConnection
      */
     private $resource;
+    /**
+     * @var string
+     */
+    private $linkField;
 
     /**
      * Category constructor.
      *
      * @param ResourceConnection $resource
+     * @param MetadataPool $metadataPool
+     * @throws \Exception
      */
     public function __construct(
-        ResourceConnection $resource
+        ResourceConnection $resource,
+        MetadataPool $metadataPool
     ) {
         $this->resource = $resource;
+        $this->linkField = $metadataPool->getMetadata(ProductInterface::class)->getLinkField();
     }
 
     /**
@@ -61,7 +71,7 @@ class Parents
                 ['catalog_product_relation' => $this->resource->getTableName('catalog_product_relation')]
             )->joinLeft(
                 ['catalog_product_entity' => $this->resource->getTableName('catalog_product_entity')],
-                'catalog_product_entity.entity_id = catalog_product_relation.parent_id',
+                "catalog_product_entity.{$this->linkField} = catalog_product_relation.parent_id",
                 'type_id'
             );
         foreach ($this->resource->getConnection()->fetchAll($select) as $item) {
@@ -86,7 +96,7 @@ class Parents
                 ['catalog_product_relation' => $this->resource->getTableName('catalog_product_relation')]
             )->joinLeft(
                 ['catalog_product_entity' => $this->resource->getTableName('catalog_product_entity')],
-                'catalog_product_entity.entity_id = catalog_product_relation.parent_id',
+                "catalog_product_entity.{$this->linkField} = catalog_product_relation.parent_id",
                 'type_id'
             )->where('child_id IN (?)', $entityIds);
         $relations = $this->resource->getConnection()->fetchAll($select);

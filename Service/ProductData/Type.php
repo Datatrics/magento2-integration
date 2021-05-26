@@ -87,6 +87,9 @@ class Type
         int $limit = 10000,
         int $page = 1
     ): array {
+        if (empty($entityIds)) {
+            return [];
+        }
         $entityIds = array_chunk($entityIds, (int)$limit);
         if (isset($entityIds[$page - 1])) {
             $entityIds = $entityIds[$page - 1];
