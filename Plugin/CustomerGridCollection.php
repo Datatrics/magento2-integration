@@ -32,7 +32,7 @@ class CustomerGridCollection
                 );
             $where = $collection->getSelect()->getPart(\Magento\Framework\DB\Select::WHERE);
             foreach ($where as &$item) {
-                if (strpos($item, 'status') !== false) {
+                if (strpos($item, 'status') === false) {
                     $item = substr_replace($item, "`main_table`.", strpos($item, '`'), 0);
                 }
             }
