@@ -98,7 +98,7 @@ class Attributes implements OptionSourceInterface
      */
     public function getNonAvailableAttributes(): array
     {
-        return ['categories', 'gallery'];
+        return ['categories', 'category_ids', 'gallery'];
     }
 
     /**
