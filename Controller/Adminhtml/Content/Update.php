@@ -102,9 +102,11 @@ class Update extends Action
                 $this->contentResource->getTable('datatrics_content_store'),
                 ['product_id']
             )->where('status = ?', 'Queued for Update')
-                ->where('store_id = ?', $storeId);
+                ->where('store_id = ?', $storeId)
+                ->limit(5000);
+
             $productIds = $connection->fetchCol($selectProductIds, 'product_id');
-            $count = $this->contentUpdate->prepareData($productIds, $storeId);
+            $count = $productIds ? $this->contentUpdate->prepareData($productIds, $storeId) : 0;
 
             if ($count > 0) {
                 $msg = self::SUCCESS_MSG;
