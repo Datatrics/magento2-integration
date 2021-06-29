@@ -10,6 +10,7 @@ namespace Datatrics\Connect\Controller\Adminhtml\Content;
 use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Datatrics\Connect\Model\Command\ContentUpdate;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
+use Datatrics\Connect\Service\API\ConnectionTest;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
@@ -50,25 +51,31 @@ class Update extends Action
      * @var ContentConfigRepository
      */
     private $contentConfigRepository;
+    /**
+     * @var ConnectionTest
+     */
+    private $connectionTest;
 
     /**
      * Update constructor.
-     *
      * @param Action\Context $context
      * @param ContentResource $contentResource
      * @param ContentUpdate $contentUpdate
      * @param ContentConfigRepository $contentConfigRepository
+     * @param ConnectionTest $connectionTest
      */
     public function __construct(
         Action\Context $context,
         ContentResource $contentResource,
         ContentUpdate $contentUpdate,
-        ContentConfigRepository $contentConfigRepository
+        ContentConfigRepository $contentConfigRepository,
+        ConnectionTest $connectionTest
     ) {
         $this->messageManager = $context->getMessageManager();
         $this->contentResource = $contentResource;
         $this->contentUpdate = $contentUpdate;
         $this->contentConfigRepository = $contentConfigRepository;
+        $this->connectionTest = $connectionTest;
         parent::__construct($context);
     }
 
@@ -88,21 +95,26 @@ class Update extends Action
             );
         }
 
-        $connection = $this->contentResource->getConnection();
-        $selectProductIds = $connection->select()->from(
-            $this->contentResource->getTable('datatrics_content_store'),
-            ['product_id']
-        )->where('status = ?', 'Queued for Update')
-            ->where('store_id = ?', $storeId);
-        $productIds = $connection->fetchCol($selectProductIds, 'product_id');
-        $count = $this->contentUpdate->prepareData($productIds, $storeId);
+        try {
+            $this->connectionTest->executeByStoreId($storeId);
+            $connection = $this->contentResource->getConnection();
+            $selectProductIds = $connection->select()->from(
+                $this->contentResource->getTable('datatrics_content_store'),
+                ['product_id']
+            )->where('status = ?', 'Queued for Update')
+                ->where('store_id = ?', $storeId);
+            $productIds = $connection->fetchCol($selectProductIds, 'product_id');
+            $count = $this->contentUpdate->prepareData($productIds, $storeId);
 
-        if ($count > 0) {
-            $msg = self::SUCCESS_MSG;
-            $this->messageManager->addSuccessMessage(__($msg, $count));
-        } else {
-            $msg = self::ERROR_MSG_NO_ITEMS;
-            $this->messageManager->addNoticeMessage(__($msg));
+            if ($count > 0) {
+                $msg = self::SUCCESS_MSG;
+                $this->messageManager->addSuccessMessage(__($msg, $count));
+            } else {
+                $msg = self::ERROR_MSG_NO_ITEMS;
+                $this->messageManager->addNoticeMessage(__($msg));
+            }
+        } catch (\Exception $exception) {
+            $this->messageManager->addErrorMessage(__($exception->getMessage()));
         }
 
         return $resultRedirect->setPath(
