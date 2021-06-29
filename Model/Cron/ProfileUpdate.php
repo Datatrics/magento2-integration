@@ -8,8 +8,10 @@ declare(strict_types=1);
 namespace Datatrics\Connect\Model\Cron;
 
 use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
+use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
 use Datatrics\Connect\Api\Config\System\ProfileInterface as ProfileConfigRepository;
 use Datatrics\Connect\Model\Profile\CollectionFactory as ProfileCollectionFactory;
+use Datatrics\Connect\Model\Profile\Data as ProfileData;
 use Magento\Framework\Serialize\Serializer\Json;
 
 /**
@@ -24,21 +26,22 @@ class ProfileUpdate
      * @var ProfileCollectionFactory
      */
     private $profileCollectionFactory;
-
     /**
      * @var ApiAdapter
      */
     private $apiAdapter;
-
     /**
      * @var ProfileConfigRepository
      */
     private $profileConfigRepository;
-
     /**
      * @var Json
      */
     private $json;
+    /**
+     * @var ConfigRepository
+     */
+    private $configRepository;
 
     /**
      * ProfileUpdate constructor.
@@ -50,11 +53,13 @@ class ProfileUpdate
     public function __construct(
         ProfileCollectionFactory $profileCollectionFactory,
         ApiAdapter $apiAdapter,
+        ConfigRepository $configRepository,
         ProfileConfigRepository $profileConfigRepository,
         Json $json
     ) {
         $this->profileCollectionFactory = $profileCollectionFactory;
         $this->apiAdapter = $apiAdapter;
+        $this->configRepository = $configRepository;
         $this->profileConfigRepository = $profileConfigRepository;
         $this->json = $json;
     }
@@ -66,7 +71,7 @@ class ProfileUpdate
      */
     public function execute()
     {
-        if (!$this->profileConfigRepository->isEnabled()) {
+        if (!$this->configRepository->isEnabled()) {
             return $this;
         }
         $collection = $this->profileCollectionFactory->create()
@@ -93,10 +98,10 @@ class ProfileUpdate
     /**
      * Prepare data to push
      *
-     * @param \Datatrics\Connect\Model\Profile\Data $profile
+     * @param ProfileData $profile
      * @return array
      */
-    private function prepareData($profile)
+    private function prepareData($profile): array
     {
         $storeId = (int)$profile->getStoreId();
         return [
