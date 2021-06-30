@@ -188,7 +188,7 @@ class ContentUpdate
             return 0;
         }
         $productIds = $connection->fetchCol($select, 'product_id');
-        $count = $this->prepareData($productIds, $storeId);
+        $count = $productIds ? $this->prepareData($productIds, $storeId) : 0;
         $this->initProgressBar($output, $count);
         return 0;
     }
@@ -245,6 +245,7 @@ class ContentUpdate
             return $count;
         }
         if (!$items['items']) {
+            $this->updateSkipped($productIds, $storeId);
             return $count;
         }
         //bulk update
@@ -261,12 +262,12 @@ class ContentUpdate
         } else {
             return $count;
         }
-        $productIds = [];
+        $updatedProductIds = [];
         foreach ($response['data']['items'] as $item) {
-            $productIds[] = $item['id'];
+            $updatedProductIds[] = $item['id'];
         }
         $where = [
-            'product_id IN (?)' => $productIds,
+            'product_id IN (?)' => $updatedProductIds,
             'store_id = ?' => $storeId
         ];
         if ($response['success'] == true) {
@@ -289,10 +290,36 @@ class ContentUpdate
                 $where
             );
         }
+
+        $skippedProducts = array_diff($productIds, $updatedProductIds);
+        if (!empty($skippedProducts)) {
+            $this->updateSkipped($skippedProducts, $storeId);
+        }
+
         if ($this->progressBar) {
             $this->progressBar->setMessage((string)$count, 'content');
             $this->progressBar->advance($count);
         }
         return $count;
+    }
+
+    /**
+     * @param array $productIds
+     * @param int $storeId
+     */
+    private function updateSkipped(array $productIds, int $storeId)
+    {
+        $connection = $this->contentResource->getConnection();
+        $connection->update(
+            $this->contentResource->getTable('datatrics_content_store'),
+            [
+                'status' => 'Skipped',
+                'update_msg' => ''
+            ],
+            [
+                'product_id IN (?)' => $productIds,
+                'store_id = ?' => $storeId
+            ]
+        );
     }
 }

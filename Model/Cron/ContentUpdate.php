@@ -132,13 +132,16 @@ class ContentUpdate
             if ($store->getIsActive()
                 && $this->contentConfigRepository->isEnabled((int)$store->getId())
             ) {
-                $this->processStoreData($store->getId());
+                $this->processStoreData((int)$store->getId());
             }
         }
         return $this;
     }
 
-    private function processStoreData($storeId)
+    /**
+     * @param int $storeId
+     */
+    private function processStoreData(int $storeId)
     {
         $connection = $this->contentResource->getConnection();
         $select = $connection->select()->from(

@@ -7,13 +7,12 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Controller\Adminhtml\Credentials;
 
+use Datatrics\Connect\Service\API\ConnectionTest;
 use Magento\Backend\App\Action;
-use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
-use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Exception;
+use Magento\Framework\Controller\ResultInterface;
 
 /**
  * Class Check
@@ -24,27 +23,26 @@ class Check extends Action
 {
 
     /**
-     * @var ApiAdapter
-     */
-    private $adapter;
-    /**
      * @var JsonFactory
      */
     private $resultJsonFactory;
+    /**
+     * @var ConnectionTest
+     */
+    private $connectionTest;
 
     /**
      * Check constructor.
-     *
      * @param Action\Context $context
      * @param JsonFactory $resultJsonFactory
-     * @param ApiAdapter $adapter
+     * @param ConnectionTest $connectionTest
      */
     public function __construct(
         Action\Context $context,
         JsonFactory $resultJsonFactory,
-        ApiAdapter $adapter
+        ConnectionTest $connectionTest
     ) {
-        $this->adapter = $adapter;
+        $this->connectionTest = $connectionTest;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->messageManager = $context->getMessageManager();
         parent::__construct($context);
@@ -60,18 +58,12 @@ class Check extends Action
         $resultJson = $this->resultJsonFactory->create();
 
         try {
-            $this->adapter->setCredentials($apiKey, $projectId);
-            $success = $this->adapter->execute(ApiAdapter::GET_PROFILES)['success'];
-        } catch (Exception $exception) {
-            return $resultJson->setData(['error' => false, 'msg' => $exception->getMessage()]);
+            $this->connectionTest->execute($apiKey, $projectId);
+            $message = __('Credentials correct!') . '<br/>';
+            return $resultJson->setData(['success' => true, 'msg' => $message]);
+        } catch (\Exception $exception) {
+            $message = __($exception->getMessage()) . '<br/>';
+            return $resultJson->setData(['success' => false, 'msg' => $message]);
         }
-        if ($success) {
-            $message = __('Credentials correct!') . '<br>';
-        } else {
-            $message = __('Incorrect credentials, please try again');
-            return $resultJson->setData(['error' => false, 'msg' => $message]);
-        }
-
-        return $resultJson->setData(['success' => true, 'msg' => $message]);
     }
 }

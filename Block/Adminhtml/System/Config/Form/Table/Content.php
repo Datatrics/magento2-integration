@@ -132,13 +132,25 @@ class Content extends Template implements RendererInterface
     {
         $totals = [];
         $connection = $this->contentResource->getConnection();
-        $selectContent = $connection->select()->from(
-            $this->contentResource->getTable('datatrics_content_store'),
-            'product_id'
-        )->where('store_id = ?', $storeId);
-        $totals['items'] = count($connection->fetchAll($selectContent));
-        $selectContent->where('status = ?', 'Queued for Update');
-        $totals['invalidated'] = count($connection->fetchAll($selectContent));
+
+        $statuses = [
+            'items' => null,
+            'invalidated' => 'Queued for Update',
+            'synced' => 'Synced',
+            'skipped' => 'Skipped'
+        ];
+
+        foreach ($statuses as $key => $status) {
+            $selectContent = $connection->select()->from(
+                $this->contentResource->getTable('datatrics_content_store'),
+                'product_id'
+            )->where('store_id = ?', $storeId);
+            if ($status !== null) {
+                $selectContent->where('status = ?', $status);
+            }
+            $totals[$key] = count($connection->fetchAll($selectContent));
+        }
+
         return $totals;
     }
 }

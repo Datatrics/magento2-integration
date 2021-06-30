@@ -8,9 +8,10 @@ declare(strict_types=1);
 namespace Datatrics\Connect\Model\Cron;
 
 use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
-use Datatrics\Connect\Model\Sales\CollectionFactory as SaleCollectionFactory;
+use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
 use Datatrics\Connect\Api\Config\System\SalesInterface as SalesConfigRepository;
-use Datatrics\Connect\Model\Sales\Data;
+use Datatrics\Connect\Model\Sales\CollectionFactory as SaleCollectionFactory;
+use Datatrics\Connect\Model\Sales\Data as SalesData;
 use Magento\Framework\Serialize\Serializer\Json;
 
 /**
@@ -25,21 +26,22 @@ class SalesUpdate
      * @var SaleCollectionFactory
      */
     private $salesCollectionFactory;
-
     /**
      * @var ApiAdapter
      */
     private $apiAdapter;
-
     /**
      * @var SalesConfigRepository
      */
     private $salesConfigRepository;
-
     /**
      * @var Json
      */
     private $json;
+    /**
+     * @var ConfigRepository
+     */
+    private $configRepository;
 
     /**
      * SaleUpdate constructor.
@@ -51,11 +53,13 @@ class SalesUpdate
     public function __construct(
         SaleCollectionFactory $salesCollectionFactory,
         ApiAdapter $apiAdapter,
+        ConfigRepository $configRepository,
         SalesConfigRepository $salesConfigRepository,
         Json $json
     ) {
         $this->salesCollectionFactory = $salesCollectionFactory;
         $this->apiAdapter = $apiAdapter;
+        $this->configRepository = $configRepository;
         $this->salesConfigRepository = $salesConfigRepository;
         $this->json = $json;
     }
@@ -67,7 +71,7 @@ class SalesUpdate
      */
     public function execute()
     {
-        if (!$this->salesConfigRepository->isEnabled()) {
+        if (!$this->configRepository->isEnabled()) {
             return $this;
         }
         $collection = $this->salesCollectionFactory->create()
@@ -94,10 +98,10 @@ class SalesUpdate
     /**
      * Prepare data to push
      *
-     * @param Data $sale
+     * @param SalesData $sale
      * @return array
      */
-    private function prepareData($sale)
+    private function prepareData($sale): array
     {
         $conversionData = $sale->getData();
         $conversionData['items'] = $this->json->unserialize($conversionData['items']);
