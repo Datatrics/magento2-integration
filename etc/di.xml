@@ -166,5 +166,6 @@
         <plugin name="quoteChanges"
                 type="Datatrics\Connect\Plugin\Quote" sortOrder="1" disabled="false" />
     </type>
-
+    <preference for="Magento\Backend\Block\Dashboard\Grids"
+                type="Datatrics\Connect\Block\Adminhtml\Dashboard\Tab"/>
 </config>
