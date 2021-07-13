@@ -1,0 +1,54 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+use Datatrics\Connect\Block\Adminhtml\System\Config\Form\Table\Content;
+
+?>
+<div class="dashboard-item-content">
+    <table class="admin__table-primary dashboard-data" id="datatricsGrid_table">
+        <thead>
+        <tr>
+            <th class="data-grid-th col-name"><span>Store</span></th>
+            <th class="data-grid-th col-name"><span>Code</span></th>
+            <th class="data-grid-th col-name"><span>Status</span></th>
+            <th class="data-grid-th"><span>Items</span></th>
+            <th class="data-grid-th"><span>Invalidated</span></th>
+            <th class="data-grid-th"><span>Skipped</span></th>
+            <th class="data-grid-th"><span>Synced</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php /** @var Content $block */ ?>
+        <?php foreach ($block->getContentStoreData() as $contentStore): ?>
+            <tr>
+                <td class="col-name">
+                    <p><?= $block->escapeHtml($contentStore['name']); ?></p>
+                </td>
+                <td class="col-name">
+                    <p><?= $block->escapeHtml($contentStore['code']); ?></p>
+                </td>
+                <td class="col-name">
+                    <p><?= $block->escapeHtml(__($contentStore['status'])); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml($contentStore['totals']['items']); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml($contentStore['totals']['invalidated']); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml($contentStore['totals']['skipped']); ?></p>
+                </td>
+                <td>
+                    <p><?= $block->escapeHtml($contentStore['totals']['synced']); ?></p>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
+
