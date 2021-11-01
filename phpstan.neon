@@ -1,8 +1,9 @@
 parameters:
-    level: 4
+    level: 1
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::(get|set|uns|has|calc|unset|put|del)[A-Z]#'
         - '#Variable \$block might not be defined.#'
+        - '#Undefined variable: \$block#'
     fileExtensions:
         - php
         - phtml
