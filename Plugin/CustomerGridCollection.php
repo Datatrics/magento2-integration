@@ -50,6 +50,7 @@ class CustomerGridCollection
             $leftJoinTableName = $this->resourceConnection->getTableName(ProfileResource::ENTITY_TABLE);
             $collection
                 ->getSelect()
+                ->distinct()
                 ->joinLeft(
                     ['datatrics_profile' => $leftJoinTableName],
                     "datatrics_profile.customer_id = main_table.entity_id",

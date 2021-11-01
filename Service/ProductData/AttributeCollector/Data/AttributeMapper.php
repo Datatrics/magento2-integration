@@ -283,9 +283,13 @@ class AttributeMapper
                     $item['value'] = [];
                     foreach ($attrValues as $attrValue) {
                         $attributeId = (string)$item['attribute_id'];
-                        $item['value'][] = $this->attrOptions[$attributeId]
-                        [$attrValue]
-                        [$item['store_id']];
+                        try {
+                            $item['value'][] = $this->attrOptions[$attributeId]
+                            [$attrValue]
+                            [$item['store_id']];
+                        } catch (\Exception $exception) {
+                            continue;
+                        }
                     }
                     $item['value'] = implode(',', $item['value']);
                 }

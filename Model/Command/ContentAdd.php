@@ -123,7 +123,9 @@ class ContentAdd
             if ($pool == 1000) {
                 $pool = 0;
                 if ($output) {
+                    /** @phpstan-ignore-next-line */
                     $progressBar->setMessage((string)$count, 'product');
+                    /** @phpstan-ignore-next-line */
                     $progressBar->advance(1000);
                 }
             }
@@ -137,6 +139,7 @@ class ContentAdd
             $this->contentRepository->save($content);
         }
         if ($output) {
+            /** @phpstan-ignore-next-line */
             $progressBar->setMessage((string)$count, 'product');
         }
         if ($data) {
@@ -148,6 +151,7 @@ class ContentAdd
         }
         $this->contentResource->commit();
         if ($output) {
+            /** @phpstan-ignore-next-line */
             $progressBar->finish();
             $output->writeln('');
         }
