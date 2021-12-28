@@ -124,6 +124,9 @@ class Repository implements ProductData
             }
             foreach ($this->resultMap as $index => $attr) {
                 $result[$entityId][$index] = $productData[$attr] ?? '';
+                if (!$result[$entityId][$index]) {
+                    $result[$entityId][$index] = $productData[$index] ?? '';
+                }
             }
         }
 
