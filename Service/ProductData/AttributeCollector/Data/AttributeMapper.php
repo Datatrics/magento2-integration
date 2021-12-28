@@ -304,6 +304,7 @@ class AttributeMapper
                     str_replace(["\r", "\n"], '', (string)$item['value']);
             }
         }
+        $this->adjustTaxClassLabels();
         $select = $this->resource->getConnection()
             ->select()
             ->from(
@@ -319,6 +320,22 @@ class AttributeMapper
                 }
                 $this->result[$static][$item['entity_id']] = $item[$static];
             }
+        }
+    }
+
+    private function adjustTaxClassLabels()
+    {
+        if (!array_key_exists('tax_class_id', $this->result)) {
+            return;
+        }
+        $connection = $this->resource->getConnection();
+        $selectClasses = $connection->select()->from(
+            $this->resource->getTableName('tax_class'),
+            ['class_id', 'class_name']
+        );
+        $taxClassLabels = $connection->fetchPairs($selectClasses);
+        foreach ($this->result['tax_class_id'] as &$taxClassId) {
+            $taxClassId = $taxClassLabels[$taxClassId];
         }
     }
 
