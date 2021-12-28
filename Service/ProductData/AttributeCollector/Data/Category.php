@@ -264,6 +264,9 @@ class Category
         foreach ($data as $entityId => $categoryPathes) {
             $usedPath = [];
             foreach ($categoryPathes as $categoryPath) {
+                if (!$categoryPath) {
+                    continue;
+                }
                 $categoryIds = explode('/', $categoryPath);
                 $key = array_search($rootCategoryId, $categoryIds);
                 if ($key) {
