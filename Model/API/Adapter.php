@@ -81,6 +81,14 @@ class Adapter implements AdapterInterface
      */
     private function getUrl($method, $id = null)
     {
+        if ($method == self::CREATE_INTEGRATION) {
+            return sprintf(
+                self::TOKEN_URL,
+                $this->projectId,
+                $this->getMethodUrl($method, $id)
+            );
+        }
+
         return sprintf(
             self::GENERAL_URL,
             $this->projectId,
@@ -155,6 +163,7 @@ class Adapter implements AdapterInterface
             case self::BULK_CREATE_INTERACTION:
             case self::BULK_CREATE_CONTENT:
             case self::BULK_CREATE_CATEGORIES:
+            case self::CREATE_INTEGRATION:
                 $this->curl->post($this->getUrl($method), $data);
                 break;
             case self::UPDATE_PROFILE:
@@ -174,7 +183,7 @@ class Adapter implements AdapterInterface
      *
      * @return array
      */
-    private function getHttpHeaders()
+    private function getHttpHeaders(): array
     {
         return [
             'Accept' => 'application/json',
@@ -189,7 +198,7 @@ class Adapter implements AdapterInterface
     /**
      * @return array
      */
-    private function processResult()
+    private function processResult(): array
     {
         $result = [];
         if ($this->curl->getBody()) {
@@ -212,6 +221,7 @@ class Adapter implements AdapterInterface
         switch ($this->curl->getStatus()) {
             case 100:
             case 200:
+            case 201:
             case 204:
                 $this->logRepository->addDebugLog('Response', $result);
                 return [
@@ -255,7 +265,7 @@ class Adapter implements AdapterInterface
      *
      * @return array
      */
-    private function validate(array $require, bool $hasId, bool $hasData)
+    private function validate(array $require, bool $hasId, bool $hasData): array
     {
         if (in_array('id', $require) && !$hasId) {
             return [

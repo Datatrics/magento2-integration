@@ -69,6 +69,7 @@ class OrderPlace
                 if (!$customers->getSize()) {
                     $this->profileRepository->prepareGuestProfileData($order);
                 } else {
+                    $customers->setPageSize(1);
                     $this->profileRepository->prepareProfileData($customers->getFirstItem());
                 }
             }

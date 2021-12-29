@@ -10,7 +10,7 @@ namespace Datatrics\Connect\Api\API;
 /**
  * API Profile interface
  */
-interface ProfileInterface
+interface ProfileInterface extends IntegrationInterface
 {
 
     /**

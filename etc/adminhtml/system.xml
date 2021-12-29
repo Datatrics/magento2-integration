@@ -18,6 +18,7 @@
             <resource>Datatrics_Connect::config</resource>
             <include path="Datatrics_Connect::system/branding.xml"/>
             <include path="Datatrics_Connect::system/general.xml"/>
+            <include path="Datatrics_Connect::system/integration.xml"/>
             <include path="Datatrics_Connect::system/debug.xml"/>
         </section>
         <section id="datatrics_connect_product" translate="label" type="text" sortOrder="20" showInDefault="1"

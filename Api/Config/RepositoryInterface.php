@@ -25,6 +25,7 @@ interface RepositoryInterface
     const XML_PATH_PROJECT_ID = 'datatrics_connect_general/general/project_id';
     const XML_PATH_SOURCE = 'datatrics_connect_general/general/source';
     const XML_PATH_DEBUG = 'datatrics_connect_general/general/debug';
+    const XML_PATH_TOKEN = 'datatrics_connect_general/integration/token';
 
     /**
      * Get extension version
@@ -90,6 +91,14 @@ interface RepositoryInterface
      * @return string
      */
     public function getProjectId(int $storeId = null): string;
+
+    /**
+     * Set Token
+     *
+     * @param string $token
+     * @param bool $cleanCache
+     */
+    public function setToken(string $token, $cleanCache = true): void;
 
     /**
      * Check if debug mode is enabled

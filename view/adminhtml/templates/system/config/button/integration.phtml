@@ -1,0 +1,55 @@
+<?php
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+use Datatrics\Connect\Block\Adminhtml\System\Config\Button\Integration;
+
+/**
+ * @see \Datatrics\Connect\Block\Adminhtml\System\Config\Button\Integration
+ * @var Integration $block
+ */
+?>
+<script>
+    require([
+        'jquery',
+        'prototype'
+    ], function (jQuery) {
+        var resultSpan = jQuery('#result_integration');
+        jQuery('#button_integration').click(function () {
+            var params = {
+                "store_id": jQuery("select[name='groups[integration][fields][store_id][value]']").val()
+            };
+            new Ajax.Request('<?= $block->escapeUrl($block->getIntegrationUrl()) ?>', {
+                parameters: params,
+                loaderArea: false,
+                asynchronous: true,
+                onCreate: function () {
+                    resultSpan.find('.connecting').show();
+                    resultSpan.find('.result').hide();
+                },
+                onSuccess: function (response) {
+                    resultSpan.find('.connecting').hide();
+                    var resultText = '';
+                    if (response.status > 200) {
+                        resultText = response.statusText;
+                    } else {
+                        var json = response.responseJSON;
+                        if (typeof json.msg != 'undefined') {
+                            resultText = json.msg;
+                            jQuery("input[name='groups[integration][fields][token][value]']").val(json.token)
+                        }
+                    }
+                    resultSpan.find('.result').show();
+                    resultSpan.find('.result').html(resultText);
+                }
+            });
+        });
+    });
+</script>
+<?= $block->getButtonHtml() ?>
+<div id="result_integration">
+    <span class="connecting" style="display: none;">Creating...</span>
+    <span class="result"></span>
+</div>
