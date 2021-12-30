@@ -86,7 +86,8 @@ class OrderSave
         if ($order->getCustomerIsGuest()) {
             $this->profileRepository->prepareGuestProfileData($order);
         } else {
-            $customers = $this->customerCollection->addFieldToFilter('entity_id', $order->getCustomerId());
+            $customers = $this->customerCollection->addFieldToFilter('entity_id', $order->getCustomerId())
+                ->setPageSize(1);
             if (!$customers->getSize()) {
                 $this->profileRepository->prepareGuestProfileData($order);
             } else {

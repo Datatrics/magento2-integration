@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * Copyright © Magmodules.eu. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route method="GET" url="/V1/datatrics/info">
+        <service class="Datatrics\Connect\Api\Webapi\RepositoryInterface" method="getInformation"/>
+        <resources>
+            <resource ref="Datatrics_Connect::webapi"/>
+        </resources>
+    </route>
+</routes>

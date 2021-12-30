@@ -13,6 +13,7 @@
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">
                             <resource id="Datatrics_Connect::config" title="Connect" sortOrder="10" />
+                            <resource id="Datatrics_Connect::webapi" title="WebApi" sortOrder="20" />
                         </resource>
                     </resource>
                 </resource>

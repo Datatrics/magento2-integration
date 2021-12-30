@@ -150,6 +150,8 @@
                 type="Datatrics\Connect\Model\API\CurlExtra"/>
     <preference for="Datatrics\Connect\Api\API\AdapterInterface"
                 type="Datatrics\Connect\Model\API\Adapter"/>
+    <preference for="Datatrics\Connect\Api\Webapi\RepositoryInterface"
+                type="Datatrics\Connect\Model\Webapi\Repository"/>
     <!-- Adapter block end -->
 
     <type name="Magento\Sales\Model\Order">
