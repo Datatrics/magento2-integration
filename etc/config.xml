@@ -19,6 +19,8 @@
         <datatrics_connect_product>
             <product_sync>
                 <cron>0 * * * *</cron>
+                <processing_limit>5000</processing_limit>
+                <processing_limit_add>10000</processing_limit_add>
             </product_sync>
             <product_data>
                 <sku>sku</sku>

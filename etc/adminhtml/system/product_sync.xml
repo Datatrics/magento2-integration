@@ -36,5 +36,12 @@
                 <field id="cron">custom</field>
             </depends>
         </field>
+        <field id="processing_limit" translate="label comment" type="text" sortOrder="42" showInDefault="1"
+               showInWebsite="1" showInStore="1" canRestore="1">
+            <label>Processing limit</label>
+            <config_path>datatrics_connect_product/product_sync/processing_limit</config_path>
+            <comment>Amount of products which would be processed per run (accepted 500 to 50000).</comment>
+            <validate>required-entry validate-digits-range digits-range-500-50000</validate>
+        </field>
     </group>
 </include>

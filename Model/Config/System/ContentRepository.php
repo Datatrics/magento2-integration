@@ -54,6 +54,22 @@ class ContentRepository extends ConfigRepository implements ContentInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getProcessingLimit(int $storeId): int
+    {
+        return (int)$this->getStoreValue(self::XML_PATH_LIMIT, $storeId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProcessingLimitAdd(): int
+    {
+        return (int)$this->getStoreValue(self::XML_PATH_LIMIT_ADD);
+    }
+
+    /**
      * Get selected attribute for 'name'
      *
      * @param int $storeId

@@ -11,6 +11,7 @@ use Datatrics\Connect\Api\Content\RepositoryInterface as ContentRepository;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
+use Datatrics\Connect\Model\Config\System\ContentRepository as ConfigContentRepository;
 
 /**
  * Class ContentAdd
@@ -29,18 +30,25 @@ class ContentAdd
      * @var ContentResource
      */
     private $contentResource;
+    /**
+     * @var ConfigContentRepository
+     */
+    private $configContentRepository;
 
     /**
      * ContentAdd constructor.
      * @param ContentRepository $contentRepository
      * @param ContentResource $contentResource
+     * @param ConfigContentRepository $configContentRepository
      */
     public function __construct(
         ContentRepository $contentRepository,
-        ContentResource $contentResource
+        ContentResource $contentResource,
+        ConfigContentRepository $configContentRepository
     ) {
         $this->contentRepository = $contentRepository;
         $this->contentResource = $contentResource;
+        $this->configContentRepository = $configContentRepository;
     }
 
     /**
@@ -85,7 +93,7 @@ class ContentAdd
                 []
             )->where('datatrics_content_store.store_id = ?', $storeId);
         }
-
+        $limit = $this->configContentRepository->getProcessingLimitAdd();
         $select = $connection->select()->from(
             $this->contentResource->getTable('catalog_product_entity'),
             'entity_id'
@@ -96,7 +104,7 @@ class ContentAdd
                 'parent_id' => 'GROUP_CONCAT(parent_id)'
             ]
         )->where('entity_id not in (?)', $selectContent)
-            ->group('entity_id')->limit(50000);
+            ->group('entity_id')->limit($limit);
         $result = $connection->fetchAll($select);
 
         if ($output) {
