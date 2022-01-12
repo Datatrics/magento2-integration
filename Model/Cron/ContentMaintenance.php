@@ -132,12 +132,12 @@ class ContentMaintenance
         );
         $magentoProductIds = $connection->fetchCol($selectMagentoProducts, 'entity_id');
         $selectDatatricsProducts = $connection->select()->from(
-            $this->contentResource->getTable('catalog_product_entity'),
+            $this->contentResource->getTable('datatrics_content_store'),
             [
                 'product_id'
             ]
         );
-        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts, 'datatrics_content');
+        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts, 'product_id');
         $toAdd = array_diff($magentoProductIds, $datatricsProductIds);
         return $toAdd;
     }
