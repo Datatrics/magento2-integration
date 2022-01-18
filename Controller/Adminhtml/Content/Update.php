@@ -103,7 +103,7 @@ class Update extends Action
                 ['product_id']
             )->where('status = ?', 'Queued for Update')
                 ->where('store_id = ?', $storeId)
-                ->limit(5000);
+                ->limit($this->contentConfigRepository->getProcessingLimit($storeId));
 
             $productIds = $connection->fetchCol($selectProductIds, 'product_id');
             $count = $productIds ? $this->contentUpdate->prepareData($productIds, $storeId) : 0;
