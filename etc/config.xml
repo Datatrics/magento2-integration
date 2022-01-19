@@ -10,7 +10,7 @@
     <default>
         <datatrics_connect_general>
             <general>
-                <version>v1.5.0</version>
+                <version>v1.5.1</version>
                 <enable>0</enable>
                 <source>Magento 2</source>
                 <debug>0</debug>
@@ -19,6 +19,8 @@
         <datatrics_connect_product>
             <product_sync>
                 <cron>0 * * * *</cron>
+                <processing_limit>5000</processing_limit>
+                <processing_limit_add>10000</processing_limit_add>
             </product_sync>
             <product_data>
                 <sku>sku</sku>

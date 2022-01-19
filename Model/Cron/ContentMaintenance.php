@@ -10,6 +10,7 @@ namespace Datatrics\Connect\Model\Cron;
 use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
 use Datatrics\Connect\Api\Content\RepositoryInterface as ContentRepository;
 use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Magento\Framework\Serialize\Serializer\Json;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Store\Api\StoreRepositoryInterface;
@@ -53,6 +54,11 @@ class ContentMaintenance
     private $apiAdapter;
 
     /**
+     * @var ContentConfigRepository
+     */
+    private $contentConfigRepository;
+
+    /**
      * ContentMaintenance constructor.
      * @param ContentResource $contentResource
      * @param ConfigRepository $configRepository
@@ -60,6 +66,7 @@ class ContentMaintenance
      * @param StoreRepositoryInterface $storeManager
      * @param ContentRepository $contentRepository
      * @param ApiAdapter $apiAdapter
+     * @param ContentConfigRepository $contentConfigRepository
      */
     public function __construct(
         ContentResource $contentResource,
@@ -67,7 +74,8 @@ class ContentMaintenance
         Json $json,
         StoreRepositoryInterface $storeManager,
         ContentRepository $contentRepository,
-        ApiAdapter $apiAdapter
+        ApiAdapter $apiAdapter,
+        ContentConfigRepository $contentConfigRepository
     ) {
         $this->contentResource = $contentResource;
         $this->configRepository = $configRepository;
@@ -75,6 +83,7 @@ class ContentMaintenance
         $this->storeManager = $storeManager;
         $this->contentRepository = $contentRepository;
         $this->apiAdapter = $apiAdapter;
+        $this->contentConfigRepository = $contentConfigRepository;
     }
 
     /**
@@ -132,12 +141,12 @@ class ContentMaintenance
         );
         $magentoProductIds = $connection->fetchCol($selectMagentoProducts, 'entity_id');
         $selectDatatricsProducts = $connection->select()->from(
-            $this->contentResource->getTable('catalog_product_entity'),
+            $this->contentResource->getTable('datatrics_content_store'),
             [
                 'product_id'
             ]
         );
-        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts, 'datatrics_content');
+        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts, 'product_id');
         $toAdd = array_diff($magentoProductIds, $datatricsProductIds);
         return $toAdd;
     }
@@ -169,7 +178,9 @@ class ContentMaintenance
                 'parent_id' => 'GROUP_CONCAT(parent_id)'
             ]
         )->where('entity_id in (?)', $productIds)
-            ->group('entity_id')->limit(50000);
+            ->group('entity_id')->limit(
+                $this->contentConfigRepository->getProcessingLimitAdd()
+            );
         $result = $connection->fetchAll($select);
         $this->contentResource->beginTransaction();
         $data = [];

@@ -19,6 +19,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Datatrics\Connect\Service\Product\Hub;
+use Datatrics\Connect\Model\Config\System\ContentRepository as ConfigContentRepository;
 
 /**
  * Class ContentUpdate
@@ -127,6 +128,10 @@ class ContentUpdate
      * @var ProductDataRepository
      */
     private $productDataRepository;
+    /**
+     * @var ConfigContentRepository
+     */
+    private $configContentRepository;
 
     /**
      * ContentUpdate constructor.
@@ -137,6 +142,7 @@ class ContentUpdate
      * @param StoreRepositoryInterface $storeManager
      * @param ProductCollection $productCollection
      * @param ProductDataRepository $productDataRepository
+     * @param ConfigContentRepository $configContentRepository
      */
     public function __construct(
         ContentResource $contentResource,
@@ -145,7 +151,8 @@ class ContentUpdate
         Json $json,
         StoreRepositoryInterface $storeManager,
         ProductCollection $productCollection,
-        ProductDataRepository $productDataRepository
+        ProductDataRepository $productDataRepository,
+        ConfigContentRepository $configContentRepository
     ) {
         $this->contentResource = $contentResource;
         $this->apiAdapter = $apiAdapter;
@@ -154,6 +161,7 @@ class ContentUpdate
         $this->storeManager = $storeManager;
         $this->productCollection = $productCollection;
         $this->productDataRepository = $productDataRepository;
+        $this->configContentRepository = $configContentRepository;
     }
 
     /**
@@ -180,6 +188,9 @@ class ContentUpdate
         )->where('store_id = ?', $storeId);
         if (!$input->getOption('force')) {
             $select->where('status <> ?', 'Synced');
+        }
+        if ($limit = $this->configContentRepository->getProcessingLimit($storeId)) {
+            $select->limit($limit);
         }
         if ($productIds = $input->getArgument('product-id')) {
             $select->where('product_id in (?)', $productIds);

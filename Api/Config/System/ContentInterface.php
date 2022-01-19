@@ -17,6 +17,8 @@ interface ContentInterface extends RepositoryInterface
 
     /* Content */
     const XML_PATH_SKU = 'datatrics_connect_product/product_data/sku';
+    const XML_PATH_LIMIT = 'datatrics_connect_product/product_sync/processing_limit';
+    const XML_PATH_LIMIT_ADD = 'datatrics_connect_product/product_sync/processing_limit_add';
     const XML_PATH_NAME = 'datatrics_connect_product/product_data/name';
     const XML_PATH_DESCRIPTION = 'datatrics_connect_product/product_data/description';
     const XML_PATH_SHORT_DESCRIPTION = 'datatrics_connect_product/product_data/short_description';
@@ -141,4 +143,20 @@ interface ContentInterface extends RepositoryInterface
      * @return array
      */
     public function getGroupedProductsBehaviour(int $storeId): array;
+
+    /**
+     * Get processing limit
+     *
+     * @param int $storeId
+     *
+     * @return int
+     */
+    public function getProcessingLimit(int $storeId): int;
+
+    /**
+     * Get processing limit to add products
+     *
+     * @return int
+     */
+    public function getProcessingLimitAdd(): int;
 }
