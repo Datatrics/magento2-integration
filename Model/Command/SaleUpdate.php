@@ -7,12 +7,13 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\Command;
 
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputInterface;
 use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
-use Datatrics\Connect\Model\Sales\CollectionFactory as SaleCollectionFactory;
 use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
+use Datatrics\Connect\Model\Sales\CollectionFactory as SaleCollectionFactory;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Serialize\Serializer\Json;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class SaleUpdate
@@ -43,6 +44,10 @@ class SaleUpdate
     private $json;
 
     private $isDry = false;
+    /**
+     * @var ResourceConnection
+     */
+    private $resourceConnection;
 
     /**
      * SaleUpdate constructor.
@@ -50,17 +55,20 @@ class SaleUpdate
      * @param ApiAdapter $apiAdapter
      * @param ConfigRepository $configRepository
      * @param Json $json
+     * @param ResourceConnection $resourceConnection
      */
     public function __construct(
         SaleCollectionFactory $saleCollectionFactory,
         ApiAdapter $apiAdapter,
         ConfigRepository $configRepository,
-        Json $json
+        Json $json,
+        ResourceConnection $resourceConnection
     ) {
         $this->saleCollectionFactory = $saleCollectionFactory;
         $this->apiAdapter = $apiAdapter;
         $this->configRepository = $configRepository;
         $this->json = $json;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
@@ -128,10 +136,24 @@ class SaleUpdate
         $conversionData = $sale->getData();
         $conversionData['items'] = $this->json->unserialize($conversionData['items']);
         return [
-            "conversionid" => $sale->getOrderId(),
+            "conversionid" => $this->getOrderIncrementId($sale->getOrderId()),
             "projectid" => $this->configRepository->getProjectId(),
             "source" => 'Magento2',
             "conversion" => $conversionData
         ];
+    }
+
+    /**
+     * @param int $orderId
+     * @return string
+     */
+    private function getOrderIncrementId(int $orderId)
+    {
+        $connection = $this->resourceConnection->getConnection();
+        $selectIncrementId = $connection->select()->from(
+            $this->resourceConnection->getTableName('sales_order'),
+            'increment_id'
+        )->where('entity_id = ?', $orderId);
+        return (string)$connection->fetchOne($selectIncrementId);
     }
 }

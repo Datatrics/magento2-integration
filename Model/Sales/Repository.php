@@ -239,7 +239,7 @@ class Repository implements SalesRepository
         $items = [];
         foreach ($order->getAllItems() as $item) {
             $items[] = [
-                'itemid' => $item->getId(),
+                'itemid' => $item->getSku(),
                 'name' => $item->getName(),
                 'price' => $item->getPrice(),
                 'quantity' => $item->getQtyOrdered(),
