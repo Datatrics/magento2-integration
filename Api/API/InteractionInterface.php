@@ -16,7 +16,7 @@ interface InteractionInterface extends ProfileInterface
     /**
      * Method data
      */
-    const GET_INTERACTIONS = [
+    public const GET_INTERACTIONS = [
         'key' => 'interaction',
         'method' => 'GET',
         'require' => []
@@ -25,7 +25,7 @@ interface InteractionInterface extends ProfileInterface
     /**
      * Method data
      */
-    const GET_INTERACTION = [
+    public const GET_INTERACTION = [
         'key' => 'interaction/%s',
         'method' => 'GET',
         'require' => ['id']
@@ -34,7 +34,7 @@ interface InteractionInterface extends ProfileInterface
     /**
      * Method data
      */
-    const CREATE_INTERACTION = [
+    public const CREATE_INTERACTION = [
         'key' => 'interaction',
         'method' => 'POST',
         'require' => ['data']
@@ -43,7 +43,7 @@ interface InteractionInterface extends ProfileInterface
     /**
      * Method data
      */
-    const BULK_CREATE_INTERACTION = [
+    public const BULK_CREATE_INTERACTION = [
         'key' => 'interaction/bulk',
         'method' => 'POST',
         'require' => ['data']

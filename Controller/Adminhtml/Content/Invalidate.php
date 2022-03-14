@@ -25,17 +25,17 @@ class Invalidate extends Action
     /**
      * Error Message: not enabled
      */
-    const ERROR_MSG_ENABLED = 'Content sync not enabled for this store, please enable this first.';
+    public const ERROR_MSG_ENABLED = 'Content sync not enabled for this store, please enable this first.';
 
     /**
      * Error Message: no items available
      */
-    const ERROR_MSG_NO_ITEMS = 'No product(s) available to invalidate.';
+    public const ERROR_MSG_NO_ITEMS = 'No product(s) available to invalidate.';
 
     /**
      * Success Message: update
      */
-    const SUCCESS_MSG = '%1 product(s) were invalidated and queued for update.';
+    public const SUCCESS_MSG = '%1 product(s) were invalidated and queued for update.';
 
     /**
      * @var ContentResource

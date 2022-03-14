@@ -17,12 +17,12 @@ class AttributeMapper
     /**
      * Values table pattern
      */
-    const TABLE_PATTERN = '%s_%s';
+    public const TABLE_PATTERN = '%s_%s';
 
     /**
      * Data set to fetch from eav_attribute table
      */
-    const EAV_ATTRIBUTES_DATA_SET = [
+    public const EAV_ATTRIBUTES_DATA_SET = [
         'attribute_id',
         'attribute_code',
         'backend_type'
@@ -31,7 +31,7 @@ class AttributeMapper
     /**
      * Data set to fetch from eav_entity_type table
      */
-    const EAV_ENTITY_TYPE_DATA_SET = [
+    public const EAV_ENTITY_TYPE_DATA_SET = [
         'entity_type_code',
         'entity_type_id',
         'entity_table'
@@ -40,7 +40,7 @@ class AttributeMapper
     /**
      *
      */
-    const REQIURE = [
+    public const REQIURE = [
         'entity_ids',
         'map',
         'entity_type_code'

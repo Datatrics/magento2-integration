@@ -27,7 +27,7 @@ class Debug extends Action
     /**
      * Debug log file path pattern
      */
-    const DEBUG_LOG_FILE = '%s/log/datatrics/debug.log';
+    public const DEBUG_LOG_FILE = '%s/log/datatrics/debug.log';
 
     /**
      * @var JsonFactory

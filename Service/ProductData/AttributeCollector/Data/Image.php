@@ -19,7 +19,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 class Image
 {
 
-    const REQUIRE = [
+    public const REQUIRE = [
         'entity_ids',
         'store_id'
     ];

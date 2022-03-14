@@ -27,17 +27,17 @@ class Update extends Action
     /**
      * Error Message: not enabled
      */
-    const ERROR_MSG_ENABLED = 'Content sync not enabled for this store, please enable this first.';
+    public const ERROR_MSG_ENABLED = 'Content sync not enabled for this store, please enable this first.';
 
     /**
      * Error Message: no items available
      */
-    const ERROR_MSG_NO_ITEMS = 'Could not find any products to update, please invalidate the items.';
+    public const ERROR_MSG_NO_ITEMS = 'Could not find any products to update, please invalidate the items.';
 
     /**
      * Success Message: update
      */
-    const SUCCESS_MSG = '%1 product(s) were updated. ';
+    public const SUCCESS_MSG = '%1 product(s) were updated. ';
 
     /**
      * @var ContentResource

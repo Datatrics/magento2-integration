@@ -25,7 +25,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 class PriceNew
 {
 
-    const REQIURE = [
+    public const REQIURE = [
         'entity_ids',
     ];
 

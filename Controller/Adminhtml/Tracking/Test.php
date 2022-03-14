@@ -26,7 +26,7 @@ class Test extends Action
     /**
      * Datarics Sale Endpoint
      */
-    const URL = 'https://api.datatrics.com/2.0/project/%s/sale?apikey=%s&q[goalid]=-1&includecount=0&limit=10';
+    public const URL = 'https://api.datatrics.com/2.0/project/%s/sale?apikey=%s&q[goalid]=-1&includecount=0&limit=10';
 
     /**
      * @var Curl

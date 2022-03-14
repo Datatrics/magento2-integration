@@ -18,32 +18,32 @@ class ExtensionStatus
     /**
      * Test type
      */
-    const TYPE = 'extension_status';
+    public const TYPE = 'extension_status';
 
     /**
      * Test description
      */
-    const TEST = 'Check if the extension is enabled in the configuration';
+    public const TEST = 'Check if the extension is enabled in the configuration';
 
     /**
      * Visibility
      */
-    const VISIBLE = true;
+    public const VISIBLE = true;
 
     /**
      * Message on test success
      */
-    const SUCCESS_MSG = 'Extension is enabled';
+    public const SUCCESS_MSG = 'Extension is enabled';
 
     /**
      * Message on test failed
      */
-    const FAILED_MSG = 'Extension disabled, please enable it!';
+    public const FAILED_MSG = 'Extension disabled, please enable it!';
 
     /**
      * Expected result
      */
-    const EXPECTED = true;
+    public const EXPECTED = true;
 
     /**
      * @var ConfigRepository

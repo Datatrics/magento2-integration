@@ -25,7 +25,7 @@ class ProfileInvalidate extends Command
     /**
      * Command call name
      */
-    const COMMAND_NAME = 'datatrics:profile:invalidate';
+    public const COMMAND_NAME = 'datatrics:profile:invalidate';
 
     /**
      * @var ProfileInvalidateProcessing

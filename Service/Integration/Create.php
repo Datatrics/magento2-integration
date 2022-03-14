@@ -25,7 +25,7 @@ use Magento\Store\Model\StoreManagerInterface;
 class Create
 {
 
-    const INTEGRATION_NAME = 'Datatrics Integration';
+    public const INTEGRATION_NAME = 'Datatrics Integration';
 
     /**
      * @var IntegrationServiceInterface

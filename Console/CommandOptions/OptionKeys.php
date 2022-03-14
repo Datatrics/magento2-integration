@@ -19,55 +19,55 @@ class OptionKeys
     /**
      * Key for store_id argument
      */
-    const STORE_ID = 'store-id';
+    public const STORE_ID = 'store-id';
 
     /**
      * Key for product_id argument
      */
-    const PRODUCT_ID = 'product-id';
+    public const PRODUCT_ID = 'product-id';
 
     /**
      * Key for --limit option
      */
-    const LIMIT = 'limit';
+    public const LIMIT = 'limit';
 
     /**
      * Key for --force option
      */
-    const FORCE = 'force';
+    public const FORCE = 'force';
 
     /**
      * Key for --dry option
      */
-    const DRY = 'dry';
+    public const DRY = 'dry';
 
     /**
      * Key for --category-id option
      */
-    const CATEGORY_ID = 'category-id';
+    public const CATEGORY_ID = 'category-id';
 
     /**
      * Key for --from-date option
      */
-    const FROM_DATE = 'from-date';
+    public const FROM_DATE = 'from-date';
 
     /**
      * Key for --to-date option
      */
-    const TO_DATE = 'to-date';
+    public const TO_DATE = 'to-date';
 
     /**
      * Key for --customer-id option
      */
-    const CUSTOMER_ID = 'customer-id';
+    public const CUSTOMER_ID = 'customer-id';
 
     /**
      * Key for --order-id option
      */
-    const ORDER_ID = 'order-id';
+    public const ORDER_ID = 'order-id';
 
     /**
      * Key for --offset option
      */
-    const OFFSET = 'offset';
+    public const OFFSET = 'offset';
 }

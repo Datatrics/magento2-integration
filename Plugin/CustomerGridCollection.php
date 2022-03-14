@@ -19,7 +19,7 @@ use Magento\Framework\View\Element\UiComponent\DataProvider\Reporting;
 class CustomerGridCollection
 {
 
-    const TABLE = 'customer_grid_flat';
+    public const TABLE = 'customer_grid_flat';
 
     /**
      * @var ResourceConnection

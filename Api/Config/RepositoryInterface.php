@@ -16,16 +16,16 @@ interface RepositoryInterface
 {
 
     /** Extension code */
-    const EXTENSION_CODE = 'Datatrics_Connect';
+    public const EXTENSION_CODE = 'Datatrics_Connect';
 
     /* General */
-    const XML_PATH_EXTENSION_VERSION = 'datatrics_connect_general/general/version';
-    const XML_PATH_EXTENSION_ENABLE = 'datatrics_connect_general/general/enable';
-    const XML_PATH_API_KEY = 'datatrics_connect_general/general/api_key';
-    const XML_PATH_PROJECT_ID = 'datatrics_connect_general/general/project_id';
-    const XML_PATH_SOURCE = 'datatrics_connect_general/general/source';
-    const XML_PATH_DEBUG = 'datatrics_connect_general/general/debug';
-    const XML_PATH_TOKEN = 'datatrics_connect_general/integration/token';
+    public const XML_PATH_EXTENSION_VERSION = 'datatrics_connect_general/general/version';
+    public const XML_PATH_EXTENSION_ENABLE = 'datatrics_connect_general/general/enable';
+    public const XML_PATH_API_KEY = 'datatrics_connect_general/general/api_key';
+    public const XML_PATH_PROJECT_ID = 'datatrics_connect_general/general/project_id';
+    public const XML_PATH_SOURCE = 'datatrics_connect_general/general/source';
+    public const XML_PATH_DEBUG = 'datatrics_connect_general/general/debug';
+    public const XML_PATH_TOKEN = 'datatrics_connect_general/integration/token';
 
     /**
      * Get extension version

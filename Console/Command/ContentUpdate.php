@@ -25,7 +25,7 @@ class ContentUpdate extends Command
     /**
      * Command call name
      */
-    const COMMAND_NAME = 'datatrics:content:update';
+    public const COMMAND_NAME = 'datatrics:content:update';
 
     /**
      * @var ContentUpdateOptions

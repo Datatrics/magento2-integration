@@ -18,7 +18,7 @@ use Magento\Quote\Model\Quote\Item;
  */
 class Quote
 {
-    const CART_TRIGGER = 'TriggerCart';
+    public const CART_TRIGGER = 'TriggerCart';
 
     /**
      * @var Session

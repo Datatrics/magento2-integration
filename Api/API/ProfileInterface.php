@@ -16,7 +16,7 @@ interface ProfileInterface extends IntegrationInterface
     /**
      * Method data
      */
-    const GET_PROFILES = [
+    public const GET_PROFILES = [
         'key' => 'profile',
         'method' => 'GET',
         'require' => []
@@ -25,7 +25,7 @@ interface ProfileInterface extends IntegrationInterface
     /**
      * Method data
      */
-    const GET_PROFILE = [
+    public const GET_PROFILE = [
         'key' => 'profile/%s',
         'method' => 'GET',
         'require' => ['id']
@@ -34,7 +34,7 @@ interface ProfileInterface extends IntegrationInterface
     /**
      * Method data
      */
-    const CREATE_PROFILE = [
+    public const CREATE_PROFILE = [
         'key' => 'profile',
         'method' => 'POST',
         'require' => ['data']
@@ -43,7 +43,7 @@ interface ProfileInterface extends IntegrationInterface
     /**
      * Method data
      */
-    const BULK_CREATE_PROFILE = [
+    public const BULK_CREATE_PROFILE = [
         'key' => 'profile/bulk',
         'method' => 'POST',
         'require' => ['data']
@@ -52,7 +52,7 @@ interface ProfileInterface extends IntegrationInterface
     /**
      * Method data
      */
-    const UPDATE_PROFILE = [
+    public const UPDATE_PROFILE = [
         'key' => 'profile/%s',
         'method' => 'PUT',
         'require' => ['id', 'data']

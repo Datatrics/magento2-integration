@@ -18,37 +18,37 @@ class MagentoVersion
     /**
      * Test type
      */
-    const TYPE = 'magento_version';
+    public const TYPE = 'magento_version';
 
     /**
      * Test description
      */
-    const TEST = 'Check if current Magento version is supported for this module version';
+    public const TEST = 'Check if current Magento version is supported for this module version';
 
     /**
      * Visibility
      */
-    const VISIBLE = true;
+    public const VISIBLE = true;
 
     /**
      * Message on test success
      */
-    const SUCCESS_MSG = 'Magento version match';
+    public const SUCCESS_MSG = 'Magento version match';
 
     /**
      * Message on test failed
      */
-    const FAILED_MSG = 'Minumum required Magento 2 version is %s, curent version is %s!';
+    public const FAILED_MSG = 'Minumum required Magento 2 version is %s, curent version is %s!';
 
     /**
      * Link to get support
      */
-    const SUPPORT_LINK = 'https://www.magmodules.eu/help/magento2/minimum-magento-version.html';
+    public const SUPPORT_LINK = 'https://www.magmodules.eu/help/magento2/minimum-magento-version.html';
 
     /**
      * Expected result
      */
-    const EXPECTED = '2.3';
+    public const EXPECTED = '2.3';
 
     /**
      * @var ConfigRepository

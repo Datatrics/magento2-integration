@@ -16,7 +16,7 @@ use Magento\Framework\Module\Manager as ModuleManager;
 class Stock
 {
 
-    const REQIURE = [
+    public const REQIURE = [
         'entity_ids'
     ];
 

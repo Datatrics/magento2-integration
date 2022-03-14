@@ -24,7 +24,7 @@ use Magento\Store\Model\StoreManagerInterface;
 class Price
 {
 
-    const REQUIRE = [
+    public const REQUIRE = [
         'products',
         'grouped_price_type',
         'bundle_price_type'

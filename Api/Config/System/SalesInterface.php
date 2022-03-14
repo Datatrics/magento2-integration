@@ -16,12 +16,12 @@ interface SalesInterface extends RepositoryInterface
 {
 
     /* Sales */
-    const XML_PATH_ORDER_ENABLED = 'datatrics_connect_order/order_sync/enable';
-    const XML_PATH_ORDER_STATE_LIMIT = 'datatrics_connect_order/order_sync/limit_order_state';
-    const XML_PATH_ORDER_STATE = 'datatrics_connect_order/order_sync/order_state';
-    const XML_PATH_ORDER_CUSTOMER_LIMIT = 'datatrics_connect_order/order_sync/limit_customer_group';
-    const XML_PATH_ORDER_CUSTOMER_GROUP = 'datatrics_connect_order/order_sync/customer_group';
-    const XML_PATH_ORDER_CRON = 'datatrics_connect_order/order_sync/cron';
+    public const XML_PATH_ORDER_ENABLED = 'datatrics_connect_order/order_sync/enable';
+    public const XML_PATH_ORDER_STATE_LIMIT = 'datatrics_connect_order/order_sync/limit_order_state';
+    public const XML_PATH_ORDER_STATE = 'datatrics_connect_order/order_sync/order_state';
+    public const XML_PATH_ORDER_CUSTOMER_LIMIT = 'datatrics_connect_order/order_sync/limit_customer_group';
+    public const XML_PATH_ORDER_CUSTOMER_GROUP = 'datatrics_connect_order/order_sync/customer_group';
+    public const XML_PATH_ORDER_CRON = 'datatrics_connect_order/order_sync/cron';
 
     /**
      * Sales Enable FLag

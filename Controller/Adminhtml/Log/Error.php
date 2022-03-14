@@ -27,7 +27,7 @@ class Error extends Action
     /**
      * Error log file path pattern
      */
-    const ERROR_LOG_FILE = '%s/log/datatrics/error.log';
+    public const ERROR_LOG_FILE = '%s/log/datatrics/error.log';
 
     /**
      * @var JsonFactory

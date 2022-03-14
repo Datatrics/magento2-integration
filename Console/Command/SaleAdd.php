@@ -25,7 +25,7 @@ class SaleAdd extends Command
     /**
      * Command call name
      */
-    const COMMAND_NAME = 'datatrics:sale:add';
+    public const COMMAND_NAME = 'datatrics:sale:add';
 
     /**
      * @var SaleAddOptions

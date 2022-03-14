@@ -19,29 +19,29 @@ interface DataInterface extends ExtensibleDataInterface
     /**#@+
      * Constants for keys of data array. Identical to the name of the getter in snake case
      */
-    const ENTITY_ID = 'entity_id';
-    const STORE_ID = 'store_id';
-    const PROFILE_ID = 'profile_id';
-    const CUSTOMER_ID = 'customer_id';
-    const ADDRESS_ID = 'address_id';
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = 'updated_at';
-    const UPDATE_MSG = 'update_msg';
-    const UPDATE_ATTEMPTS = 'update_attempts';
-    const STATUS = 'status';
-    const FIRSTNAME = 'firstname';
-    const LASTNAME = 'lastname';
-    const NAME = 'name';
-    const EMAIL = 'email';
-    const COMPANY = 'company';
-    const ADDRESS = 'address';
-    const COUNTRY = 'country';
-    const CITY = 'city';
-    const ZIP = 'zip';
-    const PHONE = 'phone';
-    const REGION = 'region';
-    const STREET = 'street';
-    const PREFIX = 'prefix';
+    public const ENTITY_ID = 'entity_id';
+    public const STORE_ID = 'store_id';
+    public const PROFILE_ID = 'profile_id';
+    public const CUSTOMER_ID = 'customer_id';
+    public const ADDRESS_ID = 'address_id';
+    public const CREATED_AT = 'created_at';
+    public const UPDATED_AT = 'updated_at';
+    public const UPDATE_MSG = 'update_msg';
+    public const UPDATE_ATTEMPTS = 'update_attempts';
+    public const STATUS = 'status';
+    public const FIRSTNAME = 'firstname';
+    public const LASTNAME = 'lastname';
+    public const NAME = 'name';
+    public const EMAIL = 'email';
+    public const COMPANY = 'company';
+    public const ADDRESS = 'address';
+    public const COUNTRY = 'country';
+    public const CITY = 'city';
+    public const ZIP = 'zip';
+    public const PHONE = 'phone';
+    public const REGION = 'region';
+    public const STREET = 'street';
+    public const PREFIX = 'prefix';
     /**#@-*/
 
     /**

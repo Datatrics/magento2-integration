@@ -21,7 +21,7 @@ class PreProcessor implements ArgumentInterface
     /**
      *
      */
-    const URL_PATH = 'datatrics/cart/get';
+    public const URL_PATH = 'datatrics/cart/get';
 
     /**
      * @var TemplatePreparator

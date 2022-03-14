@@ -19,7 +19,7 @@ use Magento\Framework\Setup\UpgradeDataInterface;
 class UpgradeData implements UpgradeDataInterface
 {
 
-    const FIELDS = [
+    public const FIELDS = [
         'datatrics_connect/general/version'
         => 'datatrics_connect_general/general/version',
         'datatrics_connect/general/enable'

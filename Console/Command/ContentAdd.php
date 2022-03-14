@@ -25,7 +25,7 @@ class ContentAdd extends Command
     /**
      * Command call name
      */
-    const COMMAND_NAME = 'datatrics:content:add';
+    public const COMMAND_NAME = 'datatrics:content:add';
 
     /**
      * @var ContentAddOptions

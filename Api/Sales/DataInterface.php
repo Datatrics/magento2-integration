@@ -19,18 +19,18 @@ interface DataInterface extends ExtensibleDataInterface
     /**#@+
      * Constants for keys of data array. Identical to the name of the getter in snake case
      */
-    const ENTITY_ID = 'entity_id';
-    const ORDER_ID = 'order_id';
-    const STORE_ID = 'store_id';
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = 'updated_at';
-    const UPDATE_MSG = 'update_msg';
-    const UPDATE_ATTEMPTS = 'update_attempts';
-    const STATUS = 'status';
-    const PROFILE_ID = 'profile_id';
-    const EMAIL = 'email';
-    const ITEMS = 'items';
-    const TOTAL = 'total';
+    public const ENTITY_ID = 'entity_id';
+    public const ORDER_ID = 'order_id';
+    public const STORE_ID = 'store_id';
+    public const CREATED_AT = 'created_at';
+    public const UPDATED_AT = 'updated_at';
+    public const UPDATE_MSG = 'update_msg';
+    public const UPDATE_ATTEMPTS = 'update_attempts';
+    public const STATUS = 'status';
+    public const PROFILE_ID = 'profile_id';
+    public const EMAIL = 'email';
+    public const ITEMS = 'items';
+    public const TOTAL = 'total';
     /**#@-*/
 
     /**
