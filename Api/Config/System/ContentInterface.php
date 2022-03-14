@@ -32,7 +32,8 @@ interface ContentInterface extends RepositoryInterface
     public const XML_PATH_USE_CONFIG_PRODUCTS = 'datatrics_connect_product/types/configurable';
     public const XML_PATH_CONFIG_USE_PARENT_URL_FOR_SIMPLES = 'datatrics_connect_product/types/configurable_link';
     public const XML_PATH_CONFIG_USE_PARENT_IMAGES_FOR_SIMPLES = 'datatrics_connect_product/types/configurable_image';
-    public const XML_PATH_CONFIG_USE_PARENT_DATA_FOR_SIMPLES = 'datatrics_connect_product/types/configurable_parent_atts';
+    public const XML_PATH_CONFIG_USE_PARENT_DATA_FOR_SIMPLES =
+        'datatrics_connect_product/types/configurable_parent_atts';
     public const XML_PATH_CONFIG_USE_NON_VISIBLE_FALLBACK = 'datatrics_connect_product/types/configurable_nonvisible';
 
     /* Content -> Product types: Bundle */

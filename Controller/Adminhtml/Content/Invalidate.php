@@ -10,6 +10,7 @@ namespace Datatrics\Connect\Controller\Adminhtml\Content;
 use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Backend\App\Action;
+use Magento\Framework\App\Response\RedirectInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
@@ -45,6 +46,10 @@ class Invalidate extends Action
      * @var ContentConfigRepository
      */
     private $contentConfigRepository;
+    /**
+     * @var RedirectInterface
+     */
+    private $redirect;
 
     /**
      * Check constructor.
@@ -56,11 +61,13 @@ class Invalidate extends Action
     public function __construct(
         Action\Context $context,
         ContentResource $contentResource,
-        ContentConfigRepository $contentConfigRepository
+        ContentConfigRepository $contentConfigRepository,
+        RedirectInterface $redirect
     ) {
         $this->messageManager = $context->getMessageManager();
         $this->contentResource = $contentResource;
         $this->contentConfigRepository = $contentConfigRepository;
+        $this->redirect = $redirect;
         parent::__construct($context);
     }
 
@@ -76,7 +83,7 @@ class Invalidate extends Action
             $msg = self::ERROR_MSG_ENABLED;
             $this->messageManager->addErrorMessage(__($msg));
             return $resultRedirect->setPath(
-                $this->_redirect->getRefererUrl()
+                $this->redirect->getRefererUrl()
             );
         }
 
@@ -99,7 +106,7 @@ class Invalidate extends Action
         }
 
         return $resultRedirect->setPath(
-            $this->_redirect->getRefererUrl()
+            $this->redirect->getRefererUrl()
         );
     }
 }

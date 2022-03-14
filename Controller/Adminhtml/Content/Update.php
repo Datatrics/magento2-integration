@@ -12,6 +12,7 @@ use Datatrics\Connect\Model\Command\ContentUpdate;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Datatrics\Connect\Service\API\ConnectionTest;
 use Magento\Backend\App\Action;
+use Magento\Framework\App\Response\RedirectInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
@@ -55,6 +56,10 @@ class Update extends Action
      * @var ConnectionTest
      */
     private $connectionTest;
+    /**
+     * @var RedirectInterface
+     */
+    private $redirect;
 
     /**
      * Update constructor.
@@ -69,13 +74,15 @@ class Update extends Action
         ContentResource $contentResource,
         ContentUpdate $contentUpdate,
         ContentConfigRepository $contentConfigRepository,
-        ConnectionTest $connectionTest
+        ConnectionTest $connectionTest,
+        RedirectInterface $redirect
     ) {
         $this->messageManager = $context->getMessageManager();
         $this->contentResource = $contentResource;
         $this->contentUpdate = $contentUpdate;
         $this->contentConfigRepository = $contentConfigRepository;
         $this->connectionTest = $connectionTest;
+        $this->redirect = $redirect;
         parent::__construct($context);
     }
 
@@ -91,7 +98,7 @@ class Update extends Action
             $msg = self::ERROR_MSG_ENABLED;
             $this->messageManager->addErrorMessage(__($msg));
             return $resultRedirect->setPath(
-                $this->_redirect->getRefererUrl()
+                $this->redirect->getRefererUrl()
             );
         }
 
@@ -120,7 +127,7 @@ class Update extends Action
         }
 
         return $resultRedirect->setPath(
-            $this->_redirect->getRefererUrl()
+            $this->redirect->getRefererUrl()
         );
     }
 }
