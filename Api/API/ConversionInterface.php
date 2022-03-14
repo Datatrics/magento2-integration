@@ -16,7 +16,7 @@ interface ConversionInterface extends InteractionInterface
     /**
      * Method data
      */
-    const GET_CONVERSIONS = [
+    public const GET_CONVERSIONS = [
         'key' => 'sale',
         'method' => 'GET',
         'require' => []
@@ -25,7 +25,7 @@ interface ConversionInterface extends InteractionInterface
     /**
      * Method data
      */
-    const GET_CONVERSION = [
+    public const GET_CONVERSION = [
         'key' => 'sale/%s',
         'method' => 'GET',
         'require' => ['id']
@@ -34,7 +34,7 @@ interface ConversionInterface extends InteractionInterface
     /**
      * Method data
      */
-    const CREATE_CONVERSION = [
+    public const CREATE_CONVERSION = [
         'key' => 'sale',
         'method' => 'POST',
         'require' => ['data']
@@ -43,7 +43,7 @@ interface ConversionInterface extends InteractionInterface
     /**
      * Method data
      */
-    const BULK_CREATE_CONVERSION = [
+    public const BULK_CREATE_CONVERSION = [
         'key' => 'sale/bulk',
         'method' => 'POST',
         'require' => ['data']

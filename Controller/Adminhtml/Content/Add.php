@@ -11,6 +11,7 @@ use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigReposit
 use Datatrics\Connect\Model\Command\ContentAdd;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Backend\App\Action;
+use Magento\Framework\App\Response\RedirectInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
@@ -27,17 +28,17 @@ class Add extends Action
     /**
      * Error Message: not enabled
      */
-    const ERROR_MSG_ENABLED = 'Content sync not enabled for this store, please enable this first.';
+    public const ERROR_MSG_ENABLED = 'Content sync not enabled for this store, please enable this first.';
 
     /**
      * Error Message: no items available
      */
-    const ERROR_MSG_NO_ITEMS = 'Could not find any products to add to content table.';
+    public const ERROR_MSG_NO_ITEMS = 'Could not find any products to add to content table.';
 
     /**
      * Success Message: update
      */
-    const SUCCESS_MSG = '%1 product(s) were added to content table.';
+    public const SUCCESS_MSG = '%1 product(s) were added to content table.';
 
     /**
      * @var ContentResource
@@ -51,6 +52,10 @@ class Add extends Action
      * @var ContentConfigRepository
      */
     private $contentConfigRepository;
+    /**
+     * @var RedirectInterface
+     */
+    private $redirect;
 
     /**
      * Check constructor.
@@ -64,12 +69,14 @@ class Add extends Action
         Action\Context $context,
         ContentResource $contentResource,
         ContentAdd $contentAdd,
-        ContentConfigRepository $contentConfigRepository
+        ContentConfigRepository $contentConfigRepository,
+        RedirectInterface $redirect
     ) {
         $this->messageManager = $context->getMessageManager();
         $this->contentResource = $contentResource;
         $this->contentAdd = $contentAdd;
         $this->contentConfigRepository = $contentConfigRepository;
+        $this->redirect = $redirect;
         parent::__construct($context);
     }
 
@@ -86,7 +93,7 @@ class Add extends Action
             $msg = self::ERROR_MSG_ENABLED;
             $this->messageManager->addErrorMessage(__($msg));
             return $resultRedirect->setPath(
-                $this->_redirect->getRefererUrl()
+                $this->redirect->getRefererUrl()
             );
         }
 
@@ -100,7 +107,7 @@ class Add extends Action
         }
 
         return $resultRedirect->setPath(
-            $this->_redirect->getRefererUrl()
+            $this->redirect->getRefererUrl()
         );
     }
 }

@@ -16,7 +16,7 @@ interface AdapterInterface extends ContentInterface
     /**
      * General API URL
      */
-    const GENERAL_URL = 'https://api.datatrics.com/2.0/project/%s/%s';
+    public const GENERAL_URL = 'https://api.datatrics.com/2.0/project/%s/%s';
 
     /**
      * @param array $method

@@ -16,11 +16,11 @@ interface ProfileInterface extends RepositoryInterface
 {
 
     /* Profile */
-    const XML_PATH_CUSTOMER_ENABLED = 'datatrics_connect_customer/customer_sync/enable';
-    const XML_PATH_CUSTOMER_LIMIT = 'datatrics_connect_customer/customer_sync/limit_customer_group';
-    const XML_PATH_CUSTOMER_GROUP = 'datatrics_connect_customer/customer_sync/customer_group';
-    const XML_PATH_CUSTOMER_CRON = 'datatrics_connect_customer/customer_sync/cron';
-    const XML_PATH_CUSTOMER_CRON_CUSTOM = 'datatrics_connect_customer/customer_sync/cron_custom';
+    public const XML_PATH_CUSTOMER_ENABLED = 'datatrics_connect_customer/customer_sync/enable';
+    public const XML_PATH_CUSTOMER_LIMIT = 'datatrics_connect_customer/customer_sync/limit_customer_group';
+    public const XML_PATH_CUSTOMER_GROUP = 'datatrics_connect_customer/customer_sync/customer_group';
+    public const XML_PATH_CUSTOMER_CRON = 'datatrics_connect_customer/customer_sync/cron';
+    public const XML_PATH_CUSTOMER_CRON_CUSTOM = 'datatrics_connect_customer/customer_sync/cron_custom';
 
     /**
      * Profile Enable FLag

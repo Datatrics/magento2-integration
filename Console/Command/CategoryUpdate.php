@@ -25,7 +25,7 @@ class CategoryUpdate extends Command
     /**
      * Command call name
      */
-    const COMMAND_NAME = 'datatrics:category:update';
+    public const COMMAND_NAME = 'datatrics:category:update';
 
     /**
      * @var CategoryUpdateOptions

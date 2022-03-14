@@ -34,7 +34,7 @@ class Repository implements ContentRepository
     /**
      * Processing limit
      */
-    const LIMIT = 100000;
+    public const LIMIT = 100000;
 
     /**
      * @var SearchResultsFactory

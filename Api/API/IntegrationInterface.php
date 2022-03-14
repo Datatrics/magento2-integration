@@ -16,12 +16,12 @@ interface IntegrationInterface
     /**
      * Integration API URL
      */
-    const TOKEN_URL = 'https://api-v3.datatrics.com/project/%s/%s/magmodules/connect';
+    public const TOKEN_URL = 'https://api-v3.datatrics.com/project/%s/%s/magmodules/connect';
 
     /**
      * Method data
      */
-    const CREATE_INTEGRATION = [
+    public const CREATE_INTEGRATION = [
         'key' => 'integrations',
         'method' => 'POST',
         'require' => ['data']

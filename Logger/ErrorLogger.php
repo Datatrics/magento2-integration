@@ -24,10 +24,10 @@ class ErrorLogger extends Logger
     /**
      * ErrorLogger constructor.
      *
-     * @param Json $json
+     * @param Json   $json
      * @param string $name
-     * @param array $handlers
-     * @param array $processors
+     * @param array  $handlers
+     * @param array  $processors
      */
     public function __construct(
         Json $json,
@@ -43,14 +43,14 @@ class ErrorLogger extends Logger
      * Add error data to Datatrics Log
      *
      * @param string $type
-     * @param mixed $data
+     * @param mixed  $data
      */
     public function addLog($type, $data)
     {
         if (is_array($data) || is_object($data)) {
-            $this->addError($type . ': ' . $this->json->serialize($data));
+            $this->addRecord(static::ERROR, $type . ': ' . $this->json->serialize($data));
         } else {
-            $this->addEmergency($type . ': ' . $data);
+            $this->addRecord(static::ERROR, $type . ': ' . $data);
         }
     }
 }

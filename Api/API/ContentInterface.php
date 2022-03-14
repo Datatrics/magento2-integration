@@ -16,7 +16,7 @@ interface ContentInterface extends ConversionInterface
     /**
      * Method data
      */
-    const GET_CONTENT = [
+    public const GET_CONTENT = [
         'key' => 'content',
         'method' => 'GET',
         'require' => []
@@ -25,7 +25,7 @@ interface ContentInterface extends ConversionInterface
     /**
      * Method data
      */
-    const GET_CONTENTS = [
+    public const GET_CONTENTS = [
         'key' => 'content/%s',
         'method' => 'GET',
         'require' => ['id']
@@ -34,7 +34,7 @@ interface ContentInterface extends ConversionInterface
     /**
      * Method data
      */
-    const CREATE_CONTENT = [
+    public const CREATE_CONTENT = [
         'key' => 'content?type=item',
         'method' => 'POST',
         'require' => ['data']
@@ -43,7 +43,7 @@ interface ContentInterface extends ConversionInterface
     /**
      * Method data
      */
-    const BULK_CREATE_CONTENT = [
+    public const BULK_CREATE_CONTENT = [
         'key' => 'content/bulk?type=items',
         'method' => 'POST',
         'require' => ['data']
@@ -52,7 +52,7 @@ interface ContentInterface extends ConversionInterface
     /**
      * Method data
      */
-    const BULK_CREATE_CATEGORIES = [
+    public const BULK_CREATE_CATEGORIES = [
         'key' => 'content/bulk?type=categories',
         'method' => 'POST',
         'require' => ['data']
@@ -61,7 +61,7 @@ interface ContentInterface extends ConversionInterface
     /**
      * Method data
      */
-    const UPDATE_CONTENT = [
+    public const UPDATE_CONTENT = [
         'key' => 'content/%s',
         'method' => 'PUT',
         'require' => ['id', 'data']
@@ -70,7 +70,7 @@ interface ContentInterface extends ConversionInterface
     /**
      * Method data
      */
-    const DELETE_CONTENT = [
+    public const DELETE_CONTENT = [
         'key' => 'content/%s?type=item',
         'method' => 'DELETE',
         'require' => ['id']

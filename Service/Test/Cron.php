@@ -18,42 +18,42 @@ class Cron
     /**
      * Test type
      */
-    const TYPE = 'cron_test';
+    public const TYPE = 'cron_test';
 
     /**
      * Test description
      */
-    const TEST = 'Check if cron is enabled and running';
+    public const TEST = 'Check if cron is enabled and running';
 
     /**
      * Visibility
      */
-    const VISIBLE = true;
+    public const VISIBLE = true;
 
     /**
      * Message on test success
      */
-    const SUCCESS_MSG = 'Cron last ran at %s';
+    public const SUCCESS_MSG = 'Cron last ran at %s';
 
     /**
      * Message on test failed
      */
-    const FAILED_MSG = 'No active Magento cron found in the last hour!';
+    public const FAILED_MSG = 'No active Magento cron found in the last hour!';
 
     /**
      * Expected result
      */
-    const EXPECTED = true;
+    public const EXPECTED = true;
 
     /**
      * Cron delay value
      */
-    const CRON_DELAY = 3600;
+    public const CRON_DELAY = 3600;
 
     /**
      * Link to get support
      */
-    const SUPPORT_LINK = 'https://www.magmodules.eu/help/magento2/cronjob-setup.html';
+    public const SUPPORT_LINK = 'https://www.magmodules.eu/help/magento2/cronjob-setup.html';
 
     /**
      * @var Schedule

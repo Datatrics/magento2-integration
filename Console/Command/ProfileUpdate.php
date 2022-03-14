@@ -25,7 +25,7 @@ class ProfileUpdate extends Command
     /**
      * Command call name
      */
-    const COMMAND_NAME = 'datatrics:profile:update';
+    public const COMMAND_NAME = 'datatrics:profile:update';
 
     /**
      * @var ProfileUpdateOptions

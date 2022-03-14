@@ -16,7 +16,7 @@ interface TrackingInterface extends RepositoryInterface
 {
 
     /* Tracking */
-    const XML_PATH_TRACKING_ENABLED = 'datatrics_connect_tracking/tracking/enable';
+    public const XML_PATH_TRACKING_ENABLED = 'datatrics_connect_tracking/tracking/enable';
 
     /**
      * Tracking Enable FLag

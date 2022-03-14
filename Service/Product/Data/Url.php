@@ -17,7 +17,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 class Url
 {
 
-    const REQIURE = [
+    public const REQIURE = [
         'entity_ids',
         'type'
     ];
@@ -25,7 +25,7 @@ class Url
     /**
      * URL pattern for entities
      */
-    const URL_PATTERN = '%s%s';
+    public const URL_PATTERN = '%s%s';
 
     /**
      * @var ResourceConnection

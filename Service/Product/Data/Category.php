@@ -16,7 +16,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 class Category
 {
 
-    const REQIURE = [
+    public const REQIURE = [
         'entity_ids'
     ];
 

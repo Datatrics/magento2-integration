@@ -17,7 +17,7 @@ use Magento\Framework\Module\Manager as ModuleManager;
  */
 class Stock
 {
-    const REQUIRE = [
+    public const REQUIRE = [
         'entity_ids'
     ];
 

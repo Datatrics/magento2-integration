@@ -13,6 +13,7 @@ use Datatrics\Connect\Api\Config\System\SalesInterface as SalesConfigRepository;
 use Datatrics\Connect\Model\Sales\CollectionFactory as SaleCollectionFactory;
 use Datatrics\Connect\Model\Sales\Data as SalesData;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\App\ResourceConnection;
 
 /**
  * Class SalesUpdate
@@ -44,24 +45,33 @@ class SalesUpdate
     private $configRepository;
 
     /**
+     * @var ResourceConnection
+     */
+    private $resourceConnection;
+
+    /**
      * SaleUpdate constructor.
      * @param SaleCollectionFactory $salesCollectionFactory
      * @param ApiAdapter $apiAdapter
+     * @param ConfigRepository $configRepository
      * @param SalesConfigRepository $salesConfigRepository
      * @param Json $json
+     * @param ResourceConnection $resourceConnection
      */
     public function __construct(
         SaleCollectionFactory $salesCollectionFactory,
         ApiAdapter $apiAdapter,
         ConfigRepository $configRepository,
         SalesConfigRepository $salesConfigRepository,
-        Json $json
+        Json $json,
+        ResourceConnection $resourceConnection
     ) {
         $this->salesCollectionFactory = $salesCollectionFactory;
         $this->apiAdapter = $apiAdapter;
         $this->configRepository = $configRepository;
         $this->salesConfigRepository = $salesConfigRepository;
         $this->json = $json;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
@@ -106,10 +116,24 @@ class SalesUpdate
         $conversionData = $sale->getData();
         $conversionData['items'] = $this->json->unserialize($conversionData['items']);
         return [
-            "conversionid" => $sale->getOrderId(),
+            "conversionid" => $this->getOrderIncrementId($sale->getOrderId()),
             "projectid" => $this->salesConfigRepository->getProjectId((int)$sale->getStoreId()),
             "source" => $this->salesConfigRepository->getSyncSource((int)$sale->getStoreId()),
             "conversion" => $conversionData
         ];
+    }
+
+    /**
+     * @param int $orderId
+     * @return string
+     */
+    private function getOrderIncrementId(int $orderId)
+    {
+        $connection = $this->resourceConnection->getConnection();
+        $selectIncrementId = $connection->select()->from(
+            $this->resourceConnection->getTableName('sales_order'),
+            'increment_id'
+        )->where('entity_id = ?', $orderId);
+        return (string)$connection->fetchOne($selectIncrementId);
     }
 }

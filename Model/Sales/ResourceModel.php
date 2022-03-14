@@ -15,8 +15,8 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 class ResourceModel extends AbstractDb
 {
 
-    const ENTITY_TABLE = 'datatrics_sales';
-    const PRIMARY = 'entity_id';
+    public const ENTITY_TABLE = 'datatrics_sales';
+    public const PRIMARY = 'entity_id';
 
     /**
      * @inheritDoc

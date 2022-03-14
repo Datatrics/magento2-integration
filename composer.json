@@ -2,12 +2,13 @@
     "name": "datatrics/magento2-integration",
     "description": "Datatrics Connect extension for Magento 2",
     "type": "magento2-module",
-    "version": "1.5.1",
+    "version": "1.6.0",
     "license": [
         "BSD-2-Clause"
     ],
     "require": {
-        "magento/framework": ">=102.0"
+        "magento/framework": ">=102.0",
+        "php": ">=7.1.0"
     },
     "require-dev": {
         "phpstan/phpstan": "*"

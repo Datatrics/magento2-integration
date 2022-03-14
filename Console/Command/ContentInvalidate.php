@@ -25,7 +25,7 @@ class ContentInvalidate extends Command
     /**
      * Command call name
      */
-    const COMMAND_NAME = 'datatrics:content:invalidate';
+    public const COMMAND_NAME = 'datatrics:content:invalidate';
 
     /**
      * @var ContentInvalidateOptions

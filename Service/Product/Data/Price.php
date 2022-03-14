@@ -22,7 +22,7 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 class Price
 {
 
-    const REQIURE = [
+    public const REQIURE = [
         'products',
         'grouped_price_type',
         'bundle_price_type'

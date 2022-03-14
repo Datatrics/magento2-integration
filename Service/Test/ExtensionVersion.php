@@ -23,37 +23,37 @@ class ExtensionVersion
     /**
      * Test type
      */
-    const TYPE = 'extension_version';
+    public const TYPE = 'extension_version';
 
     /**
      * Test description
      */
-    const TEST = 'Check if new extension version is available';
+    public const TEST = 'Check if new extension version is available';
 
     /**
      * Visibility
      */
-    const VISIBLE = true;
+    public const VISIBLE = true;
 
     /**
      * Message on test success
      */
-    const SUCCESS_MSG = 'Great, you are using the latest version.';
+    public const SUCCESS_MSG = 'Great, you are using the latest version.';
 
     /**
      * Message on test failed
      */
-    const FAILED_MSG = 'Version %s is available, current version %s';
+    public const FAILED_MSG = 'Version %s is available, current version %s';
 
     /**
      * Expected result
      */
-    const EXPECTED = [-1, 0];
+    public const EXPECTED = [-1, 0];
 
     /**
      * Link to get support
      */
-    const SUPPORT_LINK = 'https://www.magmodules.eu/help/magento2/update-extension.html';
+    public const SUPPORT_LINK = 'https://www.magmodules.eu/help/magento2/update-extension.html';
 
     /**
      * @var JsonFactory

@@ -25,7 +25,7 @@ class ProfileAdd extends Command
     /**
      * Command call name
      */
-    const COMMAND_NAME = 'datatrics:profile:add';
+    public const COMMAND_NAME = 'datatrics:profile:add';
 
     /**
      * @var ProfileAddOptions

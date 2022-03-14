@@ -5,21 +5,19 @@
  */
 declare(strict_types=1);
 
-namespace Datatrics\Connect\Setup;
+namespace Datatrics\Connect\Setup\Patch\Data;
 
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Framework\Setup\UpgradeDataInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
 
 /**
- * Class UpgradeData
- * @package Datatrics\Connect\Setup
+ * Setup data patch class to change config path
  */
-class UpgradeData implements UpgradeDataInterface
+class ConfigPath implements DataPatchInterface
 {
 
-    const FIELDS = [
+    public const FIELDS = [
         'datatrics_connect/general/version'
         => 'datatrics_connect_general/general/version',
         'datatrics_connect/general/enable'
@@ -171,35 +169,64 @@ class UpgradeData implements UpgradeDataInterface
     ];
 
     /**
+     * @var ModuleDataSetupInterface
+     */
+    private $moduleDataSetup;
+    /**
      * @var ResourceConnection
      */
     private $resourceConnection;
 
     /**
-     * UpgradeData constructor.
-     * @param ResourceConnection $resourceConnection
+     * @param ResourceConnection       $resourceConnection
+     * @param ModuleDataSetupInterface $moduleDataSetup
      */
     public function __construct(
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        ModuleDataSetupInterface $moduleDataSetup
     ) {
         $this->resourceConnection = $resourceConnection;
+        $this->moduleDataSetup = $moduleDataSetup;
     }
 
     /**
-     * @param ModuleDataSetupInterface $setup
-     * @param ModuleContextInterface $context
+     * {@inheritdoc}
      */
-    public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
+    public static function getDependencies()
     {
-        if (version_compare($context->getVersion(), "1.2.0", "<")) {
-            $connection = $this->resourceConnection->getConnection();
-            foreach (self::FIELDS as $oldField => $newField) {
-                $connection->update(
-                    $this->resourceConnection->getTableName('core_config_data'),
-                    ['path' => $newField],
-                    ['path = ?' => $oldField]
-                );
-            }
+        return [];
+    }
+
+    /**
+     * @return DataPatchInterface|void
+     */
+    public function apply()
+    {
+        $this->moduleDataSetup->getConnection()->startSetup();
+        $this->changeConfigPaths();
+        $this->moduleDataSetup->getConnection()->endSetup();
+    }
+
+    /**
+     * Change config paths for fields due to changes in config options.
+     */
+    public function changeConfigPaths()
+    {
+        $connection = $this->resourceConnection->getConnection();
+        foreach (self::FIELDS as $oldField => $newField) {
+            $connection->update(
+                $this->resourceConnection->getTableName('core_config_data'),
+                ['path' => $newField],
+                ['path = ?' => $oldField]
+            );
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAliases()
+    {
+        return [];
     }
 }

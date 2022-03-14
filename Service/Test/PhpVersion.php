@@ -16,37 +16,37 @@ class PhpVersion
     /**
      * Test type
      */
-    const TYPE = 'php_test';
+    public const TYPE = 'php_test';
 
     /**
      * Test description
      */
-    const TEST = 'Check if current PHP version is supported for this module version';
+    public const TEST = 'Check if current PHP version is supported for this module version';
 
     /**
      * Visibility
      */
-    const VISIBLE = true;
+    public const VISIBLE = true;
 
     /**
      * Message on test success
      */
-    const SUCCESS_MSG = 'Version matched';
+    public const SUCCESS_MSG = 'Version matched';
 
     /**
      * Message on test failed
      */
-    const FAILED_MSG = 'Minimum required PHP version: %s, current version is %s!';
+    public const FAILED_MSG = 'Minimum required PHP version: %s, current version is %s!';
 
     /**
      * Expected result
      */
-    const EXPECTED = '7.2';
+    public const EXPECTED = '7.2';
 
     /**
      * Link to get support
      */
-    const SUPPORT_LINK = 'https://www.magmodules.eu/help/magento2/minimum-server-php-requirements.html';
+    public const SUPPORT_LINK = 'https://www.magmodules.eu/help/magento2/minimum-server-php-requirements.html';
 
     /**
      * @return array

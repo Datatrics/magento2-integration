@@ -19,7 +19,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
  */
 class Category
 {
-    const REQUIRE = [
+    public const REQUIRE = [
         'entity_ids',
         'store_id'
     ];

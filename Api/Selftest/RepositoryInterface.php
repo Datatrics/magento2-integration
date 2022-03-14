@@ -16,12 +16,12 @@ interface RepositoryInterface
     /**
      * Cron delay value
      */
-    const CRON_DELAY = 3600;
+    public const CRON_DELAY = 3600;
 
     /**
      * List of required php modules
      */
-    const REQUIRED_PHP_MODULES = [
+    public const REQUIRED_PHP_MODULES = [
     ];
 
     /**

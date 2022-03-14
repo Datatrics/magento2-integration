@@ -18,8 +18,8 @@ use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
 class Header extends Field
 {
 
-    const MODULE_SUPPORT_LINK = 'https://www.magmodules.eu/help/%s';
-    const MODULE_CONTACT_LINK = 'https://www.magmodules.eu/support.html?ext=%s';
+    public const MODULE_SUPPORT_LINK = 'https://www.magmodules.eu/help/%s';
+    public const MODULE_CONTACT_LINK = 'https://www.magmodules.eu/support.html?ext=%s';
 
     /**
      * @var string

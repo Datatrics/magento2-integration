@@ -17,7 +17,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 class Url
 {
 
-    const REQUIRE = [
+    public const REQUIRE = [
         'entity_ids',
         'store_id',
         'type'
@@ -26,12 +26,12 @@ class Url
     /**
      * URL pattern for entities
      */
-    const URL_PATTERN = '%s%s';
+    public const URL_PATTERN = '%s%s';
 
     /**
      * URL pattern for no-rewrite items
      */
-    const URL_PATTERN_EXTRA = [
+    public const URL_PATTERN_EXTRA = [
         'product' => '%scatalog/product/view/id/%s',
         'cms-page' => '%scms/page/view/page_id/%s',
         'category' => '%scatalog/category/view/id/%s'

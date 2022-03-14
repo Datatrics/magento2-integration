@@ -25,7 +25,7 @@ class SaleUpdate extends Command
     /**
      * Command call name
      */
-    const COMMAND_NAME = 'datatrics:sale:update';
+    public const COMMAND_NAME = 'datatrics:sale:update';
 
     /**
      * @var SaleUpdateOptions
