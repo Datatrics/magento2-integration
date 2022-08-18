@@ -128,8 +128,8 @@ class Data
 
         $result = $this->price->execute(
             $entityIds,
-            $productsBehaviour['grouped']['price_logic'] ?? 'max',
-            $productsBehaviour['bundle']['price_logic'] ?? 'min',
+            $extraParameters['behaviour']['grouped']['price_logic'] ?? 'max',
+            $extraParameters['behaviour']['bundle']['price_logic'] ?? 'min',
             $storeId
         );
         foreach ($result as $entityId => $priceData) {

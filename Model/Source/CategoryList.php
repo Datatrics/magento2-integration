@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\Source;
 
-use Magento\Catalog\Model\CategoryFactory;
 use Magento\Catalog\Model\ResourceModel\Category\Collection;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
 use Magento\Framework\Data\OptionSourceInterface;
@@ -26,10 +25,6 @@ class CategoryList implements OptionSourceInterface
      */
     public $options = [];
     /**
-     * @var CategoryFactory
-     */
-    private $categoryFactory;
-    /**
      * @var CollectionFactory
      */
     private $categoryCollectionFactory;
@@ -37,14 +32,11 @@ class CategoryList implements OptionSourceInterface
     /**
      * CategoryList constructor.
      *
-     * @param CategoryFactory   $categoryFactory
      * @param CollectionFactory $categoryCollectionFactory
      */
     public function __construct(
-        CategoryFactory $categoryFactory,
         CollectionFactory $categoryCollectionFactory
     ) {
-        $this->categoryFactory = $categoryFactory;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
     }
 
@@ -112,18 +104,16 @@ class CategoryList implements OptionSourceInterface
      *
      * @return string
      */
-    public function getCategoryPath(string $path, array $categoryList) : string
+    public function getCategoryPath(string $path, array $categoryList): string
     {
         $categoryPath = [];
         $rootCats = [1, 2];
         $path = explode('/', $path);
 
-        if (!empty($path)) {
-            foreach ($path as $catId) {
-                if (!in_array($catId, $rootCats)) {
-                    if (!empty($categoryList[$catId]['name'])) {
-                        $categoryPath[] = $categoryList[$catId]['name'];
-                    }
+        foreach ($path as $catId) {
+            if (!in_array($catId, $rootCats)) {
+                if (!empty($categoryList[$catId]['name'])) {
+                    $categoryPath[] = $categoryList[$catId]['name'];
                 }
             }
         }

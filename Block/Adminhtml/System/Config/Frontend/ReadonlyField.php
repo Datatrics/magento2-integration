@@ -15,7 +15,7 @@ use Magento\Config\Block\System\Config\Form\Field;
  *
  * Make input field readonly
  */
-class Readonly extends Field
+class ReadonlyField extends Field
 {
 
     /**

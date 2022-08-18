@@ -20,7 +20,7 @@
         <field id="token" translate="label" type="text" sortOrder="2" showInDefault="1"
                showInWebsite="0" showInStore="0">
             <label>Token</label>
-            <frontend_model>Datatrics\Connect\Block\Adminhtml\System\Config\Frontend\Readonly</frontend_model>
+            <frontend_model>Datatrics\Connect\Block\Adminhtml\System\Config\Frontend\ReadonlyField</frontend_model>
             <config_path>datatrics_connect_general/integration/token</config_path>
         </field>
         <field id="integration" translate="label" type="button" sortOrder="100" showInDefault="1"
