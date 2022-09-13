@@ -110,12 +110,6 @@
         </arguments>
     </type>
 
-    <type name="Datatrics\Connect\Console\Command\Selftest">
-        <arguments>
-            <argument name="selftestRepository" xsi:type="object">Datatrics\Connect\Model\Selftest\Repository\Proxy</argument>
-        </arguments>
-    </type>
-
     <!-- Command line block start -->
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
@@ -131,6 +125,66 @@
                 <item name="ContentInvalidate" xsi:type="object">Datatrics\Connect\Console\Command\ContentInvalidate</item>
                 <item name="ContentUpdate" xsi:type="object">Datatrics\Connect\Console\Command\ContentUpdate</item>
             </argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\Selftest">
+        <arguments>
+            <argument name="selftestRepository"
+                      xsi:type="object">Datatrics\Connect\Api\Selftest\RepositoryInterface\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\ProfileUpdate">
+        <arguments>
+            <argument name="profileUpdateProcessing"
+                      xsi:type="object">Datatrics\Connect\Model\Command\ProfileUpdate\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\ProfileAdd">
+        <arguments>
+            <argument name="profileAddProcessing"
+                      xsi:type="object">Datatrics\Connect\Model\Command\ProfileAdd\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\ProfileInvalidate">
+        <arguments>
+            <argument name="profileInvalidateProcessing"
+                      xsi:type="object">Datatrics\Connect\Model\Command\ProfileInvalidate\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\CategoryUpdate">
+        <arguments>
+            <argument name="categoryUpdateProcessing"
+                      xsi:type="object">Datatrics\Connect\Model\Command\CategoryUpdate\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\SaleAdd">
+        <arguments>
+            <argument name="saleAddProcessing"
+                      xsi:type="object">Datatrics\Connect\Model\Command\SaleAdd\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\SaleUpdate">
+        <arguments>
+            <argument name="saleUpdateProcessing"
+                      xsi:type="object">Datatrics\Connect\Model\Command\SaleUpdate\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\ContentUpdate">
+        <arguments>
+            <argument name="contentUpdateProcessing"
+                      xsi:type="object">Datatrics\Connect\Model\Command\ContentUpdate\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\ContentAdd">
+        <arguments>
+            <argument name="contentAddProcessing"
+                      xsi:type="object">Datatrics\Connect\Model\Command\ContentAdd\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Datatrics\Connect\Console\Command\ContentInvalidate">
+        <arguments>
+            <argument name="contentInvalidateProcessing"
+                      xsi:type="object">Datatrics\Connect\Model\Command\ContentInvalidate\Proxy</argument>
         </arguments>
     </type>
     <!-- Command line block end -->

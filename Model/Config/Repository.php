@@ -15,8 +15,6 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Config\Model\ResourceModel\Config as ResourceConfig;
-use Magento\Framework\App\Cache\TypeListInterface;
 
 /**
  * Config repository class
@@ -40,14 +38,6 @@ class Repository implements ConfigRepositoryInterface
      * @var ProductMetadataInterface
      */
     private $metadata;
-    /**
-     * @var TypeListInterface
-     */
-    private $cacheTypeList;
-    /**
-     * @var ResourceConfig
-     */
-    private $resourceConfig;
 
     /**
      * Repository constructor.
@@ -61,16 +51,12 @@ class Repository implements ConfigRepositoryInterface
         StoreManagerInterface $storeManager,
         ScopeConfigInterface $scopeConfig,
         Json $json,
-        ProductMetadataInterface $metadata,
-        ResourceConfig $resourceConfig,
-        TypeListInterface $cacheTypeList
+        ProductMetadataInterface $metadata
     ) {
         $this->storeManager = $storeManager;
         $this->scopeConfig = $scopeConfig;
         $this->json = $json;
         $this->metadata = $metadata;
-        $this->resourceConfig = $resourceConfig;
-        $this->cacheTypeList = $cacheTypeList;
     }
 
     /**
@@ -219,18 +205,6 @@ class Repository implements ConfigRepositoryInterface
             return $this->json->unserialize($value);
         } catch (\Exception $e) {
             return [];
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setToken(string $token, $cleanCache = true): void
-    {
-        $this->resourceConfig->saveConfig(self::XML_PATH_TOKEN, $token, 'default', 0);
-
-        if ($cleanCache) {
-            $this->cacheTypeList->cleanType('config');
         }
     }
 }

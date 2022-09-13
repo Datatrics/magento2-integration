@@ -15,12 +15,12 @@
             <label>Default Store</label>
             <source_model>Datatrics\Connect\Model\Source\StoreViews</source_model>
             <config_path>datatrics_connect_general/integration/store_id</config_path>
-            <comment>Url of default store is used for webapi communtation</comment>
+            <comment>Url of default store is used for webapi communication</comment>
         </field>
         <field id="token" translate="label" type="text" sortOrder="2" showInDefault="1"
                showInWebsite="0" showInStore="0">
             <label>Token</label>
-            <frontend_model>Datatrics\Connect\Block\Adminhtml\System\Config\Frontend\ReadonlyField</frontend_model>
+            <frontend_model>Datatrics\Connect\Block\Adminhtml\System\Config\Frontend\AccessToken</frontend_model>
             <config_path>datatrics_connect_general/integration/token</config_path>
         </field>
         <field id="integration" translate="label" type="button" sortOrder="100" showInDefault="1"

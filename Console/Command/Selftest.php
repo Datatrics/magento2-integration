@@ -10,7 +10,7 @@ namespace Datatrics\Connect\Console\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
-use Datatrics\Connect\Model\Selftest\Repository;
+use Datatrics\Connect\Api\Selftest\RepositoryInterface as SelftestRepository;
 
 /**
  * Class Selftest
@@ -26,17 +26,17 @@ class Selftest extends Command
     public const COMMAND_NAME = 'datatrics:selftest';
 
     /**
-     * @var Repository
+     * @var SelftestRepository
      */
     private $selftestRepository;
 
     /**
      * Selftest constructor.
      *
-     * @param Repository $selftestRepository
+     * @param SelftestRepository $selftestRepository
      */
     public function __construct(
-        Repository $selftestRepository
+        SelftestRepository $selftestRepository
     ) {
         $this->selftestRepository = $selftestRepository;
         parent::__construct();
