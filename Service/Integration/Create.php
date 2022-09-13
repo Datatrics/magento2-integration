@@ -67,6 +67,9 @@ class Create
      * @param AuthorizationServiceInterface $authorizationService
      * @param CustomerTokenServiceInterface $customerTokenService
      * @param StoreManagerInterface $storeManager
+     * @param ConfigRepository $configRepository
+     * @param Adapter $adapter
+     * @param Json $json
      */
     public function __construct(
         IntegrationServiceInterface $integrationService,
@@ -132,14 +135,17 @@ class Create
             ]
         );
 
+        if (empty($apiKey) || empty($projectId)) {
+            throw new LocalizedException(__('Please set credentials first!'));
+        }
+
         $this->adapter->setCredentials($apiKey, $projectId);
         $result = $this->adapter->execute(IntegrationInterface::CREATE_INTEGRATION, null, $data);
 
         if ($result['success'] == false && $result['message']) {
-            throw new LocalizedException(__($result['message']));
+            throw new LocalizedException(__('Could not post access token: %1', $result['message']));
         }
 
-        $this->configRepository->setToken($token, false);
         return $token;
     }
 
