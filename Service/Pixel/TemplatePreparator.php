@@ -44,7 +44,7 @@ class TemplatePreparator
         foreach ($simple as $key => $value) {
             $html = str_replace(
                 sprintf('{{%s}}', $key),
-                $value,
+                (string)$value,
                 $html
             );
         }
