@@ -107,12 +107,15 @@ class Update extends Action
             $connection = $this->contentResource->getConnection();
             $selectProductIds = $connection->select()->from(
                 $this->contentResource->getTable('datatrics_content_store'),
-                ['product_id']
-            )->where('status = ?', 'Queued for Update')
-                ->where('store_id = ?', $storeId)
+                'product_id'
+            )->where('status = :status')
+                ->where('store_id = :store_id')
                 ->limit($this->contentConfigRepository->getProcessingLimit($storeId));
-
-            $productIds = $connection->fetchCol($selectProductIds, 'product_id');
+            $bind = [
+                ':status' => 'Queued for Update',
+                ':store_id' => $storeId
+            ];
+            $productIds = $connection->fetchCol($selectProductIds, $bind);
             $count = $productIds ? $this->contentUpdate->prepareData($productIds, $storeId) : 0;
 
             if ($count > 0) {

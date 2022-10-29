@@ -98,7 +98,7 @@ class Filter
         )->where('value IN (?)', $visibility)
             ->where('attribute_code = ?', 'visibility')
             ->where('store_id IN (?)', [0]);
-        return $connection->fetchCol($select, 'catalog_product_entity_int.' . $this->entityId);
+        return $connection->fetchCol($select);
     }
 
     /**
@@ -120,7 +120,7 @@ class Filter
             ['product_id']
         )->where('store.store_id = ?', $storeId)
             ->where('catalog_product_website.product_id in (?)', $entityIds);
-        return $connection->fetchCol($select, 'catalog_product_website.product_id');
+        return $connection->fetchCol($select);
     }
 
     /**
@@ -134,7 +134,7 @@ class Filter
         $connection = $this->resourceConnection->getConnection();
         $select = $connection->select()->distinct()->from(
             ['catalog_product_entity_int' => $this->resourceConnection->getTableName('catalog_product_entity_int')],
-            [$this->entityId, 'value']
+            [$this->entityId]
         )->joinLeft(
             ['eav_attribute' => $this->resourceConnection->getTableName('eav_attribute')],
             'eav_attribute.attribute_id = catalog_product_entity_int.attribute_id',
@@ -143,7 +143,7 @@ class Filter
             ->where('attribute_code = ?', 'status')
             ->where('store_id IN (?)', [0])
             ->where($this->entityId . ' IN (?)', $entityIds);
-        return $connection->fetchCol($select, 'catalog_product_entity_int.' . $this->entityId);
+        return $connection->fetchCol($select);
     }
 
     /**
@@ -169,6 +169,6 @@ class Filter
         } else {
             $select->where('category_id not in (?)', $categoryIds);
         }
-        return $connection->fetchCol($select, 'product_id');
+        return $connection->fetchCol($select);
     }
 }
