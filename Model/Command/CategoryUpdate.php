@@ -111,7 +111,7 @@ class CategoryUpdate
             ['eav_attribute' => $this->categoryResource->getTable('catalog_category_entity')],
             'entity_id'
         );
-        $entityIds = $connection->fetchCol($select, 'entity_id');
+        $entityIds = $connection->fetchCol($select);
         $this->collector->addData('entity_ids', $entityIds, 'all');
         $this->collector->addData('entity_type_code', 'catalog_category', 'attributeMapper');
         $this->collector->addData('type', 'category', 'url');

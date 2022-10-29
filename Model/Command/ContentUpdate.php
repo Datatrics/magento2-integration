@@ -198,7 +198,7 @@ class ContentUpdate
         if (!$connection->fetchOne($select)) {
             return 0;
         }
-        $productIds = $connection->fetchCol($select, 'product_id');
+        $productIds = $connection->fetchCol($select);
         $count = $productIds ? $this->prepareData($productIds, $storeId) : 0;
         $this->initProgressBar($output, $count);
         return 0;

@@ -368,6 +368,7 @@ class ContentRepository extends ConfigRepository implements ContentInterface
     public function getFilters(int $storeId): array
     {
         return [
+            'add_disabled_products' => $this->addDisableProducts($storeId),
             'filter_by_visibility' => $this->restricProductFeedByVisibility($storeId),
             'visibility' => $this->productFeedVisibilityRestrictions($storeId),
             'restrict_by_category' => $this->restrictProductFeedByCategory($storeId),
@@ -375,6 +376,11 @@ class ContentRepository extends ConfigRepository implements ContentInterface
             'category' => $this->getCategoryIds($storeId),
             'exclude_out_of_stock' => $this->excludeOutOfStock($storeId),
         ];
+    }
+
+    private function addDisableProducts(int $storeId): bool
+    {
+        return $this->isSetFlag(self::XML_PATH_FILTER_BY_STATUS, $storeId);
     }
 
     /**

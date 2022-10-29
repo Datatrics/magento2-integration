@@ -107,7 +107,7 @@ class ContentUpdate
                 'product_id'
             ]
         )->where('status = ?', 'Queued for Delete');
-        $productIds = $connection->fetchCol($select, 'product_id');
+        $productIds = $connection->fetchCol($select);
         $where = [
             'product_id in (?)' => $productIds
         ];
@@ -155,7 +155,7 @@ class ContentUpdate
         if (!$connection->fetchOne($select)) {
             return;
         }
-        $productIds = $connection->fetchCol($select, 'product_id');
+        $productIds = $connection->fetchCol($select);
         $this->commandContentUpdate->prepareData($productIds, $storeId);
     }
 }

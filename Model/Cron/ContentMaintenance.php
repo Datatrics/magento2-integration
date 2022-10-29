@@ -98,14 +98,14 @@ class ContentMaintenance
                 'entity_id'
             ]
         );
-        $magentoProductIds = $connection->fetchCol($selectMagentoProducts, 'entity_id');
+        $magentoProductIds = $connection->fetchCol($selectMagentoProducts);
         $selectDatatricsProducts = $connection->select()->from(
             $this->contentResource->getTable('datatrics_content'),
             [
                 'content_id'
             ]
         );
-        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts, 'content_id');
+        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts);
         $toDelete = array_diff($datatricsProductIds, $magentoProductIds);
         $connection->update(
             $this->contentResource->getTable('datatrics_content_store'),
@@ -139,14 +139,14 @@ class ContentMaintenance
                 'entity_id'
             ]
         );
-        $magentoProductIds = $connection->fetchCol($selectMagentoProducts, 'entity_id');
+        $magentoProductIds = $connection->fetchCol($selectMagentoProducts);
         $selectDatatricsProducts = $connection->select()->from(
             $this->contentResource->getTable('datatrics_content_store'),
             [
                 'product_id'
             ]
         );
-        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts, 'product_id');
+        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts);
         $toAdd = array_diff($magentoProductIds, $datatricsProductIds);
         return $toAdd;
     }

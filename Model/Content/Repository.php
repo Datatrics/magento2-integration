@@ -215,7 +215,7 @@ class Repository implements ContentRepository
         $contents = $connection->fetchAll($selectContent);
         $toInvalidate = [];
         $skip = 0;
-        $toAdd = array_diff($productIds, $connection->fetchCol($selectContent, 'product_id'));
+        $toAdd = array_diff($productIds, $connection->fetchCol($selectContent));
         foreach ($contents as $content) {
             if ($content['status'] != 0) {
                 $toInvalidate[] = $content['product_id'];

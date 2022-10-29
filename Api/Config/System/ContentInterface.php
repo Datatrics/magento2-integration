@@ -51,6 +51,7 @@ interface ContentInterface extends RepositoryInterface
     public const XML_PATH_GROUPED_USE_NON_VISIBLE_FALLBACK = 'datatrics_connect_product/types/grouped_nonvisible';
 
     /* Filters */
+    public const XML_PATH_FILTER_BY_STATUS = 'datatrics_connect_product/product_filter/add_disabled';
     public const XML_PATH_FILTER_BY_VISIBILITY = 'datatrics_connect_product/product_filter/visbility_enabled';
     public const XML_PATH_VISIBILITY = 'datatrics_connect_product/product_filter/visbility';
     public const XML_PATH_RESTRICT_BY_CATEGORY = 'datatrics_connect_product/product_filter/category_enabled';
