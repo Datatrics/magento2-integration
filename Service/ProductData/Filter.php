@@ -65,7 +65,7 @@ class Filter
         if ($storeId) {
             $entityIds = $this->filterWebsite($entityIds, $storeId);
         }
-        if (!empty($filter['add_disabled_products'])) {
+        if (!$filter['add_disabled_products']) {
             $entityIds = $this->filterEnabledStatus($entityIds);
         }
 
