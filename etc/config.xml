@@ -10,7 +10,7 @@
     <default>
         <datatrics_connect_general>
             <general>
-                <version>v1.6.4</version>
+                <version>v1.6.5</version>
                 <enable>0</enable>
                 <source>Magento 2</source>
                 <debug>0</debug>
