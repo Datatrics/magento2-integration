@@ -133,6 +133,7 @@ class Price
                 'sales_price' => $percent * $this->salesPrice,
                 'min_price' => $percent * $this->minPrice,
                 'max_price' => $percent * $this->maxPrice,
+                'special_price' => $percent * $this->specialPrice,
                 'total_price' => $percent * $this->totalPrice,
                 'sales_date_range' => $this->getSpecialPriceDateRang($product),
                 'discount_perc' => $this->getDiscountPercentage(),
@@ -357,8 +358,8 @@ class Price
         $this->price = $product->getData('price') !== (float)0 ? $product->getData('price') : null;
         $this->finalPrice = $product->getData('final_price') !== (float)0
             ? $product->getData('final_price') : null;
-        $this->specialPrice = $product->getData('special_price') !== (float)0
-            ? $product->getData('special_price') : null;
+        $this->specialPrice = $product->getData('special_price')
+            ? $product->getData('special_price') : 0;
         $this->minPrice = $product['min_price'] >= 0 ? $product['min_price'] : null;
         $this->maxPrice = $product['max_price'] >= 0 ? $product['max_price'] : null;
     }
