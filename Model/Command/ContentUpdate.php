@@ -239,7 +239,8 @@ class ContentUpdate
         $data = $this->productDataRepository->getProductData($storeId, $productIds);
         foreach ($data as $id => $product) {
             $preparedData = [
-                "itemid" => $id,
+                //"itemid" => $id,
+                "itemid" => $product['afasconnector_itemcode'],
                 "source" => $this->contentConfigRepository->getSyncSource((int)$storeId),
                 "item" => $product
             ];

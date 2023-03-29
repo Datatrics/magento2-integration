@@ -31,7 +31,8 @@ class Repository implements ProductData
         'created_at' => 'created_at',
         'updated_at' => 'updated_at',
         'visibility' => 'visibility',
-        'url' => 'url'
+        'url' => 'url',
+        'afasconnector_itemcode' => 'afasconnector_itemcode'
     ];
 
     /**
