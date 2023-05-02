@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Console\Command;
 
+use Magento\Framework\Console\Cli;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -71,6 +72,6 @@ class Selftest extends Command
                 );
             }
         }
-        return 0;
+        return Cli::RETURN_SUCCESS;
     }
 }
