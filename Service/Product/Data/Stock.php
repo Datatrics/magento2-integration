@@ -202,14 +202,14 @@ class Stock
             $stockTable = sprintf('inventory_stock_%s', $channel);
             $selectStock->joinLeft(
                 $stockTable,
-                "${stockTable}.website_id = ${stockTablePrimary}.website_id and
-                 ${stockTable}.product_id = ${stockTablePrimary}.product_id",
+                "{$stockTable}.website_id = {$stockTablePrimary}.website_id and
+                 {$stockTable}.product_id = {$stockTablePrimary}.product_id",
                 [
                     sprintf('quantity_%s', $channel) => 'quantity'
                 ]
             );
         }
-        $selectStock->where("${stockTablePrimary}.product_id IN (?)", $this->entityIds);
+        $selectStock->where("{$stockTablePrimary}.product_id IN (?)", $this->entityIds);
         return $this->resource->getConnection()->fetchAll($selectStock);
     }
 
