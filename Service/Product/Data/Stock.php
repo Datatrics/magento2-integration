@@ -199,7 +199,7 @@ class Stock
                 ]
             );
         foreach ($channels as $channel) {
-            $stockTable = sprintf('inventory_stock_%s', $channel);
+            $stockTable = $this->resource->getTableName(sprintf('inventory_stock_%s', $channel));
             $selectStock->joinLeft(
                 $stockTable,
                 "{$stockTable}.website_id = {$stockTablePrimary}.website_id and

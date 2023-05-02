@@ -173,10 +173,12 @@ class Stock
         $channels = array_flip($channels);
         unset($channels[$channel]);
         $channels = array_flip($channels);
+
         $stockTablePrimary = $this->resource->getTableName(sprintf('inventory_stock_%s', $channel));
         if (!$this->resource->getConnection()->isTableExists($stockTablePrimary)) {
             return [];
         }
+
         $selectStock = $this->resource->getConnection()
             ->select()
             ->from(
@@ -188,7 +190,7 @@ class Stock
                 ]
             );
         foreach ($channels as $channel) {
-            $stockTable = sprintf('inventory_stock_%s', $channel);
+            $stockTable = $this->resource->getTableName(sprintf('inventory_stock_%s', $channel));
             if (!$this->resource->getConnection()->tableColumnExists($stockTable, 'website_id')) {
                 $selectStock->joinLeft(
                     $stockTable,
