@@ -55,8 +55,8 @@ class CustomerGridCollection
                 ->joinLeft(
                     ['datatrics_profile' => $leftJoinTableName],
                     "datatrics_profile.customer_id = main_table.entity_id",
-                    ['status' => 'datatrics_profile.status']
-                );
+                    ['status' => new \Zend_Db_Expr('group_concat(`datatrics_profile`.status)')]
+                )->group('main_table.entity_id');
             $where = $collection->getSelect()->getPart(\Magento\Framework\DB\Select::WHERE);
             foreach ($where as &$item) {
                 if (strpos($item, "`main_table`.`status`") !== false) {
