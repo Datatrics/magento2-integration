@@ -46,7 +46,8 @@ class CustomerGridCollection
      */
     public function afterSearch($intercepter, $collection)
     {
-        if ($collection->getMainTable() === $this->resourceConnection->getTableName(self::TABLE)) {
+        if (method_exists($collection, 'getMainTable') &&
+            ($collection->getMainTable() === $this->resourceConnection->getTableName(self::TABLE))) {
             $leftJoinTableName = $this->resourceConnection->getTableName(ProfileResource::ENTITY_TABLE);
             $collection
                 ->getSelect()
