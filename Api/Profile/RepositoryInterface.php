@@ -116,7 +116,7 @@ interface RepositoryInterface
      * @param bool $forceUpdate
      * @return mixed
      */
-    public function prepareProfileData($customer, bool $forceUpdate = false);
+    public function prepareProfileData($customer, bool $forceUpdate = false, $address = null);
 
     /**
      * @param Order $order

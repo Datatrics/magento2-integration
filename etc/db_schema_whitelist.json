@@ -72,7 +72,8 @@
             "updated_at": true,
             "update_msg": true,
             "update_attempts": true,
-            "status": true
+            "status": true,
+            "gender": true
         },
         "index": {
             "DATATRICS_PROFILE_CUSTOMER_ID": true

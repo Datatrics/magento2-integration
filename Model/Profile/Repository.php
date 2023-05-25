@@ -181,7 +181,7 @@ class Repository implements ProfileRepository
     /**
      * @inheritDoc
      */
-    public function prepareProfileData($customer, bool $forceUpdate = false)
+    public function prepareProfileData($customer, bool $forceUpdate = false, $address = null)
     {
         $customer = $this->customer->load($customer->getId());
         $storeId = (int)$customer->getStoreId();
@@ -218,7 +218,7 @@ class Repository implements ProfileRepository
         $profile->setData(
             array_merge(
                 $profile->getData(),
-                $this->collectAddressData($customer)
+                $this->collectAddressData($customer, $address)
             )
         );
         /** @phpstan-ignore-next-line */
@@ -248,28 +248,41 @@ class Repository implements ProfileRepository
      * @param DataCustomer|Customer $customer
      * @return array
      */
-    private function collectAddressData($customer): array
+    private function collectAddressData($customer, $address): array
     {
         /** @phpstan-ignore-next-line */
-        if (!$customer->getDefaultBilling() || !$customer->getDefaultBillingAddress()) {
-            return [];
+        if (!$address && (!$customer->getDefaultBilling() || !$customer->getDefaultBillingAddress())) {
+            $data = [
+                'firstname' => $customer->getFirstname(),
+                'lastname' => $customer->getLastname(),
+                'prefix' => $customer->getPrefix(),
+                'email' => $customer->getEmail(),
+                'gender' => $customer->getAttribute('gender')
+                    ->getSource()->getOptionText($customer->getGender())
+            ];
+        } else {
+            if ($customer->getDefaultBillingAddress()) {
+                $address = $customer->getDefaultBillingAddress();
+            }
+            $data = [
+                'firstname' => $address->getFirstname() ?? $customer->getFirstname(),
+                'lastname' => $address->getLastname() ?? $customer->getLastname(),
+                'prefix' => $address->getPrefix() ?? $customer->getPrefix(),
+                'name' => $this->formatName($address),
+                'email' => $customer->getEmail(),
+                'company' => $address->getCompany(),
+                'country' => $address->getCountry(),
+                'city' => $address->getCity(),
+                'zip' => $address->getPostcode(),
+                'phone' => $address->getTelephone(),
+                'region' => $address->getRegion(),
+                'street' => $address->getStreetFull(),
+                'address' => $this->formatAddress($address),
+                'gender' => $customer->getAttribute('gender')
+                    ->getSource()->getOptionText($customer->getGender())
+            ];
         }
-        $address = $customer->getDefaultBillingAddress();
-        $data = [
-            'firstname' => $address->getFirstname(),
-            'lastname' => $address->getLastname(),
-            'prefix' => $address->getPrefix(),
-            'name' => $this->formatName($address),
-            'email' => $customer->getEmail(),
-            'company' => $address->getCompany(),
-            'country' => $address->getCountry(),
-            'city' => $address->getCity(),
-            'zip' => $address->getPostcode(),
-            'phone' => $address->getTelephone(),
-            'region' => $address->getRegion(),
-            'street' => $address->getStreetFull(),
-            'address' => $this->formatAddress($address)
-        ];
+
         return $data;
     }
 

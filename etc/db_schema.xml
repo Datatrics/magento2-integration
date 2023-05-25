@@ -296,7 +296,11 @@
                 length="255"
                 nullable="true"
                 comment="Street"/>
-
+        <column name="gender"
+                xsi:type="varchar"
+                length="10"
+                nullable="true"
+                comment="Gender"/>
         <column name="created_at"
                 xsi:type="timestamp"
                 on_update="false"

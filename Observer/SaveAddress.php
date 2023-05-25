@@ -58,11 +58,12 @@ class SaveAddress implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $customerId = $observer->getEvent()->getCustomerAddress()->getParentId();
+        $address = $observer->getEvent()->getCustomerAddress();
+        $customerId = $address->getParentId();
         if ($customerId) {
             try {
                 $customer = $this->customerRepository->getById($customerId);
-                $this->profileRepository->prepareProfileData($customer, true);
+                $this->profileRepository->prepareProfileData($customer, true, $address);
             } catch (\Exception $e) {
                 return;
             }
