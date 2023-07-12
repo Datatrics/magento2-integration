@@ -47,6 +47,7 @@ class ProfileUpdate
      * ProfileUpdate constructor.
      * @param ProfileCollectionFactory $profileCollectionFactory
      * @param ApiAdapter $apiAdapter
+     * @param ConfigRepository $configRepository
      * @param ProfileConfigRepository $profileConfigRepository
      * @param Json $json
      */
@@ -69,13 +70,13 @@ class ProfileUpdate
      *
      * @return $this
      */
-    public function execute()
+    public function execute(): ProfileUpdate
     {
         if (!$this->configRepository->isEnabled()) {
             return $this;
         }
-        $collection = $this->profileCollectionFactory->create()
-            ->addFieldToFilter('status', ['neq' => 'Synced']);
+
+        $collection = $this->getCollection();
         foreach ($collection as $profile) {
             if (!$this->profileConfigRepository->isEnabled((int)$profile->getStoreId())) {
                 continue;
@@ -92,7 +93,27 @@ class ProfileUpdate
                 $profile->setUpdateAttempts($profile->getUpdateAttempts() + 1)->save();
             }
         }
+
         return $this;
+    }
+
+    private function getCollection()
+    {
+        $collection = $this->profileCollectionFactory->create()
+            ->addFieldToFilter(
+                'status',
+                ['neq' => 'Synced']
+            );
+
+        $collection->getSelect()->joinLeft(
+            ['customer_entity' => $collection->getResource()->getTable('customer_entity')],
+            'main_table.customer_id = customer_entity.entity_id',
+            [
+                'created_at' => 'customer_entity.created_at'
+            ]
+        );
+
+        return $collection;
     }
 
     /**

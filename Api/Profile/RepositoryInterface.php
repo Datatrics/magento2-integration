@@ -7,15 +7,13 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Api\Profile;
 
+use Datatrics\Connect\Api\Profile\DataInterface as ProfileData;
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\Data\Customer as DataCustomer;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Datatrics\Connect\Api\Profile\DataInterface
-    as ProfileData;
-use Magento\Customer\Model\Customer;
-use Magento\Customer\Model\Data\Customer as DataCustomer;
 use Magento\Sales\Model\Order;
-use Magento\Customer\Api\Data\CustomerInterface;
 
 /**
  * Profile repository interface
@@ -27,17 +25,14 @@ interface RepositoryInterface
      * Input exception text
      */
     public const INPUT_EXCEPTION = 'An ID is needed. Set the ID and try again.';
-
     /**
      * "No such entity" exception text
      */
     public const NO_SUCH_ENTITY_EXCEPTION = 'The entity with id "%1" does not exist.';
-
     /**
      * "Could not delete" exception text
      */
     public const COULD_NOT_DELETE_EXCEPTION = 'Could not delete the entity: %1';
-
     /**
      * "Could not save" exception text
      */
@@ -61,14 +56,14 @@ interface RepositoryInterface
      * @return ProfileData
      * @throws LocalizedException
      */
-    public function get(int $entityId) : ProfileData;
+    public function get(int $entityId): ProfileData;
 
     /**
      * Return Profile object
      *
      * @return ProfileData
      */
-    public function create();
+    public function create(): ProfileData;
 
     /**
      * Retrieves an Profile matching the specified criteria.
@@ -78,7 +73,7 @@ interface RepositoryInterface
      * @return SearchResultsInterface
      * @throws LocalizedException
      */
-    public function getList(SearchCriteriaInterface $searchCriteria) : SearchResultsInterface;
+    public function getList(SearchCriteriaInterface $searchCriteria): SearchResultsInterface;
 
     /**
      * Register entity to delete
@@ -88,18 +83,17 @@ interface RepositoryInterface
      * @return bool true on success
      * @throws LocalizedException
      */
-    public function delete(ProfileData $entity) : bool;
+    public function delete(ProfileData $entity): bool;
 
     /**
      * Deletes a Profile entity by ID
      *
-     * @param int $entity
-     *
+     * @param int $entityId
      * @return bool true on success
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function deleteById(int $entity) : bool;
+    public function deleteById(int $entityId): bool;
 
     /**
      * Perform persist operations for one entity
@@ -109,18 +103,19 @@ interface RepositoryInterface
      * @return ProfileData
      * @throws LocalizedException
      */
-    public function save(ProfileData $entity) : ProfileData;
+    public function save(ProfileData $entity): ProfileData;
 
     /**
      * @param DataCustomer|Customer $customer
      * @param bool $forceUpdate
+     * @param null $address
      * @return mixed
      */
-    public function prepareProfileData($customer, bool $forceUpdate = false, $address = null);
+    public function prepareProfileData($customer, bool $forceUpdate = false, $address = null): bool;
 
     /**
      * @param Order $order
      * @return mixed
      */
-    public function prepareGuestProfileData(Order $order);
+    public function prepareGuestProfileData(Order $order): bool;
 }

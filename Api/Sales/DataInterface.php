@@ -36,121 +36,115 @@ interface DataInterface extends ExtensibleDataInterface
     /**
      * @return int
      */
-    public function getOrderId() : int;
+    public function getOrderId(): int;
 
     /**
      * @param int $orderId
      * @return $this
      */
-    public function setOrderId(int $orderId) : self;
+    public function setOrderId(int $orderId): self;
 
     /**
      * @return int
      */
-    public function getStoreId() : int;
+    public function getStoreId(): int;
 
     /**
      * @param int $storeId
      * @return $this
      */
-    public function setStoreId(int $storeId) : self;
+    public function setStoreId(int $storeId): self;
 
     /**
      * @return string
      */
-    public function getCreatedAt() : string;
-
-    /**
-     * @param string $createdAt
-     * @return $this
-     */
-    public function setCreatedAt(string $createdAt) : self;
+    public function getCreatedAt(): string;
 
     /**
      * @return string
      */
-    public function getUpdatedAt() : string;
+    public function getUpdatedAt(): string;
 
     /**
      * @param string $updatedAt
      * @return $this
      */
-    public function setUpdatedAt(string $updatedAt) : self;
+    public function setUpdatedAt(string $updatedAt): self;
 
     /**
      * @return string
      */
-    public function getUpdateMsg() : string;
+    public function getUpdateMsg(): string;
 
     /**
      * @param string $updateMsg
      * @return $this
      */
-    public function setUpdateMsg(string $updateMsg) : self;
+    public function setUpdateMsg(string $updateMsg): self;
 
     /**
      * @return string
      */
-    public function getUpdateAttempts() : string;
+    public function getUpdateAttempts(): string;
 
     /**
      * @param int $updateAttempts
      * @return $this
      */
-    public function setUpdateAttempts(int $updateAttempts) : self;
+    public function setUpdateAttempts(int $updateAttempts): self;
 
     /**
      * @return string
      */
-    public function getStatus() : string;
+    public function getStatus(): string;
 
     /**
      * @param string $status
      * @return $this
      */
-    public function setStatus(string $status) : self;
+    public function setStatus(string $status): self;
 
     /**
      * @return string
      */
-    public function getProfileId() : string;
+    public function getProfileId(): string;
 
     /**
      * @param string $profileId
      * @return $this
      */
-    public function setProfileId(string $profileId) : self;
+    public function setProfileId(string $profileId): self;
 
     /**
      * @return string
      */
-    public function getEmail() : string;
+    public function getEmail(): string;
 
     /**
      * @param string $email
      * @return $this
      */
-    public function setEmail(string $email) : self;
+    public function setEmail(string $email): self;
 
     /**
      * @return string
      */
-    public function getItems() : string;
+    public function getItems(): string;
 
     /**
      * @param string $items
      * @return $this
      */
-    public function setItems(string $items) : self;
+    public function setItems(string $items): self;
 
     /**
      * @return string
      */
-    public function getTotal() : string;
+    public function getTotal(): string;
 
     /**
      * @param float $total
      * @return $this
      */
-    public function setTotal(float $total) : self;
+    public function setTotal(float $total): self;
 }
