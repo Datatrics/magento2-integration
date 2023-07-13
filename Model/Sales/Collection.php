@@ -9,10 +9,6 @@ namespace Datatrics\Connect\Model\Sales;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
-/**
- * Datatrics sales collection class
- *
- */
 class Collection extends AbstractCollection
 {
 

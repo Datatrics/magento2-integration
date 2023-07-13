@@ -33,7 +33,7 @@ class ResourceModel extends AbstractDb
      * @param string $field
      * @return bool
      */
-    public function isExists($entityId, $field = 'entity_id')
+    public function isExists($entityId, $field = 'entity_id'): bool
     {
         $connection = $this->getConnection();
         $select = $connection->select()->from(
@@ -51,7 +51,7 @@ class ResourceModel extends AbstractDb
      * @param int $profileId
      * @return int
      */
-    public function getIdByProfile($profileId)
+    public function getIdByProfile($profileId): int
     {
         $connection = $this->getConnection();
         $select = $connection->select()->from(

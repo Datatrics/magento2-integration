@@ -7,8 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Api\Profile;
 
-use Magento\Framework\Api\SearchResultsInterface
-    as FrameworkSearchResultsInterface;
+use Magento\Framework\Api\SearchResultsInterface as FrameworkSearchResultsInterface;
 
 /**
  * Interface for Datatrics Profile search results.
@@ -22,7 +21,7 @@ interface SearchResultsInterface extends FrameworkSearchResultsInterface
      *
      * @return DataInterface[]
      */
-    public function getItems() : array;
+    public function getItems(): array;
 
     /**
      * Sets Code Items.
@@ -31,5 +30,5 @@ interface SearchResultsInterface extends FrameworkSearchResultsInterface
      *
      * @return $this
      */
-    public function setItems(array $items) : self;
+    public function setItems(array $items): self;
 }

@@ -12,8 +12,8 @@ use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
 use Datatrics\Connect\Api\Config\System\SalesInterface as SalesConfigRepository;
 use Datatrics\Connect\Model\Sales\CollectionFactory as SaleCollectionFactory;
 use Datatrics\Connect\Model\Sales\Data as SalesData;
-use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Serialize\Serializer\Json;
 
 /**
  * Class SalesUpdate
@@ -43,7 +43,6 @@ class SalesUpdate
      * @var ConfigRepository
      */
     private $configRepository;
-
     /**
      * @var ResourceConnection
      */
@@ -79,22 +78,24 @@ class SalesUpdate
      *
      * @return $this
      */
-    public function execute()
+    public function execute(): SalesUpdate
     {
         if (!$this->configRepository->isEnabled()) {
             return $this;
         }
-        $collection = $this->salesCollectionFactory->create()
-            ->addFieldToFilter('status', ['neq' => 'Synced']);
+
+        $collection = $this->getCollection();
         foreach ($collection as $order) {
             if (!$this->salesConfigRepository->isEnabled((int)$order->getStoreId())) {
                 continue;
             }
+
             $response = $this->apiAdapter->execute(
                 ApiAdapter::CREATE_CONVERSION,
                 null,
                 $this->json->serialize($this->prepareData($order))
             );
+
             if ($response['success']) {
                 $order->setStatus('Synced')->save();
             } else {
@@ -102,7 +103,28 @@ class SalesUpdate
                 $order->setUpdateAttempts($order->getUpdateAttempts() + 1)->save();
             }
         }
+
         return $this;
+    }
+
+    private function getCollection()
+    {
+        $collection = $this->salesCollectionFactory->create()
+            ->addFieldToFilter(
+                'status',
+                ['neq' => 'Synced']
+            );
+
+        $collection->getSelect()->joinLeft(
+            ['sales_order' => $collection->getResource()->getTable('sales_order')],
+            'main_table.order_id = sales_order.entity_id',
+            [
+                'increment_id' => 'sales_order.increment_id',
+                'created_at' => 'sales_order.created_at'
+            ]
+        );
+
+        return $collection;
     }
 
     /**
@@ -111,29 +133,17 @@ class SalesUpdate
      * @param SalesData $sale
      * @return array
      */
-    private function prepareData($sale): array
+    private function prepareData(SalesData $sale): array
     {
+        $storeId = (int)$sale->getStoreId();
         $conversionData = $sale->getData();
         $conversionData['items'] = $this->json->unserialize($conversionData['items']);
+
         return [
-            "conversionid" => $this->getOrderIncrementId($sale->getOrderId()),
-            "projectid" => $this->salesConfigRepository->getProjectId((int)$sale->getStoreId()),
-            "source" => $this->salesConfigRepository->getSyncSource((int)$sale->getStoreId()),
+            "conversionid" => $sale->getData('increment_id'),
+            "projectid" => $this->salesConfigRepository->getProjectId($storeId),
+            "source" => $this->salesConfigRepository->getSyncSource($storeId),
             "conversion" => $conversionData
         ];
-    }
-
-    /**
-     * @param int $orderId
-     * @return string
-     */
-    private function getOrderIncrementId(int $orderId)
-    {
-        $connection = $this->resourceConnection->getConnection();
-        $selectIncrementId = $connection->select()->from(
-            $this->resourceConnection->getTableName('sales_order'),
-            'increment_id'
-        )->where('entity_id = ?', $orderId);
-        return (string)$connection->fetchOne($selectIncrementId);
     }
 }

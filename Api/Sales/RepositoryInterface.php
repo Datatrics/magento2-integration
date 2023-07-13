@@ -7,12 +7,10 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Api\Sales;
 
+use Datatrics\Connect\Api\Sales\DataInterface as SalesData;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Datatrics\Connect\Api\Sales\DataInterface
-    as SalesData;
-use Datatrics\Connect\Api\Sales\SearchResultsInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -25,17 +23,14 @@ interface RepositoryInterface
      * Input exception text
      */
     public const INPUT_EXCEPTION = 'An ID is needed. Set the ID and try again.';
-
     /**
      * "No such entity" exception text
      */
     public const NO_SUCH_ENTITY_EXCEPTION = 'The entity with id "%1" does not exist.';
-
     /**
      * "Could not delete" exception text
      */
     public const COULD_NOT_DELETE_EXCEPTION = 'Could not delete the entity: %1';
-
     /**
      * "Could not save" exception text
      */
@@ -59,24 +54,24 @@ interface RepositoryInterface
      * @return SalesData
      * @throws LocalizedException
      */
-    public function get(int $entityId) : SalesData;
+    public function get(int $entityId): SalesData;
 
     /**
      * Return Sales object
      *
      * @return SalesData
      */
-    public function create();
+    public function create(): DataInterface;
 
     /**
-     * Retrieves an Sales matching the specified criteria.
+     * Retrieves a Sales matching the specified criteria.
      *
      * @param SearchCriteriaInterface $searchCriteria
      *
      * @return SearchResultsInterface
      * @throws LocalizedException
      */
-    public function getList(SearchCriteriaInterface $searchCriteria) : SearchResultsInterface;
+    public function getList(SearchCriteriaInterface $searchCriteria): SearchResultsInterface;
 
     /**
      * Register entity to delete
@@ -86,18 +81,18 @@ interface RepositoryInterface
      * @return bool true on success
      * @throws LocalizedException
      */
-    public function delete(SalesData $entity) : bool;
+    public function delete(SalesData $entity): bool;
 
     /**
      * Deletes a Sales entity by ID
      *
-     * @param int $entity
+     * @param int $entityId
      *
      * @return bool true on success
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function deleteById(int $entity) : bool;
+    public function deleteById(int $entityId): bool;
 
     /**
      * Perform persist operations for one entity
@@ -107,11 +102,11 @@ interface RepositoryInterface
      * @return SalesData
      * @throws LocalizedException
      */
-    public function save(SalesData $entity) : SalesData;
+    public function save(SalesData $entity): SalesData;
 
     /**
      * @param Order $order
-     * @return mixed
+     * @return bool
      */
-    public function prepareSaleData(Order $order);
+    public function prepareSaleData(Order $order): bool;
 }

@@ -7,9 +7,9 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\Profile;
 
+use Datatrics\Connect\Api\Profile\DataInterface as ProfileData;
 use Magento\Framework\Api\ExtensibleDataInterface;
 use Magento\Framework\Model\AbstractModel;
-use Datatrics\Connect\Api\Profile\DataInterface as ProfileData;
 
 /**
  * Datatrics profile data class
@@ -95,14 +95,6 @@ class Data extends AbstractModel implements ExtensibleDataInterface, ProfileData
     public function getCreatedAt(): string
     {
         return $this->getData(self::CREATED_AT);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setCreatedAt(string $createdAt): ProfileData
-    {
-        return $this->setData(self::CREATED_AT, $createdAt);
     }
 
     /**

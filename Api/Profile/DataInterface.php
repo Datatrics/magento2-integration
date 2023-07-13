@@ -47,57 +47,46 @@ interface DataInterface extends ExtensibleDataInterface
     /**
      * @return string
      */
-    public function getProfileId() : string;
+    public function getProfileId(): string;
 
     /**
      * @param string $profileId
      * @return $this
      */
-    public function setProfileId(string $profileId) : self;
+    public function setProfileId(string $profileId): self;
 
     /**
      * @return int
      */
-    public function getCustomerId() : int;
+    public function getCustomerId(): int;
 
     /**
      * @param int $customerId
      * @return $this
      */
-    public function setCustomerId(int $customerId) : self;
+    public function setCustomerId(int $customerId): self;
 
     /**
      * @return int
      */
-    public function getAddressId() : int;
+    public function getAddressId(): int;
 
     /**
      * @param int $addressId
      * @return $this
      */
-    public function setAddressId(int $addressId) : self;
+    public function setAddressId(int $addressId): self;
 
     /**
      * @return int
      */
-    public function getStoreId() : int;
+    public function getStoreId(): int;
 
     /**
      * @param int $storeId
      * @return $this
      */
-    public function setStoreId(int $storeId) : self;
-
-    /**
-     * @return string
-     */
-    public function getCreatedAt() : string;
-
-    /**
-     * @param string $createdAt
-     * @return $this
-     */
-    public function setCreatedAt(string $createdAt) : self;
+    public function setStoreId(int $storeId): self;
 
     /**
      * @return string
@@ -108,181 +97,186 @@ interface DataInterface extends ExtensibleDataInterface
      * @param string $updatedAt
      * @return $this
      */
-    public function setUpdatedAt(string $updatedAt) : self;
+    public function setUpdatedAt(string $updatedAt): self;
 
     /**
      * @return string
      */
-    public function getUpdateMsg() : string;
+    public function getUpdateMsg(): string;
 
     /**
      * @param string $updateMsg
      * @return $this
      */
-    public function setUpdateMsg(string $updateMsg) : self;
+    public function setUpdateMsg(string $updateMsg): self;
 
     /**
      * @return string
      */
-    public function getUpdateAttempts() : string;
+    public function getUpdateAttempts(): string;
 
     /**
      * @param int $updateAttempts
      * @return $this
      */
-    public function setUpdateAttempts(int $updateAttempts) : self;
+    public function setUpdateAttempts(int $updateAttempts): self;
 
     /**
      * @return string
      */
-    public function getStatus() : string;
+    public function getStatus(): string;
 
     /**
      * @param string $status
      * @return $this
      */
-    public function setStatus(string $status) : self;
+    public function setStatus(string $status): self;
 
     /**
      * @param string $firstname
      * @return $this
      */
-    public function setFirstname(string $firstname) : self;
+    public function setFirstname(string $firstname): self;
 
     /**
      * @param string $lastname
      * @return $this
      */
-    public function setLastname(string $lastname) : self;
+    public function setLastname(string $lastname): self;
 
     /**
      * @param string $name
      * @return $this
      */
-    public function setName(string $name) : self;
+    public function setName(string $name): self;
 
     /**
      * @param string $email
      * @return $this
      */
-    public function setEmail(string $email) : self;
+    public function setEmail(string $email): self;
 
     /**
      * @param string $company
      * @return $this
      */
-    public function setCompany(string $company) : self;
+    public function setCompany(string $company): self;
 
     /**
      * @param string $address
      * @return $this
      */
-    public function setAddress(string $address) : self;
+    public function setAddress(string $address): self;
 
     /**
      * @param string $country
      * @return $this
      */
-    public function setCountry(string $country) : self;
+    public function setCountry(string $country): self;
 
     /**
      * @param string $city
      * @return $this
      */
-    public function setCity(string $city) : self;
+    public function setCity(string $city): self;
 
     /**
      * @param string $zip
      * @return $this
      */
-    public function setZip(string $zip) : self;
+    public function setZip(string $zip): self;
 
     /**
      * @param string $phone
      * @return $this
      */
-    public function setPhone(string $phone) : self;
+    public function setPhone(string $phone): self;
 
     /**
      * @param string $region
      * @return $this
      */
-    public function setRegion(string $region) : self;
+    public function setRegion(string $region): self;
 
     /**
      * @param string $street
      * @return $this
      */
-    public function setStreet(string $street) : self;
+    public function setStreet(string $street): self;
 
     /**
      * @param string $prefix
      * @return $this
      */
-    public function setPrefix(string $prefix) : self;
+    public function setPrefix(string $prefix): self;
 
     /**
      * @return string
      */
-    public function getFirstname() : string;
+    public function getFirstname(): string;
 
     /**
      * @return string
      */
-    public function getLastname() : string;
+    public function getLastname(): string;
 
     /**
      * @return string
      */
-    public function getName() : string;
+    public function getName(): string;
 
     /**
      * @return string
      */
-    public function getEmail() : string;
+    public function getEmail(): string;
 
     /**
      * @return string
      */
-    public function getCompany() : string;
+    public function getCompany(): string;
 
     /**
      * @return string
      */
-    public function getAddress() : string;
+    public function getAddress(): string;
 
     /**
      * @return string
      */
-    public function getCountry() : string;
+    public function getCountry(): string;
 
     /**
      * @return string
      */
-    public function getCity() : string;
+    public function getCity(): string;
 
     /**
      * @return string
      */
-    public function getZip() : string;
+    public function getZip(): string;
 
     /**
      * @return string
      */
-    public function getPhone() : string;
+    public function getPhone(): string;
 
     /**
      * @return string
      */
-    public function getRegion() : string;
+    public function getRegion(): string;
 
     /**
      * @return string
      */
-    public function getStreet() : string;
+    public function getStreet(): string;
 
     /**
      * @return string
      */
-    public function getPrefix() : string;
+    public function getPrefix(): string;
+
+    /**
+     * @return string
+     */
+    public function getCreatedAt(): string;
 }

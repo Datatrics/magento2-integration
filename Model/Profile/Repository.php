@@ -18,10 +18,7 @@ use Exception;
 use Magento\Customer\Model\Address;
 use Magento\Customer\Model\Customer;
 use Magento\Customer\Model\Data\Customer as DataCustomer;
-use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
-use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -39,47 +36,30 @@ class Repository implements ProfileRepository
      * @var SearchResultsFactory
      */
     private $searchResultsFactory;
-
     /**
      * @var CollectionFactory
      */
     private $collectionFactory;
-
     /**
      * @var ResourceModel
      */
     private $resource;
-
     /**
      * @var DataFactory
      */
     private $dataFactory;
-
-    /**
-     * @var JoinProcessorInterface
-     */
-    private $extensionAttributesJoinProcessor;
-
-    /**
-     * @var CollectionProcessorInterface|null
-     */
-    private $collectionProcessor;
-
     /**
      * @var LogRepository
      */
     private $logRepository;
-
     /**
      * @var Encryptor
      */
     private $encryptor;
-
     /**
      * @var ProfileConfigRepository
      */
     private $profileConfigRepository;
-
     /**
      * @var Customer
      */
@@ -89,38 +69,31 @@ class Repository implements ProfileRepository
      * Repository constructor.
      * @param SearchResultsFactory $searchResultsFactory
      * @param CollectionFactory $collectionFactory
-     * @param JoinProcessorInterface $extensionAttributesJoinProcessor
      * @param ResourceModel $resource
      * @param DataFactory $dataFactory
      * @param LogRepository $logRepository
      * @param Encryptor $encryptor
      * @param ProfileConfigRepository $profileConfigRepository
      * @param Customer $customer
-     * @param CollectionProcessorInterface|null $collectionProcessor
      */
     public function __construct(
         SearchResultsFactory $searchResultsFactory,
         CollectionFactory $collectionFactory,
-        JoinProcessorInterface $extensionAttributesJoinProcessor,
         ResourceModel $resource,
         DataFactory $dataFactory,
         LogRepository $logRepository,
         Encryptor $encryptor,
         ProfileConfigRepository $profileConfigRepository,
-        Customer $customer,
-        CollectionProcessorInterface $collectionProcessor = null
+        Customer $customer
     ) {
         $this->searchResultsFactory = $searchResultsFactory;
         $this->collectionFactory = $collectionFactory;
-        $this->extensionAttributesJoinProcessor = $extensionAttributesJoinProcessor;
         $this->resource = $resource;
         $this->dataFactory = $dataFactory;
         $this->logRepository = $logRepository;
         $this->encryptor = $encryptor;
         $this->profileConfigRepository = $profileConfigRepository;
         $this->customer = $customer;
-        $this->collectionProcessor = $collectionProcessor ?: ObjectManager::getInstance()
-            ->get(CollectionProcessorInterface::class);
     }
 
     /**
@@ -133,6 +106,14 @@ class Repository implements ProfileRepository
             ->setSearchCriteria($searchCriteria)
             ->setItems($collection->getItems())
             ->setTotalCount($collection->getSize());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function create(): ProfileData
+    {
+        return $this->dataFactory->create();
     }
 
     /**
@@ -181,16 +162,16 @@ class Repository implements ProfileRepository
     /**
      * @inheritDoc
      */
-    public function prepareProfileData($customer, bool $forceUpdate = false, $address = null)
+    public function prepareProfileData($customer, bool $forceUpdate = false, $address = null): bool
     {
         $customer = $this->customer->load($customer->getId());
         $storeId = (int)$customer->getStoreId();
         if (!$this->profileConfigRepository->isEnabled($storeId)) {
-            return 0;
+            return false;
         }
         if ($this->profileConfigRepository->getSyncRestriction($storeId)) {
             if (!in_array($customer->getGroupId(), $this->profileConfigRepository->getSyncCustomerGroup($storeId))) {
-                return 0;
+                return false;
             }
         }
         $profileId = $this->encryptor->getHash(
@@ -199,14 +180,14 @@ class Repository implements ProfileRepository
         );
         if ($this->resource->isExists($customer->getId(), 'customer_id')) {
             if (!$forceUpdate) {
-                return 0;
+                return false;
             }
         }
         if ($entityId = $this->resource->getIdByProfile($profileId)) {
             try {
                 $profile = $this->get($entityId);
             } catch (\Exception $e) {
-                return 0;
+                return false;
             }
         } else {
             $profile = $this->create()
@@ -227,25 +208,21 @@ class Repository implements ProfileRepository
         } else {
             $profile->setAddressId(0);
         }
+
         $this->logRepository->addDebugLog('Customer', 'ID ' . $customer->getId() . ' invalidated');
+
         try {
             $this->save($profile);
         } catch (\Exception $e) {
-            return 0;
+            return false;
         }
-        return 1;
-    }
 
-    /**
-     * @inheritDoc
-     */
-    public function create()
-    {
-        return $this->dataFactory->create();
+        return true;
     }
 
     /**
      * @param DataCustomer|Customer $customer
+     * @param $address
      * @return array
      */
     private function collectAddressData($customer, $address): array
@@ -290,7 +267,7 @@ class Repository implements ProfileRepository
      * @param Address $address
      * @return string
      */
-    private function formatName($address)
+    private function formatName($address): string
     {
         $nameData = [
             (string)$address->getPrefix(),
@@ -311,7 +288,7 @@ class Repository implements ProfileRepository
      * @param Address $address
      * @return string
      */
-    private function formatAddress($address)
+    private function formatAddress($address): string
     {
         $addressData = [
             (string)$address->getStreetFull(),
@@ -319,21 +296,20 @@ class Repository implements ProfileRepository
             (string)$address->getRegion(),
             (string)$address->getCountry()
         ];
-        $addressFormated = array_filter(
+        $addressFormatted = array_filter(
             $addressData,
             function ($value) {
                 return $value !== '';
             }
         );
-        return implode(', ', $addressFormated);
+        return implode(', ', $addressFormatted);
     }
 
     /**
      * @inheritDoc
      */
-    public function save(
-        ProfileData $entity
-    ): ProfileData {
+    public function save(ProfileData $entity): ProfileData
+    {
         try {
             $this->resource->save($entity);
         } catch (Exception $exception) {
@@ -350,18 +326,18 @@ class Repository implements ProfileRepository
     /**
      * @inheritDoc
      */
-    public function prepareGuestProfileData(Order $order)
+    public function prepareGuestProfileData(Order $order): bool
     {
         $storeId = (int)$order->getStoreId();
         if (!$this->profileConfigRepository->isEnabled($storeId)) {
-            return 0;
+            return false;
         }
         $profileId = $this->encryptor->getHash(
             $order->getCustomerEmail(),
             $this->profileConfigRepository->getProjectId($storeId)
         );
         if ($this->resource->getIdByProfile($profileId)) {
-            return 0;
+            return false;
         } else {
             $profile = $this->create()
                 ->setProfileId((string)$profileId);
@@ -377,12 +353,14 @@ class Repository implements ProfileRepository
                 $profile->getData()
             )
         );
+
         try {
             $this->save($profile);
         } catch (\Exception $e) {
-            return 0;
+            return false;
         }
-        return 1;
+
+        return true;
     }
 
     /**
@@ -392,7 +370,7 @@ class Repository implements ProfileRepository
     private function collectGuestAddressData(Order $order): array
     {
         $address = $order->getBillingAddress();
-        $data = [
+        return [
             'firstname' => $address->getFirstname(),
             'lastname' => $address->getLastname(),
             'prefix' => $address->getPrefix(),
@@ -407,6 +385,5 @@ class Repository implements ProfileRepository
             'street' => $address->getStreetFull(),
             'address' => $this->formatAddress($address)
         ];
-        return $data;
     }
 }

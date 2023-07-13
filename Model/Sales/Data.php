@@ -7,13 +7,12 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\Sales;
 
+use Datatrics\Connect\Api\Sales\DataInterface as SalesData;
 use Magento\Framework\Api\ExtensibleDataInterface;
 use Magento\Framework\Model\AbstractModel;
-use Datatrics\Connect\Api\Sales\DataInterface as SalesData;
 
 /**
  * Datatrics Sales data class
- *
  */
 class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
 {
@@ -64,14 +63,6 @@ class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
     public function getCreatedAt(): string
     {
         return $this->getData(self::CREATED_AT);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setCreatedAt(string $createdAt): SalesData
-    {
-        return $this->setData(self::CREATED_AT, $createdAt);
     }
 
     /**
@@ -142,7 +133,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
      * @param string $profileId
      * @return $this
      */
-    public function setProfileId(string $profileId) : SalesData
+    public function setProfileId(string $profileId): SalesData
     {
         return $this->setData(self::PROFILE_ID, $profileId);
     }
@@ -150,7 +141,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
     /**
      * @return string
      */
-    public function getProfileId() : string
+    public function getProfileId(): string
     {
         return $this->getData(self::PROFILE_ID);
     }
@@ -158,7 +149,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
     /**
      * @return string
      */
-    public function getEmail() : string
+    public function getEmail(): string
     {
         return $this->getData(self::EMAIL);
     }
@@ -167,7 +158,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
      * @param string $email
      * @return $this
      */
-    public function setEmail(string $email) : SalesData
+    public function setEmail(string $email): SalesData
     {
         return $this->setData(self::EMAIL, $email);
     }
@@ -175,7 +166,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
     /**
      * @return string
      */
-    public function getItems() : string
+    public function getItems(): string
     {
         return $this->getData(self::ITEMS);
     }
@@ -184,7 +175,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
      * @param string $items
      * @return $this
      */
-    public function setItems(string $items) : SalesData
+    public function setItems(string $items): SalesData
     {
         return $this->setData(self::ITEMS, $items);
     }
@@ -192,7 +183,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
     /**
      * @return string
      */
-    public function getTotal() : string
+    public function getTotal(): string
     {
         return $this->getData(self::TOTAL);
     }
@@ -201,7 +192,7 @@ class Data extends AbstractModel implements ExtensibleDataInterface, SalesData
      * @param float $total
      * @return $this
      */
-    public function setTotal(float $total) : SalesData
+    public function setTotal(float $total): SalesData
     {
         return $this->setData(self::TOTAL, $total);
     }
