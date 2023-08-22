@@ -7,13 +7,10 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Api\Content;
 
+use Datatrics\Connect\Api\Content\DataInterface as ContentData;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Datatrics\Connect\Api\Content\DataInterface
-    as ContentData;
-use Datatrics\Connect\Api\Content\SearchResultsInterface;
-use Magento\Customer\Model\Customer;
 
 /**
  * Interface Repository
@@ -43,12 +40,13 @@ interface RepositoryInterface
     public const COULD_NOT_SAVE_EXCEPTION = 'Could not save the entity: %1';
 
     /**
-     *
+     * Content status key-pair
      */
     public const STATUS = [
         'queued' => 'Queued for Update',
         'synced' => 'Synced',
         'error' => 'Error',
+        'skipped' => 'Skipped',
         'failed' => 'Failed'
     ];
 
@@ -60,24 +58,24 @@ interface RepositoryInterface
      * @return ContentData
      * @throws LocalizedException
      */
-    public function get(int $entityId) : ContentData;
+    public function get(int $entityId): ContentData;
 
     /**
      * Return Content object
      *
      * @return ContentData
      */
-    public function create();
+    public function create(): DataInterface;
 
     /**
-     * Retrieves an Content matching the specified criteria.
+     * Retrieves a Content matching the specified criteria.
      *
      * @param SearchCriteriaInterface $searchCriteria
      *
      * @return SearchResultsInterface
      * @throws LocalizedException
      */
-    public function getList(SearchCriteriaInterface $searchCriteria) : SearchResultsInterface;
+    public function getList(SearchCriteriaInterface $searchCriteria): SearchResultsInterface;
 
     /**
      * Register entity to delete
@@ -87,18 +85,18 @@ interface RepositoryInterface
      * @return bool true on success
      * @throws LocalizedException
      */
-    public function delete(ContentData $entity) : bool;
+    public function delete(ContentData $entity): bool;
 
     /**
      * Deletes a Content entity by ID
      *
-     * @param int $entity
+     * @param int $entityId
      *
      * @return bool true on success
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function deleteById(int $entity) : bool;
+    public function deleteById(int $entityId): bool;
 
     /**
      * Perform persist operations for one entity
@@ -108,11 +106,5 @@ interface RepositoryInterface
      * @return ContentData
      * @throws LocalizedException
      */
-    public function save(ContentData $entity) : ContentData;
-
-    /**
-     * @param array $productIds
-     * @return mixed
-     */
-    public function prepareContentData(array $productIds);
+    public function save(ContentData $entity): ContentData;
 }

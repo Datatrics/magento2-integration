@@ -7,9 +7,6 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\Command;
 
-use Datatrics\Connect\Api\Content\RepositoryInterface as ContentRepository;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputInterface;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 
 /**
@@ -21,56 +18,33 @@ class ContentInvalidate
 {
 
     /**
-     * @var ContentRepository
-     */
-    private $contentRepository;
-
-    /**
      * @var ContentResource
      */
     private $contentResource;
 
     /**
-     * SalesUpdate constructor.
-     * @param ContentRepository $contentRepository
+     * ContentInvalidate constructor.
      * @param ContentResource $contentResource
      */
     public function __construct(
-        ContentRepository $contentRepository,
         ContentResource $contentResource
     ) {
-        $this->contentRepository = $contentRepository;
         $this->contentResource = $contentResource;
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param array $storeIds
+     * @param array|null $productIds
      * @return int
      */
-    public function run(InputInterface $input, OutputInterface $output)
+    public function run(array $storeIds, ?array $productIds = []): int
     {
+        $where = ['store_id IN (?)' => $storeIds];
+        if (!empty($productIds)) {
+            $where['product_id IN (?)'] = $productIds;
+        }
+
         $connection = $this->contentResource->getConnection();
-        if ($storeId = $input->getOption('store-id')) {
-            $stores = [$storeId];
-        } else {
-            $selectStores = $connection->select()->from(
-                $this->contentResource->getTable('store'),
-                'store_id'
-            );
-            $stores = [];
-            foreach ($connection->fetchAll($selectStores) as $store) {
-                $stores[] = $store['store_id'];
-            }
-        }
-
-        $where = [
-            'store_id IN (?)' => $stores
-        ];
-
-        if (!empty($input->getArguments()['product-id'])) {
-            $where['product_id IN (?)'] = [$input->getArguments()['product-id']];
-        }
         return $connection->update(
             $this->contentResource->getTable('datatrics_content_store'),
             ['status' => 'Queued for Update'],

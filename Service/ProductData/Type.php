@@ -7,9 +7,6 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData;
 
-use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
-use Datatrics\Connect\Service\ProductData\AttributeCollector\Data\AttributeMapper;
 use Datatrics\Connect\Service\ProductData\AttributeCollector\Data\ConfigurableKey;
 use Datatrics\Connect\Service\ProductData\AttributeCollector\Data\Parents;
 
@@ -20,18 +17,6 @@ class Type
 {
 
     /**
-     * @var JsonSerializer
-     */
-    private $json;
-    /**
-     * @var AttributeMapper
-     */
-    private $attributeMapper;
-    /**
-     * @var ResourceConnection
-     */
-    private $resourceConnection;
-    /**
      * @var ConfigurableKey
      */
     private $configurableKey;
@@ -39,7 +24,6 @@ class Type
      * @var Data
      */
     private $data;
-
     /**
      * @var Parents
      */
@@ -47,24 +31,15 @@ class Type
 
     /**
      * Data constructor.
-     * @param JsonSerializer $json
-     * @param AttributeMapper $attributeMapper
-     * @param ResourceConnection $resourceConnection
      * @param Data $data
      * @param ConfigurableKey $configurableKey
      * @param Parents $parents
      */
     public function __construct(
-        JsonSerializer $json,
-        AttributeMapper $attributeMapper,
-        ResourceConnection $resourceConnection,
         Data $data,
         ConfigurableKey $configurableKey,
         Parents $parents
     ) {
-        $this->json = $json;
-        $this->attributeMapper = $attributeMapper;
-        $this->resourceConnection = $resourceConnection;
         $this->data = $data;
         $this->configurableKey = $configurableKey;
         $this->parents = $parents;
@@ -75,27 +50,18 @@ class Type
      * @param array $attributeMap
      * @param array $extraParameters
      * @param int $storeId
-     * @param int $limit
-     * @param int $page
      * @return array
      */
     public function execute(
         array $entityIds,
         array $attributeMap,
         array $extraParameters,
-        int $storeId = 0,
-        int $limit = 10000,
-        int $page = 1
+        int $storeId = 0
     ): array {
         if (empty($entityIds)) {
             return [];
         }
-        $entityIds = array_chunk($entityIds, (int)$limit);
-        if (isset($entityIds[$page - 1])) {
-            $entityIds = $entityIds[$page - 1];
-        } else {
-            $entityIds = $entityIds[0];
-        }
+
         $parents = $this->parents->execute();
         $toUnset = [];
         $parentAttributeToUse = [];
@@ -124,6 +90,7 @@ class Type
             $parentAttributes['bundle'][] = 'image';
         }
         $parentType = false;
+
         foreach ($entityIds as $entityId) {
             if (!array_key_exists($entityId, $parents)) {
                 continue;
@@ -206,6 +173,7 @@ class Type
                 $data[$entityId]['image_logic'] = 0;
             }
         }
+
         return array_diff_key($data, array_flip($toUnset));
     }
 

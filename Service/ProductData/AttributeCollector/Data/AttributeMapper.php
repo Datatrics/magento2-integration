@@ -11,6 +11,7 @@ use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\EntityManager\MetadataPool;
+use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -159,20 +160,237 @@ class AttributeMapper
     }
 
     /**
+     * Attribute options collector
+     *
+     * @return array
+     */
+    private function collectAttributeOptions(): array
+    {
+        $attrOptions = [];
+
+        $select = $this->resource->getConnection()
+            ->select()
+            ->from(
+                ['eav_attribute_option' => $this->resource->getTableName('eav_attribute_option')],
+                ['attribute_id']
+            )->joinLeft(
+                ['eav_attribute_option_value' => $this->resource->getTableName('eav_attribute_option_value')],
+                'eav_attribute_option_value.option_id = eav_attribute_option.option_id',
+                [
+                    'option_id',
+                    'store_id',
+                    'value'
+                ]
+            );
+
+        $options = $this->resource->getConnection()->fetchAll($select);
+        foreach ($options as $option) {
+            $attrOptions[$option['attribute_id']][$option['option_id']][$option['store_id']] = $option['value'];
+        }
+
+        return $attrOptions;
+    }
+
+    /**
+     * @param string $type
+     * @param mixed $data
+     */
+    public function setData($type, $data): void
+    {
+        if (!$data) {
+            return;
+        }
+        switch ($type) {
+            case 'store_id':
+                $this->storeId = [0, $data];
+                break;
+            case 'entity_ids':
+                $this->entityIds = $data;
+                break;
+            case 'map':
+                $this->map = $data;
+                break;
+            case 'entity_type_code':
+                $this->entityTypeCode = $data;
+                break;
+        }
+    }
+
+    /**
+     * Fetch attributes data from eav_attribute table according provided map
+     *
+     * @return array[] 'attribute_id', 'entity_type_id', 'attribute_code' and 'backend_type'
+     */
+    private function getAttributes(): array
+    {
+        $select = $this->resource->getConnection()
+            ->select()
+            ->from(
+                ['eav_attribute' => $this->resource->getTableName('eav_attribute')],
+                self::EAV_ATTRIBUTES_DATA_SET
+            )->joinLeft(
+                ['eav_entity_type' => $this->resource->getTableName('eav_entity_type')],
+                'eav_attribute.entity_type_id = eav_entity_type.entity_type_id',
+                ['entity_table']
+            )->where(
+                'eav_entity_type.entity_type_code = ?',
+                $this->entityTypeCode
+            )->where(
+                'eav_attribute.attribute_code IN (?)',
+                $this->map
+            );
+
+        return $this->resource->getConnection()->fetchAll($select);
+    }
+
+    /**
+     * Get specific attribute values for selected entities for all existing stores
+     *
+     * @param array[] $attributes 'attribute_id', 'attribute_code', 'backend_type', 'entity_table'
+     *
+     */
+    private function collectAttributeValues(array $attributes): void
+    {
+        $tablesNonStatic = [];
+        $attributeIdsNonStatic = [];
+        $attributeStaticCode = array_unique(['entity_id', 'type_id', $this->linkField]);
+        $relations = [];
+        $withUrl = [];
+
+        foreach ($attributes as $attribute) {
+            if ($attribute['frontend_input'] == 'media_image' || $attribute['frontend_input'] == 'image') {
+                $withUrl[] = $attribute['attribute_id'];
+            }
+            $relations[$attribute['attribute_id']] = $attribute['attribute_code'];
+            if ($attribute['backend_type'] != 'static') {
+                $tablesNonStatic[] = $attribute['entity_table'] . '_' . $attribute['backend_type'];
+                $attributeIdsNonStatic[] = $attribute['attribute_id'];
+            } else {
+                $attributeStaticCode[] = $attribute['attribute_code'];
+            }
+        }
+        $tablesNonStatic = array_unique($tablesNonStatic);
+        $entityTable = reset($attributes)['entity_table'];
+
+        foreach ($tablesNonStatic as $table) {
+            $fields = ['attribute_id', 'store_id', 'value', 'entity_id' => $this->linkField];
+            $select = $this->resource->getConnection()
+                ->select()
+                ->from(
+                    [$table => $this->resource->getTableName($table)],
+                    $fields
+                )->where(
+                    "{$this->linkField} IN (?)",
+                    $this->entityIds
+                )->where(
+                    'attribute_id in (?)',
+                    $attributeIdsNonStatic
+                )->where(
+                    'store_id in (?)',
+                    $this->storeId
+                );
+
+            $result = $this->resource->getConnection()->fetchAll($select);
+            foreach ($result as $item) {
+                if (array_key_exists($item['attribute_id'], $this->attrOptions)) {
+                    $attrValues = explode(',', (string)$item['value']);
+                    $item['value'] = [];
+                    foreach ($attrValues as $attrValue) {
+                        $attributeId = (string)$item['attribute_id'];
+                        try {
+                            $item['value'][] = $this->attrOptions[$attributeId]
+                            [$attrValue]
+                            [$item['store_id']];
+                        } catch (Exception $exception) {
+                            continue;
+                        }
+                    }
+                    $item['value'] = implode(',', $item['value']);
+                }
+                if (isset($this->result[$relations[$item['attribute_id']]][$item['entity_id']])
+                    && $item['store_id'] == 0) {
+                    continue;
+                }
+                if (in_array($item['attribute_id'], $withUrl)) {
+                    $item['value'] = $this->getMediaUrl('catalog/product' . $item['value']);
+                }
+                $this->result[$relations[$item['attribute_id']]][$item['entity_id']] =
+                    str_replace(["\r", "\n"], '', (string)$item['value']);
+            }
+        }
+
+        $this->adjustTaxClassLabels();
+        $select = $this->resource->getConnection()
+            ->select()
+            ->from(
+                $this->resource->getTableName($entityTable),
+                $attributeStaticCode
+            );
+        $select->where("{$this->linkField} IN (?)", $this->entityIds);
+        $result = $this->resource->getConnection()->fetchAll($select);
+
+        foreach ($result as $item) {
+            foreach ($attributeStaticCode as $static) {
+                if ($static == 'entity_id') {
+                    continue;
+                }
+                $this->result[$static][$item[$this->linkField]] = $item[$static];
+            }
+        }
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    private function getMediaUrl($path): string
+    {
+        if ($this->mediaUrl == null) {
+            try {
+                $this->mediaUrl = $this->storeManager->getStore()
+                    ->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+            } catch (Exception $exception) {
+                $this->mediaUrl = '';
+            }
+        }
+        return $this->mediaUrl . $path;
+    }
+
+    private function adjustTaxClassLabels()
+    {
+        if (!array_key_exists('tax_class_id', $this->result)) {
+            return;
+        }
+        $connection = $this->resource->getConnection();
+        $selectClasses = $connection->select()->from(
+            $this->resource->getTableName('tax_class'),
+            ['class_id', 'class_name']
+        );
+        $taxClassLabels = $connection->fetchPairs($selectClasses);
+        foreach ($this->result['tax_class_id'] as &$taxClassId) {
+            $taxClassId = $taxClassLabels[$taxClassId];
+        }
+    }
+
+    /**
      * Collect data not related to attributes
      */
     private function collectExtraData()
     {
-        $fields = ['entity_id', 'type_id', 'created_at', 'updated_at'];
+        $fields = array_unique([$this->linkField, 'type_id', 'created_at', 'updated_at', 'entity_id']);
         $select = $this->resource->getConnection()->select()
             ->from(
                 ['catalog_product_entity' => $this->resource->getTableName('catalog_product_entity')],
                 $fields
-            )->where('entity_id IN (?)', $this->entityIds);
+            )->where(
+                $this->linkField . ' IN (?)',
+                $this->entityIds
+            );
+
         $items = $this->resource->getConnection()->fetchAll($select);
         foreach ($items as $item) {
             foreach ($fields as $field) {
-                $this->result[$field][$item['entity_id']] = $item[$field];
+                $this->result[$field][$item[$this->linkField]] = $item[$field];
             }
         }
     }
@@ -205,207 +423,10 @@ class AttributeMapper
     }
 
     /**
-     * @param string $type
-     * @param mixed $data
-     */
-    public function setData($type, $data): void
-    {
-        if (!$data) {
-            return;
-        }
-        switch ($type) {
-            case 'store_id':
-                $this->storeId = [0, $data];
-                break;
-            case 'entity_ids':
-                $this->entityIds = $data;
-                break;
-            case 'map':
-                $this->map = $data;
-                break;
-            case 'entity_type_code':
-                $this->entityTypeCode = $data;
-                break;
-        }
-    }
-
-    /**
      * @return array
      */
     public function getRequiredParameters(): array
     {
         return self::REQUIRE;
-    }
-
-    /**
-     * Get specific attribute values for selected entities for all existing stores
-     *
-     * @param array[] $attributes 'attribute_id', 'attribute_code', 'backend_type', 'entity_table'
-     *
-     */
-    private function collectAttributeValues(array $attributes): void
-    {
-        $tablesNonStatic = [];
-        $attributeIdsNonStatic = [];
-        $attributeStaticCode = ['entity_id', 'type_id'];
-        $relations = [];
-        $withUrl = [];
-
-        foreach ($attributes as $attribute) {
-            if ($attribute['frontend_input'] == 'media_image' || $attribute['frontend_input'] == 'image') {
-                $withUrl[] = $attribute['attribute_id'];
-            }
-            $relations[$attribute['attribute_id']] = $attribute['attribute_code'];
-            if ($attribute['backend_type'] != 'static') {
-                $tablesNonStatic[] = $attribute['entity_table'] . '_' . $attribute['backend_type'];
-                $attributeIdsNonStatic[] = $attribute['attribute_id'];
-            } else {
-                $attributeStaticCode[] = $attribute['attribute_code'];
-            }
-        }
-        $tablesNonStatic = array_unique($tablesNonStatic);
-        $entityTable = reset($attributes)['entity_table'];
-
-        foreach ($tablesNonStatic as $table) {
-            $fields = ['attribute_id', 'store_id', 'value', 'entity_id' => $this->linkField];
-            $select = $this->resource->getConnection()->select()
-                ->from(
-                    [$table => $this->resource->getTableName($table)],
-                    $fields
-                );
-            $select->where("{$this->linkField} IN (?)", $this->entityIds);
-            $select->where('attribute_id in (?)', $attributeIdsNonStatic);
-            $select->where('store_id in (?)', $this->storeId);
-            $result = $this->resource->getConnection()->fetchAll($select);
-            foreach ($result as $item) {
-                if (array_key_exists($item['attribute_id'], $this->attrOptions)) {
-                    $attrValues = explode(',', (string)$item['value']);
-                    $item['value'] = [];
-                    foreach ($attrValues as $attrValue) {
-                        $attributeId = (string)$item['attribute_id'];
-                        try {
-                            $item['value'][] = $this->attrOptions[$attributeId]
-                            [$attrValue]
-                            [$item['store_id']];
-                        } catch (\Exception $exception) {
-                            continue;
-                        }
-                    }
-                    $item['value'] = implode(',', $item['value']);
-                }
-                if (isset($this->result[$relations[$item['attribute_id']]][$item['entity_id']])
-                    && $item['store_id'] == 0) {
-                    continue;
-                }
-                if (in_array($item['attribute_id'], $withUrl)) {
-                    $item['value'] = $this->getMediaUrl('catalog/product' . $item['value']);
-                }
-                $this->result[$relations[$item['attribute_id']]][$item['entity_id']] =
-                    str_replace(["\r", "\n"], '', (string)$item['value']);
-            }
-        }
-        $this->adjustTaxClassLabels();
-        $select = $this->resource->getConnection()
-            ->select()
-            ->from(
-                $this->resource->getTableName($entityTable),
-                $attributeStaticCode
-            );
-        $select->where("{$this->linkField} IN (?)", $this->entityIds);
-        $result = $this->resource->getConnection()->fetchAll($select);
-        foreach ($result as $item) {
-            foreach ($attributeStaticCode as $static) {
-                if ($static == 'entity_id') {
-                    continue;
-                }
-                $this->result[$static][$item['entity_id']] = $item[$static];
-            }
-        }
-    }
-
-    private function adjustTaxClassLabels()
-    {
-        if (!array_key_exists('tax_class_id', $this->result)) {
-            return;
-        }
-        $connection = $this->resource->getConnection();
-        $selectClasses = $connection->select()->from(
-            $this->resource->getTableName('tax_class'),
-            ['class_id', 'class_name']
-        );
-        $taxClassLabels = $connection->fetchPairs($selectClasses);
-        foreach ($this->result['tax_class_id'] as &$taxClassId) {
-            $taxClassId = $taxClassLabels[$taxClassId];
-        }
-    }
-
-    /**
-     * @param string $path
-     * @return string
-     */
-    private function getMediaUrl($path): string
-    {
-        if ($this->mediaUrl == null) {
-            try {
-                $this->mediaUrl = $this->storeManager->getStore()
-                    ->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-            } catch (\Exception $exception) {
-                $this->mediaUrl = '';
-            }
-        }
-        return $this->mediaUrl . $path;
-    }
-
-    /**
-     * Fetch attributes data from eav_attribute table according provided map
-     *
-     * @return array[] 'attribute_id', 'entity_type_id', 'attribute_code' and 'backend_type'
-     */
-    private function getAttributes(): array
-    {
-        $select = $this->resource->getConnection()
-            ->select()
-            ->from(
-                ['eav_attribute' => $this->resource->getTableName('eav_attribute')],
-                self::EAV_ATTRIBUTES_DATA_SET
-            )->joinLeft(
-                ['eav_entity_type' => $this->resource->getTableName('eav_entity_type')],
-                'eav_attribute.entity_type_id = eav_entity_type.entity_type_id',
-                ['entity_table']
-            )->where('eav_entity_type.entity_type_code = ?', $this->entityTypeCode)
-            ->where('eav_attribute.attribute_code IN (?)', $this->map);
-        return $this->resource->getConnection()->fetchAll($select);
-    }
-
-    /**
-     * Attribute options collector
-     *
-     * @return array
-     */
-    private function collectAttributeOptions(): array
-    {
-        $attrOptions = [];
-
-        $select = $this->resource->getConnection()
-            ->select()
-            ->from(
-                ['eav_attribute_option' => $this->resource->getTableName('eav_attribute_option')],
-                ['attribute_id']
-            )->joinLeft(
-                ['eav_attribute_option_value' => $this->resource->getTableName('eav_attribute_option_value')],
-                'eav_attribute_option_value.option_id = eav_attribute_option.option_id',
-                [
-                    'option_id',
-                    'store_id',
-                    'value'
-                ]
-            );
-
-        $options = $this->resource->getConnection()->fetchAll($select);
-        foreach ($options as $option) {
-            $attrOptions[$option['attribute_id']][$option['option_id']][$option['store_id']] = $option['value'];
-        }
-
-        return $attrOptions;
     }
 }

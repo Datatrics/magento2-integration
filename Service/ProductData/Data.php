@@ -7,7 +7,10 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData;
 
-use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
+use Exception;
+use Magento\Catalog\Api\Data\CategoryInterface;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\EntityManager\MetadataPool;
 
 /**
  * Data class
@@ -17,10 +20,6 @@ use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 class Data
 {
 
-    /**
-     * @var JsonSerializer
-     */
-    private $json;
     /**
      * @var AttributeCollector\Data\AttributeMapper
      */
@@ -41,30 +40,41 @@ class Data
      * @var AttributeCollector\Data\Price
      */
     private $price;
+    /**
+     * @var ResourceConnection
+     */
+    private $resourceConnection;
+    /**
+     * @var string
+     */
+    private $linkField;
 
     /**
-     * Data constructor.
-     * @param JsonSerializer $json
      * @param AttributeCollector\Data\AttributeMapper $attributeMapper
      * @param AttributeCollector\Data\Url $url
      * @param AttributeCollector\Data\Category $category
      * @param AttributeCollector\Data\Stock $stock
      * @param AttributeCollector\Data\Price $price
+     * @param ResourceConnection $resourceConnection
+     * @param MetadataPool $metadataPool
+     * @throws Exception
      */
     public function __construct(
-        JsonSerializer $json,
         AttributeCollector\Data\AttributeMapper $attributeMapper,
         AttributeCollector\Data\Url $url,
         AttributeCollector\Data\Category $category,
         AttributeCollector\Data\Stock $stock,
-        AttributeCollector\Data\Price $price
+        AttributeCollector\Data\Price $price,
+        ResourceConnection $resourceConnection,
+        MetadataPool $metadataPool
     ) {
-        $this->json = $json;
         $this->attributeMapper = $attributeMapper;
         $this->url = $url;
         $this->category = $category;
         $this->stock = $stock;
         $this->price = $price;
+        $this->resourceConnection = $resourceConnection;
+        $this->linkField = $metadataPool->getMetadata(CategoryInterface::class)->getLinkField();
     }
 
     /**
@@ -74,8 +84,11 @@ class Data
      * @param int $storeId
      * @return array
      */
-    public function execute(array $entityIds, array $attributeMap, array $extraParameters, int $storeId = 0)
+    public function execute(array $entityIds, array $attributeMap, array $extraParameters, int $storeId = 0): array
     {
+        $rowIds = $this->getRowsIds($entityIds);
+        $productIds = array_flip($rowIds);
+
         $result = $this->attributeMapper->execute(
             $entityIds,
             $attributeMap,
@@ -98,43 +111,60 @@ class Data
             'product',
             $storeId
         );
+
         foreach ($result as $urlEntityId => $url) {
             $data[$urlEntityId]['url'] = $url;
         }
 
         $result = $this->category->execute(
-            $entityIds,
+            $productIds,
             $storeId,
             'raw',
             $extraParameters
         );
-        foreach ($result as $entityId => $categoryData) {
-            $data[$entityId]['category'] = $categoryData;
+
+        foreach ($result as $productId => $categoryData) {
+            $data[$rowIds[$productId]]['category'] = $categoryData;
         }
 
         if ($extraParameters['stock']['inventory']) {
-            $result = $this->stock->execute(
-                $entityIds
-            );
-
+            $result = $this->stock->execute($productIds);
             $inventoryFields = array_merge(
                 $extraParameters['stock']['inventory_fields'],
-                ['msi', 'salable_qty', 'reserved', 'is_in_stock']
+                ['qty', 'msi', 'salable_qty', 'reserved', 'is_in_stock']
             );
-            foreach ($result as $entityId => $stockData) {
-                $data[$entityId] += array_intersect_key($stockData, array_flip($inventoryFields));
+
+            foreach ($result as $productId => $stockData) {
+                $data[$rowIds[$productId]] += array_intersect_key($stockData, array_flip($inventoryFields));
             }
         }
 
         $result = $this->price->execute(
-            $entityIds,
+            $productIds,
             $extraParameters['behaviour']['grouped']['price_logic'] ?? 'max',
             $extraParameters['behaviour']['bundle']['price_logic'] ?? 'min',
             $storeId
         );
-        foreach ($result as $entityId => $priceData) {
-            $data[$entityId] += $priceData;
+
+        foreach ($result as $productId => $priceData) {
+            $data[$rowIds[$productId]] += $priceData;
         }
+
         return $data;
+    }
+
+    /**
+     * @param array $entityIds
+     * @return int[]|string[]
+     */
+    private function getRowsIds(array $entityIds): array
+    {
+        $connection = $this->resourceConnection->getConnection();
+        $table = $this->resourceConnection->getTableName('catalog_product_entity');
+        $select = $connection->select()
+            ->from($table, ['entity_id', $this->linkField])
+            ->where("{$this->linkField} IN (?)", $entityIds);
+
+        return $connection->fetchPairs($select);
     }
 }

@@ -7,13 +7,12 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\Content;
 
+use Datatrics\Connect\Api\Content\DataInterface as ContentData;
 use Magento\Framework\Api\ExtensibleDataInterface;
 use Magento\Framework\Model\AbstractModel;
-use Datatrics\Connect\Api\Content\DataInterface as ContentData;
 
 /**
  * Datatrics Content data class
- *
  */
 class Data extends AbstractModel implements ExtensibleDataInterface, ContentData
 {
@@ -29,31 +28,31 @@ class Data extends AbstractModel implements ExtensibleDataInterface, ContentData
     /**
      * @inheritDoc
      */
-    public function getContentId(): string
+    public function getProductId(): int
     {
-        return $this->getData(self::CONTENT_ID);
+        return $this->getData(self::PRODUCT_ID);
     }
 
     /**
      * @inheritDoc
      */
-    public function setContentId(string $contentId): ContentData
+    public function setProductId(int $productId): ContentData
     {
-        return $this->setData(self::CONTENT_ID, $contentId);
+        return $this->setData(self::PRODUCT_ID, $productId);
     }
 
     /**
      * @inheritDoc
      */
-    public function getParentId(): string
+    public function getParentId(): ?int
     {
-        return $this->getData(self::PARENT_ID);
+        return $this->getData(self::PARENT_ID) ? (int)$this->getData(self::PARENT_ID) : null;
     }
 
     /**
      * @inheritDoc
      */
-    public function setParentId(string $parentId): ContentData
+    public function setParentId(?int $parentId): ContentData
     {
         return $this->setData(self::PARENT_ID, $parentId);
     }
@@ -72,22 +71,6 @@ class Data extends AbstractModel implements ExtensibleDataInterface, ContentData
     public function setStoreId(int $storeId): ContentData
     {
         return $this->setData(self::STORE_ID, $storeId);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getCreatedAt(): string
-    {
-        return $this->getData(self::CREATED_AT);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setCreatedAt(string $createdAt): ContentData
-    {
-        return $this->setData(self::CREATED_AT, $createdAt);
     }
 
     /**
@@ -125,9 +108,9 @@ class Data extends AbstractModel implements ExtensibleDataInterface, ContentData
     /**
      * @inheritDoc
      */
-    public function getUpdateAttempts(): string
+    public function getUpdateAttempts(): int
     {
-        return $this->getData(self::UPDATE_ATTEMPTS);
+        return (int)$this->getData(self::UPDATE_ATTEMPTS);
     }
 
     /**

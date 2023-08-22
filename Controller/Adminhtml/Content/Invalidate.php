@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Datatrics\Connect\Controller\Adminhtml\Content;
 
 use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
+use Datatrics\Connect\Api\Content\RepositoryInterface as ContentRepository;
 use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\Response\RedirectInterface;
@@ -57,6 +58,7 @@ class Invalidate extends Action
      * @param Action\Context $context
      * @param ContentResource $contentResource
      * @param ContentConfigRepository $contentConfigRepository
+     * @param RedirectInterface $redirect
      */
     public function __construct(
         Action\Context $context,
@@ -88,13 +90,10 @@ class Invalidate extends Action
         }
 
         $connection = $this->contentResource->getConnection();
-        $where = [
-            'store_id = ?' => $storeId
-        ];
         $count = $connection->update(
             $this->contentResource->getTable('datatrics_content_store'),
-            ['status' => 'Queued for Update'],
-            $where
+            ['status' => ContentRepository::STATUS['queued']],
+            ['store_id = ?' => $storeId]
         );
 
         if ($count > 0) {

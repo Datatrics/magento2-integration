@@ -24,7 +24,7 @@ class ContentInvalidate extends OptionKeys
      *
      * @return array
      */
-    public function getOptionsList()
+    public function getOptionsList(): array
     {
         return array_merge(
             $this->getBasicOptions(),
@@ -38,7 +38,7 @@ class ContentInvalidate extends OptionKeys
      * @return array
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    private function getBasicOptions()
+    private function getBasicOptions(): array
     {
         return [
             new InputOption(
@@ -60,7 +60,7 @@ class ContentInvalidate extends OptionKeys
      *
      * @return array
      */
-    private function getSkipOptions()
+    private function getSkipOptions(): array
     {
         return [];
     }

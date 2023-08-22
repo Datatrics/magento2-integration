@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
+use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\EntityManager\MetadataPool;
@@ -40,7 +41,7 @@ class ConfigurableKey
      *
      * @param ResourceConnection $resource
      * @param MetadataPool $metadataPool
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(
         ResourceConnection $resource,
@@ -75,10 +76,8 @@ class ConfigurableKey
         if (!$data) {
             return;
         }
-        switch ($type) {
-            case 'entity_ids':
-                $this->entityIds = $data;
-                break;
+        if ($type == 'entity_ids') {
+            $this->entityIds = $data;
         }
     }
 
@@ -92,6 +91,7 @@ class ConfigurableKey
         $result = [];
         $condition = 'catalog_product_entity_int.attribute_id = catalog_product_super_attribute.attribute_id
 and catalog_product_entity_int.' . $this->linkField . ' = catalog_product_relation.child_id';
+
         $select = $this->resource->getConnection()
             ->select()->from(
                 ['catalog_product_relation' => $this->resource->getTableName('catalog_product_relation')]
@@ -103,7 +103,11 @@ and catalog_product_entity_int.' . $this->linkField . ' = catalog_product_relati
                 ['catalog_product_entity_int' => $this->resource->getTableName('catalog_product_entity_int')],
                 $condition,
                 ['value', 'store_id']
-            )->where('child_id IN (?)', $this->entityIds);
+            )->where(
+                'child_id IN (?)',
+                $this->entityIds
+            );
+
         $keysData = $this->resource->getConnection()->fetchAll($select);
         foreach ($keysData as $item) {
             if (!$item['value']) {
@@ -141,10 +145,8 @@ and catalog_product_entity_int.' . $this->linkField . ' = catalog_product_relati
             unset($this->entityIds);
             unset($this->type);
         }
-        switch ($type) {
-            case 'entity_ids':
-                unset($this->entityIds);
-                break;
+        if ($type == 'entity_ids') {
+            unset($this->entityIds);
         }
     }
 }

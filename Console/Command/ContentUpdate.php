@@ -7,12 +7,12 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Console\Command;
 
+use Datatrics\Connect\Console\CommandOptions\ContentUpdate as ContentUpdateOptions;
+use Datatrics\Connect\Model\Command\ContentUpdate as ContentUpdateProcessing;
 use Magento\Framework\Console\Cli;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
-use Datatrics\Connect\Model\Command\ContentUpdate as ContentUpdateProcessing;
-use Datatrics\Connect\Console\CommandOptions\ContentUpdate as ContentUpdateOptions;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class ContentUpdate
@@ -31,54 +31,40 @@ class ContentUpdate extends Command
      * @var ContentUpdateOptions
      */
     private $options;
-
     /**
      * @var ContentUpdateProcessing
      */
     private $contentUpdateProcessing;
 
     /**
-     * @var InputValidator
-     */
-    private $inputValidator;
-
-    /**
-     * SalesUpdate constructor.
+     * ContentUpdate constructor.
      * @param ContentUpdateOptions $options
      * @param ContentUpdateProcessing $contentUpdateProcessing
-     * @param InputValidator $inputValidator
      */
     public function __construct(
         ContentUpdateOptions $options,
-        ContentUpdateProcessing $contentUpdateProcessing,
-        InputValidator $inputValidator
+        ContentUpdateProcessing $contentUpdateProcessing
     ) {
         $this->options = $options;
         $this->contentUpdateProcessing = $contentUpdateProcessing;
-        $this->inputValidator = $inputValidator;
         parent::__construct();
     }
 
     /**
-     *  {@inheritdoc}
+     * @inheritdoc
      */
     public function configure()
     {
         $this->setName(self::COMMAND_NAME);
         $this->setDescription('Push content to platform');
         $this->setDefinition($this->options->getOptionsList());
-        $this->setHelp(
-            <<<HELP
-Push content to platform
-HELP
-        );
         parent::configure();
     }
 
     /**
-     *  {@inheritdoc}
+     * @inheritdoc
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('store-id') === null) {
             throw new \InvalidArgumentException(

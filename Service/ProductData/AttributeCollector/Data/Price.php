@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
+use Exception;
 use Magento\Catalog\Helper\Data as CatalogHelper;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\CatalogPrice;
@@ -70,13 +71,13 @@ class Price
     private $products = null;
 
     /**
-     * Price constructor.
      * @param CatalogPrice $commonPriceModel
      * @param RuleFactory $resourceRuleFactory
      * @param CatalogHelper $catalogHelper
      * @param StoreManagerInterface $storeManager
      * @param TimezoneInterface $localeDate
      * @param CollectionFactory $collectionFactory
+     * @throws Exception
      */
     public function __construct(
         CatalogPrice $commonPriceModel,
@@ -98,7 +99,7 @@ class Price
      * @param array $productIds
      *
      * @param string $groupedPriceType options: min, max, total
-     * @param string $bundlePriceType optins: min, max, total
+     * @param string $bundlePriceType options: min, max, total
      * @param int $storeId
      * @return array
      */
@@ -112,12 +113,13 @@ class Price
         $this->setData('products', $this->getProductData($productIds));
         $this->setData('grouped_price_type', $groupedPriceType);
         $this->setData('bundle_price_type', $bundlePriceType);
+
         foreach ($this->products as $product) {
             $this->setPrices($product, $this->groupedPriceType, $this->bundlePriceType);
             if (array_key_exists($product->getTaxClassId(), $this->taxClasses)) {
                 $percent = $this->taxClasses[$product->getTaxClassId()];
             } else {
-                $priceInclTax = $this->processPrice($product, $this->price, true);
+                $priceInclTax = $this->processPrice($product, (float)$this->price);
                 if ($this->price == 0) {
                     $percent = 1;
                 } else {
@@ -140,6 +142,7 @@ class Price
                 'tax' => abs(1 - $percent) * 100
             ];
         }
+
         return $result ?? [];
     }
 
@@ -147,11 +150,11 @@ class Price
      * @param int $storeId
      * @return int
      */
-    private function getWebsiteId($storeId = 0): int
+    private function getWebsiteId(int $storeId = 0): int
     {
         try {
             return (int)$this->storeManager->getStore($storeId)->getWebsiteId();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return 0;
         }
     }
@@ -206,10 +209,10 @@ class Price
 
     /**
      * @param Product $product
-     * @param string $groupedPriceType
-     * @param string $bundlePriceType
+     * @param string|null $groupedPriceType
+     * @param string|null $bundlePriceType
      */
-    private function setPrices($product, $groupedPriceType, $bundlePriceType): void
+    private function setPrices(Product $product, ?string $groupedPriceType, ?string $bundlePriceType): void
     {
         switch ($product->getTypeId()) {
             case 'configurable':
@@ -257,7 +260,7 @@ class Price
     /**
      * @param Product $product
      */
-    private function setConfigurablePrices($product): void
+    private function setConfigurablePrices(Product $product): void
     {
         /**
          * Check if config has a final_price (data catalog_product_index_price)
@@ -276,9 +279,9 @@ class Price
 
     /**
      * @param Product $product
-     * @param string $groupedPriceType
+     * @param string|null $groupedPriceType
      */
-    private function setGroupedPrices($product, $groupedPriceType)
+    private function setGroupedPrices(Product $product, ?string $groupedPriceType)
     {
         $minPrice = null;
         $maxPrice = null;
@@ -333,9 +336,9 @@ class Price
 
     /**
      * @param Product $product
-     * @param string $bundlePriceType
+     * @param string|null $bundlePriceType
      */
-    private function setBundlePrices($product, $bundlePriceType): void
+    private function setBundlePrices(Product $product, ?string $bundlePriceType): void
     {
         $this->setSimplePrices($product);
 
@@ -353,10 +356,10 @@ class Price
     /**
      * @param Product $product
      */
-    private function setSimplePrices($product)
+    private function setSimplePrices(Product $product)
     {
-        $this->price = $product->getData('price') !== (float)0 ? $product->getData('price') : null;
-        $this->finalPrice = $product->getData('final_price') !== (float)0
+        $this->price = $product->getData('price') !== 0.0 ? $product->getData('price') : null;
+        $this->finalPrice = $product->getData('final_price') !== 0.0
             ? $product->getData('final_price') : null;
         $this->specialPrice = $product->getData('special_price')
             ? $product->getData('special_price') : 0;
@@ -371,7 +374,7 @@ class Price
      *
      * @return float
      */
-    private function getRulePrice($product): float
+    private function getRulePrice(Product $product): float
     {
         try {
             $this->rulePrice = $this->resourceRuleFactory->create()->getRulePrice(
@@ -380,8 +383,8 @@ class Price
                 '',
                 $product->getId()
             );
-        } catch (\Exception $exception) {
-            return (float)0;
+        } catch (Exception $exception) {
+            return 0.0;
         }
 
         if ($this->rulePrice !== null && $this->rulePrice !== false) {
@@ -396,13 +399,12 @@ class Price
      *
      * @param Product $product
      * @param float $price inputted product price
-     * @param bool $addTax return price include tax flag
      *
      * @return float
      */
-    private function processPrice($product, $price, $addTax = true): float
+    private function processPrice(Product $product, float $price): float
     {
-        return (float)$this->catalogHelper->getTaxPrice($product, $price, $addTax);
+        return (float)$this->catalogHelper->getTaxPrice($product, $price, true);
     }
 
     /**
@@ -412,7 +414,7 @@ class Price
      *
      * @return string
      */
-    private function getSpecialPriceDateRang($product)
+    private function getSpecialPriceDateRang(Product $product): string
     {
         if ($this->specialPrice === null) {
             return '';
@@ -423,15 +425,11 @@ class Price
         }
 
         if ($product->getSpecialFromDate() && $product->getSpecialToDate()) {
-
-            /**
-             * Todo use Magento date function
-             */
             $from = date('Y-m-d', strtotime($product->getSpecialFromDate()));
             $to = date('Y-m-d', strtotime($product->getSpecialToDate()));
-
             return $from . '/' . $to;
         }
+
         return '';
     }
 
@@ -440,7 +438,7 @@ class Price
      *
      * @return string
      */
-    private function getDiscountPercentage()
+    private function getDiscountPercentage(): string
     {
         if ($this->price > 0 && $this->salesPrice > 0) {
             $discount = ($this->salesPrice - $this->price) / $this->price;
@@ -463,7 +461,7 @@ class Price
     /**
      * @param string $type
      */
-    public function resetData($type = 'all')
+    public function resetData(string $type = 'all')
     {
         if ($type == 'all') {
             unset($this->products);

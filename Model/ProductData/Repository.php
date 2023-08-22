@@ -12,6 +12,7 @@ use Datatrics\Connect\Api\ProductData\RepositoryInterface as ProductData;
 use Datatrics\Connect\Service\ProductData\AttributeCollector\Data\Image;
 use Datatrics\Connect\Service\ProductData\Filter;
 use Datatrics\Connect\Service\ProductData\Type;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * ProductData repository class
@@ -27,6 +28,7 @@ class Repository implements ProductData
      * @var array
      */
     private $attributeMap = [
+        'product_id' => 'entity_id',
         'type_id' => 'type_id',
         'created_at' => 'created_at',
         'updated_at' => 'updated_at',
@@ -118,14 +120,17 @@ class Repository implements ProductData
 
         $result = [];
         foreach ($this->collectProductData($storeId) as $entityId => $productData) {
-            $this->addImageData($storeId, $entityId, $productData);
-            if (isset($productData['category'])) {
-                $this->addCategoryData($productData);
+            if (empty($productData['product_id'])) {
+                continue;
             }
+            $productId = (int)$productData['product_id'];
+            $this->addImageData($storeId, $entityId, $productData);
+            $this->addCategoryData($productData);
+            $result[$productId]['row_id'] = $entityId;
             foreach ($this->resultMap as $index => $attr) {
-                $result[$entityId][$index] = $productData[$attr] ?? '';
-                if (!$result[$entityId][$index]) {
-                    $result[$entityId][$index] = $productData[$index] ?? '';
+                $result[$productId][$index] = $productData[$attr] ?? '';
+                if (!$result[$productId][$index]) {
+                    $result[$productId][$index] = $productData[$index] ?? '';
                 }
             }
         }
@@ -149,7 +154,7 @@ class Repository implements ProductData
     }
 
     /**
-     * Attritbute collector
+     * Attribute collector
      *
      * @param int $storeId
      */
@@ -246,12 +251,14 @@ class Repository implements ProductData
      */
     private function addCategoryData(array &$productData): void
     {
-        foreach ($productData['category'] as &$category) {
-            $category['name'] = $category['path'];
-            $category['categoryid'] = $category['category_id'];
-            unset($category['path']);
-            unset($category['level']);
-            unset($category['category_id']);
+        if (isset($productData['category'])) {
+            foreach ($productData['category'] as &$category) {
+                $category['name'] = $category['path'];
+                $category['categoryid'] = $category['category_id'];
+                unset($category['path']);
+                unset($category['level']);
+                unset($category['category_id']);
+            }
         }
     }
 }

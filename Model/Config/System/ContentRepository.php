@@ -19,6 +19,23 @@ class ContentRepository extends ConfigRepository implements ContentInterface
     /**
      * @inheritDoc
      */
+    public function getContentEnabledStoreIds(): array
+    {
+        $storeIds = [];
+        $stores = $this->storeManager->getStores();
+        foreach ($stores as $store) {
+            if (!$this->isEnabled((int)$store->getId())) {
+                continue;
+            }
+            $storeIds[] = (int)$store->getId();
+        }
+
+        return $storeIds;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function isEnabled(int $storeId = null): bool
     {
         if (!parent::isEnabled($storeId)) {
@@ -51,22 +68,6 @@ class ContentRepository extends ConfigRepository implements ContentInterface
     private function getSkuAttribute(int $storeId): string
     {
         return $this->getStoreValue(self::XML_PATH_SKU, $storeId);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getProcessingLimit(int $storeId): int
-    {
-        return (int)$this->getStoreValue(self::XML_PATH_LIMIT, $storeId);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getProcessingLimitAdd(): int
-    {
-        return (int)$this->getStoreValue(self::XML_PATH_LIMIT_ADD);
     }
 
     /**
@@ -121,6 +122,22 @@ class ContentRepository extends ConfigRepository implements ContentInterface
         } else {
             return ['image' => $source];
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProcessingLimit(int $storeId): int
+    {
+        return (int)$this->getStoreValue(self::XML_PATH_LIMIT, $storeId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getProcessingLimitAdd(): int
+    {
+        return (int)$this->getStoreValue(self::XML_PATH_LIMIT_ADD);
     }
 
     /**
@@ -274,7 +291,7 @@ class ContentRepository extends ConfigRepository implements ContentInterface
     }
 
     /**
-     * Flag to only use fallback to parent 'bundle' attributes on non visible parents
+     * Flag to only use fallback to parent 'bundle' attributes on non-visible parents
      *
      * @param int $storeId
      *
@@ -369,7 +386,7 @@ class ContentRepository extends ConfigRepository implements ContentInterface
     {
         return [
             'add_disabled_products' => $this->addDisableProducts($storeId),
-            'filter_by_visibility' => $this->restricProductFeedByVisibility($storeId),
+            'filter_by_visibility' => $this->restrictProductFeedByVisibility($storeId),
             'visibility' => $this->productFeedVisibilityRestrictions($storeId),
             'restrict_by_category' => $this->restrictProductFeedByCategory($storeId),
             'category_restriction_behaviour' => $this->categoryRestrictionsFilterType($storeId),
@@ -390,7 +407,7 @@ class ContentRepository extends ConfigRepository implements ContentInterface
      *
      * @return bool
      */
-    private function restricProductFeedByVisibility(int $storeId): bool
+    private function restrictProductFeedByVisibility(int $storeId): bool
     {
         return $this->isSetFlag(self::XML_PATH_FILTER_BY_VISIBILITY, $storeId);
     }
@@ -447,7 +464,7 @@ class ContentRepository extends ConfigRepository implements ContentInterface
     }
 
     /**
-     * Exclude of of stock products
+     * Exclude out of stock products
      *
      * @param int $storeId
      *

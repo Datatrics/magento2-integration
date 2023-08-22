@@ -9,13 +9,11 @@ namespace Datatrics\Connect\Controller\Adminhtml\Content;
 
 use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Datatrics\Connect\Model\Command\ContentAdd;
-use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\Response\RedirectInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
-use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class Add
@@ -41,10 +39,6 @@ class Add extends Action
     public const SUCCESS_MSG = '%1 product(s) were added to content table.';
 
     /**
-     * @var ContentResource
-     */
-    private $contentResource;
-    /**
      * @var ContentAdd
      */
     private $contentAdd;
@@ -61,19 +55,17 @@ class Add extends Action
      * Check constructor.
      *
      * @param Action\Context $context
-     * @param ContentResource $contentResource
      * @param ContentAdd $contentAdd
      * @param ContentConfigRepository $contentConfigRepository
+     * @param RedirectInterface $redirect
      */
     public function __construct(
         Action\Context $context,
-        ContentResource $contentResource,
         ContentAdd $contentAdd,
         ContentConfigRepository $contentConfigRepository,
         RedirectInterface $redirect
     ) {
         $this->messageManager = $context->getMessageManager();
-        $this->contentResource = $contentResource;
         $this->contentAdd = $contentAdd;
         $this->contentConfigRepository = $contentConfigRepository;
         $this->redirect = $redirect;
@@ -82,7 +74,6 @@ class Add extends Action
 
     /**
      * @return ResponseInterface|ResultInterface
-     * @throws LocalizedException
      */
     public function execute()
     {

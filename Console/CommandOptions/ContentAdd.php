@@ -23,7 +23,7 @@ class ContentAdd extends OptionKeys
      *
      * @return array
      */
-    public function getOptionsList()
+    public function getOptionsList(): array
     {
         return array_merge(
             $this->getBasicOptions(),
@@ -37,7 +37,7 @@ class ContentAdd extends OptionKeys
      * @return array
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    private function getBasicOptions()
+    private function getBasicOptions(): array
     {
         return [
             new InputOption(
@@ -54,7 +54,7 @@ class ContentAdd extends OptionKeys
      *
      * @return array
      */
-    private function getSkipOptions()
+    private function getSkipOptions(): array
     {
         return [];
     }

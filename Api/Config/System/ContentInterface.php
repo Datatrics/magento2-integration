@@ -70,6 +70,13 @@ interface ContentInterface extends RepositoryInterface
     public function isEnabled(int $storeId = null): bool;
 
     /**
+     * Get all enabled store Ids for content update
+     **
+     * @return array
+     */
+    public function getContentEnabledStoreIds(): array;
+
+    /**
      * Returns array of attributes
      *
      * @param int $storeId
