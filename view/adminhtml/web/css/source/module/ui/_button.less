@@ -1,0 +1,111 @@
+//
+//  [ Buttons ]: Mixin
+//  ---------------------------------------------
+
+.button_base(
+    @bg: none, 
+    @bg-hover: none,
+    @border: none,
+    @color: @mm-datatrics-color1, 
+    @color-hover: @color,
+    @icon-width: 25px,
+    @icon-color: @color,
+    @icon-color-hover: @color-hover,
+) {
+    & when not (@bg = none) { background-color: @bg; }
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 180px;
+    padding: 1.2rem 1.6rem;
+
+    border: @border;
+    color: @color;
+    font: @font-weight__bold 1.4rem @font-family__base;
+    text-decoration: none;
+    transition: .3s;
+
+    &:hover {
+        & when not (@bg-hover = none) { background-color: @bg-hover; }
+        color: @color-hover;
+
+        i[class*="icon"] {
+            & when not (@icon-color = none) { fill: @icon-color-hover; }
+        }
+    }
+
+    i[class*="icon"] {
+        & when not (@icon-width = none) { width: @icon-width; height: @icon-width; }
+        & when not (@icon-color = none) { fill: @icon-color; }
+        transition: .3s;
+    }
+}
+
+.button-as-link(@color: @mm-datatrics-color18) {
+    display: inline;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: @color;
+    text-decoration: underline;
+}
+
+//
+//  [ Buttons ]
+//  ---------------------------------------------
+
+button.action.primary-new {
+    .button_base(@color: @mm-datatrics-color9);
+
+    box-shadow: none;
+    text-shadow: none;
+    text-transform: uppercase;
+    padding: 1rem 1.4rem;
+}
+
+
+.mm-datatrics-button__download,
+#mm-datatrics-button_help {
+    .button_base(@bg: @mm-datatrics-color8, @bg-hover: @mm-datatrics-color10);
+    padding: 1.2rem 1.6rem;
+}
+
+#mm-datatrics-button_test {
+    .button_base(@bg: @mm-datatrics-color13, @bg-hover: @mm-datatrics-color14);
+}
+
+#mm-datatrics-button_version {
+    .button_base(@bg: transparent, @border: 1px solid @mm-datatrics-color5, @color: @mm-datatrics-color6, @color-hover: @mm-datatrics-color9);
+}
+
+#mm-datatrics-button_changelog {
+    .button-as-link();
+}
+
+#mm-datatrics-button_debug,
+#mm-datatrics-button_error {
+    .button-as-link(@color: @mm-datatrics-color8);
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    font: @font-weight__regular 1.3rem @font-family__base;
+    text-decoration: none;
+    transition: .3s;
+
+    &:hover {
+        color: @mm-datatrics-color18;
+    }
+
+    &::before {
+        content: @icon-info__content;
+        font: 1.5rem @icons-admin__font-name;
+    }
+
+    span {
+        text-decoration: underline;
+    }
+}

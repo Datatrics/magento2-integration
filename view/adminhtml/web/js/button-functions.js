@@ -1,268 +1,171 @@
 require([
     'jquery',
     'Magento_Ui/js/modal/modal',
-    'prototype',
     'loader'
 ], function ($, modal) {
 
     /**
-     * @param{String} modalSelector - modal css selector.
+     * @param{String} type - type of modal css selector.
      * @param{Object} options - modal options.
      */
-    function initModal(modalSelector, options) {
-        var $resultModal = $(modalSelector);
+    function initModal(type, options) {
+        const modalId = `#mm-datatrics-result_${type}-modal`;
+        if (!$(modalId).length) return;
+        
+        let defaultOptions = {
+            modalClass: 'mm-datatrics-modal',
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: options.title || '',
+            buttons: [
+                {
+                    text: $.mage.__('ok'),
+                    class: 'action primary-new',
+                    click: function () {
+                        this.closeModal();
+                    },
+                }
+            ]
+        };
 
-        if (!$resultModal.length) return;
+        // Additional buttons for downloading
+        if (options.buttons) {
+            let additionalButtons = {
+                text: $.mage.__('download as .txt file'),
+                class: 'mm-datatrics-button__download mm-datatrics-icon__download-alt',
+                click: () => {
+                    let elText = document.getElementById(`mm-datatrics-result_${options.buttons}`).innerText || '',
+                        link = document.createElement('a');
 
-        var popup = modal(options, $resultModal);
-        $resultModal.loader({texts: ''});
+                    link.setAttribute('download', `${options.buttons}-log.txt`);
+                    link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(elText));
+                    link.click();
+                },
+            };
+
+            defaultOptions.buttons.unshift(additionalButtons);
+        }
+
+        modal(defaultOptions, $(modalId));
+        $(modalId).loader({texts: ''});
     }
 
     var successHandlers = {
         /**
-         * @param{Object[]} result - Ajax request response data.
+         * @param{Object[]} obj - Ajax request response data.
          * @param{Object} $container - jQuery container element.
+         * @param{String} type - debug || error || test.
          */
-        debug: function (result, $container) {
+        logs(response, $container, type) {
+            if (Array.isArray(response.result)) {
+                if (type === 'debug' || type === 'error') {
+                    response = `<ul>${response.result.map((data) => this.tmpLogs(type, data)).join('')}</ul>`;                              
+                }
 
-            if (Array.isArray(result)) {
-
-                var lisHtml = result.map(function (err) {
-                    return '<li class="mm-result_debug-item"><strong>' + err.date + '</strong><p>' + err.msg + '</p></li>';
-                }).join('');
-
-                $container.find('.result').empty().append('<ul>' + lisHtml + '</ul>');
-            } else {
-
-                $container.find('.result').empty().append(result);
+                if (type === 'test') {
+                    response = `${response.result.map((data) => this.tmpTest(type, data)).join('')}`; 
+                }
             }
+
+            $container.find('.result').empty().append(response);
         },
 
-        /**
-         * @param{Object[]} result - Ajax request response data.
-         * @param{Object} $container - jQuery container element.
-         */
-        error: function (result, $container) {
+        tmpLogs(type, data) {
+            return `<li class="mm-datatrics-result_${type}-item">
+                        <strong>${data.date}</strong>
+                        <p>${data.msg}</p>
+                    </li>`;
+        },
 
-            if (Array.isArray(result)) {
+        tmpTest(type, data) {
+            let supportLinkHtml = '';
+                resultMsg = data.result_code === 'failed' ? data.result_msg : '';
+                resultText = data.result_code === 'success' 
+                                ? $.mage.__('Passed') 
+                                : $.mage.__('Failed');
 
-                var lisHtml = result.map(function (err) {
-                    return '<li class="mm-result_error-item"><strong>' + err.date + '</strong><p>' + err.msg + '</p></li>';
-                }).join('');
-
-                $container.find('.result').empty().append('<ul>' + lisHtml + '</ul>');
-            } else {
-
-                $container.find('.result').empty().append(result);
+            if (data.support_link) {
+                supportLinkHtml = `<a target="_blank" href="${data.support_link}"
+                                      class="mm-datatrics-icon__help-rounded">
+                                        ${$.mage.__('More information')}
+                                    </a>`;
             }
+
+            return `<li class="mm-datatrics-result_${type}-item ${data.result_code}">
+                        <strong>${resultText}</strong>
+                        <div>
+                            <p>${data.test}</p>
+                            <p><em>${resultMsg}</em></p>
+                        </div>
+                        ${supportLinkHtml}
+                    </li>`;
         },
 
         /**
          * @param{Object[]} result - Ajax request response data.
          * @param{Object} $container - jQuery container element.
          */
-        test: function (result, $container) {
+        version(response, $container) {
+            let resultHTML = '';
+                resultText = $.mage.__('Great, you are using the latest version.');
+                resultClass = 'up';
+                currentVersion = response.result.current_verion.replace(/v|version/gi, '');
+                latestVersion = response.result.last_version.replace(/v|version/gi, '');
 
-            var lisHtml = result.map(function (test) {
-
-                var supportLinkHtml = test.support_link ?
-                    '<a target="_blank" href="' + test.support_link + '" class="mm-icon__help-rounded"></a>' : '';
-                var resultText = test.result_code === 'success' ?
-                    $.mage.__('Passed') : $.mage.__('Failed');
-                var resultMsg = test.result_code === 'failed' ? test.result_msg : '';
-
-                return '<li class="mm-result_test-item ' + test.result_code
-                    + '"><strong>' + resultText + '</strong>'
-                    + '<div><p>' + test.test + '</p><p><em>' + resultMsg + '</em></p></div>'
-                    + supportLinkHtml + '</li>';
-            }).join('');
-
-            $container.find('.result').empty().append(lisHtml);
-        },
-
-        /**
-         * @param{Object[]} result - Ajax request response data.
-         * @param{Object} $container - jQuery container element.
-         */
-        version: function (result, $container) {
-
-            var resultHtml = '';
-            var currentVersion = result.current_verion.replace(/v|version/gi, '');
-            var latestVersion = result.last_version.replace(/v|version/gi, '');
-            if (this.compare(latestVersion, currentVersion) <= 0) {
-                resultHtml = '<strong class="mm-datatrics-version mm-icon__thumbs-up">'
-                    + $.mage.__('Great, you are using the latest version.')
-                    + '</strong>';
-            } else {
-
-                var translatedResult = $.mage.__('There is a new version available <span>(%1)</span> see <button type="button" id="mm-button_changelog">changelog</button>.')
+            if (currentVersion !== latestVersion) {
+                resultClass = 'down';
+                resultText = $.mage.__('There is a new version available <span>(%1)</span> see <button type="button" id="mm-datatrics-button_changelog">changelog</button>.')
                     .replace('%1', latestVersion);
-
-                resultHtml = '<strong class="mm-datatrics-version mm-icon__thumbs-down">'
-                    + translatedResult
-                    + '</strong>';
             }
 
-            $container.html(resultHtml);
-        },
+            resultHTML = `<strong class="mm-datatrics-version mm-datatrics-icon__thumbs-${resultClass}">
+                            ${resultText}
+                         </strong>`;
 
-        compare: function(a, b) {
-            if (a === b) {
-                return 0;
-            }
-            var a_components = a.split(".");
-            var b_components = b.split(".");
-            var len = Math.min(a_components.length, b_components.length);
-            for (var i = 0; i < len; i++) {
-                if (parseInt(a_components[i]) > parseInt(b_components[i])) {
-                    return 1;
-                }
-
-                if (parseInt(a_components[i]) < parseInt(b_components[i])) {
-                    return -1;
-                }
-            }
-            if (a_components.length > b_components.length) {
-                return 1;
-            }
-            if (a_components.length < b_components.length) {
-                return -1;
-            }
-            return 0;
+            $container.html(resultHTML);
         },
 
         /**
          * @param{Object[]} result - Ajax request response data.
          * @param{Object} $container - jQuery container element.
          */
-        changelog: function (result, $container) {
+        changelog(response, $container) {
+            var listHTML = Object.keys(response).map((version) => {
+                return `<li class="mm-datatrics-result_changelog-item">
+                            <b>${version}</b>
+                            <span class="mm-datatrics-divider">|</span>
+                            <b>${response[version].date}</b>
+                            <div>${response[version].changelog}</div>
+                        </li>`;
+            });
 
-            var lisHtml = Object.keys(result).map(function (key) {
-
-                var version = key;
-                var date = result[key].date;
-                var resultHtml = result[key].changelog;
-
-                return '<li class="mm-result_changelog-item"><b>'
-                    + version + '</b><span class="mm-divider">|</span><b>'
-                    + date + '</b><div>'
-                    + resultHtml + '</div></li>';
-            }).join('');
-
-            $container.find('.result').empty().append(lisHtml);
+            $container.find('.result').empty().append(listHTML.join(''));
         },
     }
 
-    // init debug modal
+    // init modals
     $(() => {
-        initModal('#mm-result_debug-modal', {
-            type: 'popup',
-            responsive: true,
-            innerScroll: true,
-            title: $.mage.__('last 100 debug log lines'),
-            buttons: [
-                {
-                    text: $.mage.__('download as .txt file'),
-                    class: 'mm-button__download mm-icon__download-alt',
-                    click: function () {
-
-                        var elText = document.getElementById('mm-result_debug').innerText || '';
-                        var link = document.createElement('a');
-
-                        link.setAttribute('download', 'debug-log.txt');
-                        link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(elText));
-                        link.click();
-                    },
-                },
-                {
-                    text: $.mage.__('ok'),
-                    class: '',
-                    click: function () {
-                        this.closeModal();
-                    },
-                }
-            ]
-        });
-
-        // init error modal
-        initModal('#mm-result_error-modal', {
-            type: 'popup',
-            responsive: true,
-            innerScroll: true,
-            title: $.mage.__('last 100 error log records'),
-            buttons: [
-                {
-                    text: $.mage.__('download as .txt file'),
-                    class: 'mm-button__download mm-icon__download-alt',
-                    click: function () {
-
-                        var elText = document.getElementById('mm-result_error').innerText || '';
-                        var link = document.createElement('a');
-
-                        link.setAttribute('download', 'error-log.txt');
-                        link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(elText));
-                        link.click();
-                    },
-                },
-                {
-                    text: $.mage.__('ok'),
-                    class: '',
-                    click: function () {
-                        this.closeModal();
-                    },
-                }
-            ]
-        });
-
-        // init selftest modal
-        initModal('#mm-result_test-modal', {
-            type: 'popup',
-            responsive: true,
-            innerScroll: true,
-            title: $.mage.__('Self-test'),
-            buttons: [
-                {
-                    text: $.mage.__('ok'),
-                    class: '',
-                    click: function () {
-                        this.closeModal();
-                    },
-                }
-            ]
-        });
-
-        // init changelog modal
-        initModal('#mm-result_changelog-modal', {
-            type: 'popup',
-            responsive: true,
-            innerScroll: true,
-            title: 'Changelog',
-            buttons: [
-                {
-                    text: $.mage.__('ok'),
-                    class: '',
-                    click: function () {
-                        this.closeModal();
-                    },
-                }
-            ]
-        });
+        initModal('debug',      { title: $.mage.__('last 100 debug log records'), buttons: 'debug' });
+        initModal('error',      { title: $.mage.__('last 100 error log records'), buttons: 'error' });
+        initModal('test',       { title: $.mage.__('Self-test') });
+        initModal('changelog',  { title: $.mage.__('Changelog') });
     });
 
     // init loader on the Check Version block
-    $('.mm-result_version-wrapper').loader({texts: ''});
+    $('.mm-datatrics-result_version-wrapper').loader({texts: ''});
 
     /**
      * Ajax request event
      */
-    $(document).on('click', '[id^=mm-button]', function () {
-        var actionName = this.id.split('_')[1];
-        var $modal = $('#mm-result_' + actionName + '-modal');
-        var $result = $('#mm-result_' + actionName);
+    $(document).on('click', '[id^=mm-datatrics-button]', function () {
+        let action = this.id.split('_')[1],
+            $modal = $(`#mm-datatrics-result_${action}-modal`),
+            $result = $(`#mm-datatrics-result_${action}`);
 
-        if (actionName === 'version') {
-            $(this).fadeOut(300).addClass('mm-disabled');
-            $modal = $('.mm-result_' + actionName + '-wrapper');
+        if (action === 'version') {
+            $(this).fadeOut(300).addClass('mm-datatrics-disabled');
+            $modal = $(`.mm-datatrics-result_${action}-wrapper`);
             $modal.loader('show');
         } else {
             $modal.modal('openModal').loader('show');
@@ -270,20 +173,16 @@ require([
 
         $result.hide();
 
-        new Ajax.Request($modal.data('mm-endpoind-url'), {
-            loaderArea: false,
-            asynchronous: true,
-            onSuccess: function (response) {
+        fetch($modal.attr('data-mm-datatrics-endpoind-url'))
+            .then((res) => res.clone().json().catch(() => res.text()))
+            .then((data) => {
+                const func = action === 'debug' || 
+                             action === 'error' || 
+                             action === 'test' ? 'logs' : action;
 
-                if (response.status > 200) {
-                    var result = response.statusText;
-                } else {
-                    successHandlers[actionName](response.responseJSON.result || response.responseJSON, $result);
-
-                    $result.fadeIn();
-                    $modal.loader('hide');
-                }
-            }
-        });
+                successHandlers[func](data, $result, action);
+                $result.fadeIn();
+                $modal.loader('hide');
+            });
     });
 });

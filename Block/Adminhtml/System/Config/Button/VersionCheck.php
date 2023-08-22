@@ -99,7 +99,7 @@ class VersionCheck extends Field
      */
     public function getButtonHtml()
     {
-        $buttonData = ['id' => 'mm-button_version', 'label' => __('Check for latest versions')];
+        $buttonData = ['id' => 'mm-datatrics-button_version', 'label' => __('Check for latest versions')];
         try {
             $button = $this->getLayout()->createBlock(
                 \Magento\Backend\Block\Widget\Button::class

@@ -24,5 +24,5 @@ class Debug extends Base
     /**
      * @var string
      */
-    protected $fileName = '/var/log/datatrics/debug.log';
+    protected $fileName = '/var/log/datatrics-debug.log';
 }

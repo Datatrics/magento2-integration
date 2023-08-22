@@ -11,12 +11,21 @@
 
 ?>
 
-<div class="mm-result_version-wrapper" data-mm-endpoind-url="<?= $block->escapeUrl($block->getVersionCheckUrl()) ?>">
+<div class="mm-datatrics-result_version-wrapper"
+     data-mm-datatrics-endpoind-url="<?= $block->escapeUrl($block->getVersionCheckUrl()) ?>">
     <span><?= $block->escapeHtml($block->getVersion()); ?></span>
-    <?= $block->getButtonHtml() ?>
-    <div id="mm-result_version"></div>
-    <div id="mm-result_changelog-modal" data-mm-endpoind-url="<?= $block->escapeUrl($block->getChangeLogUrl()) ?>">
-        <div id="mm-result_changelog">
+
+    <div class="button-wrapper">
+        <?= $block->getButtonHtml() ?>
+        <svg version="1.1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#fff" d="m950.27 145.92v256c0 10.24-2.048 18.432-10.24 25.6-8.192 8.192-16.384 10.24-25.6 10.24h-256c-16.384 0-26.624-6.144-34.816-21.504-5.12-14.336-3.072-28.672 8.192-39.936l79.872-78.848c-55.296-51.2-123.9-77.824-199.68-77.824-39.936 0-77.824 8.192-113.66 22.528-35.84 15.36-66.56 35.84-92.16 63.488-27.648 26.624-48.128 56.32-64.512 92.16-13.312 35.84-21.504 73.728-21.504 113.66 0 40.96 8.192 78.848 21.504 114.69 16.384 35.84 36.864 65.536 64.512 92.16 25.6 27.648 56.32 47.104 92.16 63.488 35.84 14.336 73.728 22.528 113.66 22.528 46.08 0 88.064-10.24 128-30.72 39.936-17.408 75.776-46.08 102.4-83.968 4.096-2.048 7.168-6.144 13.312-6.144s10.24 2.048 14.336 6.144l77.824 77.824c4.096 4.096 6.144 6.144 6.144 12.288 0 4.096-2.048 8.192-4.096 12.288-41.984 50.176-92.16 90.112-151.55 117.76-58.368 28.672-119.81 39.936-186.37 39.936-60.416 0-115.71-9.216-169.98-33.792-54.272-23.552-102.4-54.272-140.29-94.208-39.936-37.888-69.632-86.016-93.184-140.29-24.576-53.248-34.816-109.57-34.816-169.98 0-59.392 10.24-115.71 34.816-169.98 23.552-53.248 53.248-101.38 93.184-139.26 37.888-39.936 86.016-70.656 140.29-94.208 54.272-24.576 109.57-33.792 169.98-33.792 56.32 0 109.57 9.216 161.79 29.696 52.224 21.504 100.35 52.224 140.29 90.112l73.728-73.728c12.288-12.288 24.576-14.336 39.936-8.192 16.384 8.192 22.528 17.408 22.528 33.792z"/> <?php // phpcs:ignore ?>
+        </svg>
+    </div>
+
+    <div id="mm-datatrics-result_version"></div>
+    <div id="mm-datatrics-result_changelog-modal"
+         data-mm-datatrics-endpoind-url="<?= $block->escapeUrl($block->getChangeLogUrl()) ?>">
+        <div id="mm-datatrics-result_changelog">
             <ul class="result"></ul>
         </div>
     </div>

@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Block\Adminhtml\System\Config\Button;
 
-use Magento\Backend\Block\Template\Context;
+use Magento\Backend\Block\Widget\Button;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
@@ -23,41 +23,18 @@ class DebugCheck extends Field
     protected $_template = 'Datatrics_Connect::system/config/button/debug.phtml';
 
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * @inheritDoc
      */
-    private $request;
-
-    /**
-     * Credentials constructor.
-     *
-     * @param Context $context
-     * @param array   $data
-     */
-    public function __construct(
-        Context $context,
-        array $data = []
-    ) {
-        $this->request = $context->getRequest();
-        parent::__construct($context, $data);
-    }
-
-    /**
-     * @param AbstractElement $element
-     *
-     * @return string
-     */
-    public function render(AbstractElement $element)
+    public function render(AbstractElement $element): string
     {
         $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
         return parent::render($element);
     }
 
     /**
-     * @param AbstractElement $element
-     *
-     * @return string
+     * @inheritDoc
      */
-    public function _getElementHtml(AbstractElement $element)
+    public function _getElementHtml(AbstractElement $element): string
     {
         return $this->_toHtml();
     }
@@ -65,24 +42,25 @@ class DebugCheck extends Field
     /**
      * @return string
      */
-    public function getDebugCheckUrl()
+    public function getDebugCheckUrl(): string
     {
-        return $this->getUrl('datatrics/log/debug');
+        return $this->getUrl('datatrics/log/stream', ['type' => 'debug']);
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getButtonHtml()
+    public function getButtonHtml(): string
     {
-        $buttonData = ['id' => 'mm-button_debug', 'label' => __('Check last 100 debug log records')];
         try {
-            $button = $this->getLayout()->createBlock(
-                \Magento\Backend\Block\Widget\Button::class
-            )->setData($buttonData);
-            return $button->toHtml();
+            return $this->getLayout()
+                ->createBlock(Button::class)
+                ->setData([
+                    'id' => 'mm-datatrics-button_debug',
+                    'label' => __('Check last 50 debug log records')
+                ])->toHtml();
         } catch (\Exception $e) {
-            return false;
+            return '';
         }
     }
 }

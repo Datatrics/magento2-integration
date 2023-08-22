@@ -1,0 +1,92 @@
+//
+//  [ datatrics ]: Version block
+//  ---------------------------------------------
+
+.mm-datatrics-result_version-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: -1.3rem;
+    margin-bottom: -.3rem;
+
+    .loading-mask {
+        & ~ .button-wrapper {
+            display: none;
+        }
+
+        & ~ span {
+            margin-top: 1rem;
+        }
+
+        & ~ #mm-datatrics-result_version {
+            position: relative;
+            top: 5px;
+        }
+    }
+
+    .button-wrapper {
+        position: relative;
+        margin-left: 15px;
+
+        #mm-datatrics-button_version {
+            padding: 1.2rem 1.6rem 1.2rem 42px;
+
+            &:hover ~ svg {
+                background-color: @mm-datatrics-color9;
+            }
+        }
+
+        svg {
+            position: absolute;
+            top: 9px;
+            left: 10px;
+
+            width: 13px;
+            height: 13px;
+            padding: 7px;
+
+            background-color: @mm-datatrics-color7;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: .3s;
+        }
+    }
+
+    .loading-mask,
+    .popup-loading {
+        position: absolute;
+        padding: 0;
+        height: 100%;
+        top: 0;
+        left: 0;
+        width: 100%;
+        margin: 0;
+    }
+
+    .loading-mask {
+        height: 200%;
+        top: -50%;
+    }
+
+    .popup-loading:after {
+        margin: 0;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+    }
+}
+
+.mm-datatrics-version {
+    margin-left: 1rem;
+    padding: .6rem 1em .6rem .4rem;
+    white-space: nowrap;
+    font-weight: @font-weight__semibold;
+
+    span {
+        color: @mm-datatrics-color16;
+    }
+}
