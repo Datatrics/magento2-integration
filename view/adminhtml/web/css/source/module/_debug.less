@@ -1,0 +1,80 @@
+//
+//  [ Debug ]: Heading
+//  ---------------------------------------------
+
+.mm-datatrics-heading-block {
+    display: flex;
+    padding: 1rem;
+
+    border-left: 3px solid @mm-datatrics-color18;
+    background-color: @mm-datatrics-color2;
+
+    color: @mm-datatrics-color8;
+    font-size: 1.3rem;
+    text-align: left;
+}
+
+.mm-datatrics-heading-comment {
+    padding: 1.2rem 0 0 1rem;
+    font-size: 1.2rem;
+    line-height: 2rem;
+    border-left: 3px solid @mm-datatrics-color2;
+}
+
+
+//
+//  [ Debug ]: Show more/less
+//  ---------------------------------------------
+.mm-datatrics-show-more-actions {
+    margin: 8px 0 0 12px;
+
+    a {
+        color: @mm-datatrics-color18;
+        font-size: 1.2rem;
+        text-decoration: underline;
+        transition: .3s;
+
+        &:hover {
+            opacity: .75;
+        }
+    }
+}
+
+.mm-datatrics-heading-comment {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+
+    &.show {
+        -webkit-line-clamp: initial;
+    }
+
+    span {
+        display: block;
+
+        & + span {
+            margin-top: 10px;
+        }
+    }
+}
+
+//
+//  [ Debug ]: Actions
+//  ---------------------------------------------
+
+#mm-datatrics-button_debug {
+    margin-top: 8px;
+}
+
+#row_datatrics_connect_general_debug_debug_button .value {
+    padding-top: 1rem;
+}
+
+#row_datatrics_connect_general_debug_error_button .value {
+    padding-top: .5rem;
+}
+
+#row_datatrics_connect_general_debug_selftest_button .mm-datatrics-heading-block {
+    display: none;
+}

@@ -6,97 +6,34 @@
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
 
-    <table name="datatrics_content" engine="innodb" resource="default" comment="Datatrics Content Table">
-        <column name="entity_id"
-                xsi:type="int"
-                padding="10"
-                identity="true"
-                nullable="false"
-                unsigned="true"
-                comment="Review Form ID"/>
-        <column name="content_id"
-                xsi:type="int"
-                padding="10"
-                nullable="false"
-                identity="false"
-                unsigned="true"
-                comment="Product ID"/>
-        <column name="parent_id"
-                xsi:type="varchar"
-                length="255"
-                nullable="true"
-                comment="Parent ID"/>
-        <column name="created_at"
-                xsi:type="timestamp"
-                on_update="false"
-                default="CURRENT_TIMESTAMP"
-                comment="Created At"/>
-        <column name="updated_at"
-                xsi:type="timestamp"
-                on_update="true"
-                default="CURRENT_TIMESTAMP"
-                comment="Updated At"/>
-        <constraint referenceId="PRIMARY" xsi:type="primary">
-            <column name="entity_id"/>
-        </constraint>
-        <constraint
-            xsi:type="foreign"
-            referenceId="DATATRICS_CONTENT_PRODUCT_ID_CATALOG_PRODUCT_ENTITY_ENTITY_ID"
-            table="datatrics_profile"
-            column="content_id"
-            referenceTable="catalog_product_entity"
-            referenceColumn="entity_id"
-            onDelete="CASCADE"
-        />
-    </table>
-
+    <!-- Declaration Schema of Datatrics Content Store Table-->
     <table name="datatrics_content_store" engine="innodb" resource="default" comment="Datatrics Content Store Table">
-        <column name="entity_id"
-                xsi:type="int"
-                padding="10"
-                identity="true"
-                nullable="false"
-                unsigned="true"
-                comment="Entity ID"/>
-        <column name="product_id"
-                xsi:type="int"
-                padding="10"
-                nullable="false"
-                unsigned="true"
-                comment="Product ID"/>
-        <column name="store_id"
-                xsi:type="smallint"
-                padding="5"
-                unsigned="true"
-                nullable="false"
-                identity="false"
-                comment="Store ID"/>
-        <column name="update_msg"
-                xsi:type="text"
-                nullable="true"
-                comment="Update Message"/>
-        <column name="update_attempts"
-                xsi:type="smallint"
-                padding="5"
-                unsigned="true"
-                nullable="false"
-                identity="false"
-                comment="Number of Update Attempts"/>
-        <column name="status"
-                xsi:type="varchar"
-                length="50"
-                nullable="true"
-                comment="Status"/>
+        <column name="entity_id" xsi:type="int" padding="10" identity="true" nullable="false" unsigned="true" comment="Entity ID"/>
+        <column name="product_id" xsi:type="int" padding="10" nullable="false" unsigned="true" comment="Product ID"/>
+        <column name="parent_id" xsi:type="int" padding="10" nullable="true" unsigned="true" comment="Parent ID"/>
+        <column name="store_id" xsi:type="smallint" padding="5" unsigned="true" nullable="false" identity="false" comment="Store ID"/>
+        <column name="update_msg" xsi:type="text" nullable="true" comment="Update Message"/>
+        <column name="update_attempts" xsi:type="smallint" padding="5" unsigned="true" nullable="false" identity="false" comment="Number of Update Attempts"/>
+        <column name="status" xsi:type="varchar" length="50" nullable="true" comment="Status"/>
+        <column name="updated_at" xsi:type="timestamp" on_update="true" default="CURRENT_TIMESTAMP" comment="Updated At"/>
         <constraint referenceId="PRIMARY" xsi:type="primary">
             <column name="entity_id"/>
         </constraint>
-        <constraint
-            xsi:type="foreign"
-            referenceId="DATATRICS_CONTENT_STORE_ID_STORE_STORE_ID"
-            table="datatrics_content"
-            column="store_id"
-            referenceTable="store"
-            referenceColumn="store_id"
+        <index referenceId="DATATRICS_CONTENT_STORE_PRODUCT_ID" indexType="btree">
+            <column name="product_id"/>
+        </index>
+        <index referenceId="DATATRICS_CONTENT_STORE_PARENT_ID" indexType="btree">
+            <column name="parent_id"/>
+        </index>
+        <index referenceId="DATATRICS_CONTENT_STORE_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
+        <index referenceId="DATATRICS_CONTENT_STORE_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+        <constraint xsi:type="foreign" referenceId="DATATRICS_CONTENT_STORE_ID_STORE_STORE_ID"
+            table="datatrics_content_store" column="store_id"
+            referenceTable="store" referenceColumn="store_id"
             onDelete="CASCADE"
         />
     </table>

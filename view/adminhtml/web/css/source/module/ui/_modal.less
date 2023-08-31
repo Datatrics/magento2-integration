@@ -1,0 +1,129 @@
+//
+//  [ Modal popup ]
+//  ---------------------------------------------
+
+.mm-datatrics-modal {
+    .popup-loading {
+        padding: 50px 0 10px;
+    }
+
+    .modal-header {
+        padding-bottom: 0;
+
+        .modal-title {
+            padding: 0 5.7rem 12px 0;
+            margin-right: 0;
+            border-bottom: 1px solid @mm-datatrics-color3;
+        }
+
+        .action-close {
+            padding: 2.1rem 2.6rem;
+        }
+    }
+
+    .modal-content {
+        padding-bottom: 0;
+
+        > div {
+            padding: 12px 0;
+        }
+
+        ul {
+            display: grid;
+            grid-gap: 6px;
+            margin: 0;
+            list-style: none;
+
+            > li {
+                padding: 10px 15px;
+
+                &:nth-child(even) {
+                    background: @mm-datatrics-color4;
+                }
+
+                & > div {
+                    margin-top: 1rem;
+                }
+            }
+
+            .mm-datatrics-divider {
+                display: inline-block;
+                padding: 0 0.4rem;
+                font-size: 1.8rem;
+                opacity: .5;
+            }
+        }
+
+        .mm-datatrics-result_test-item  {
+            position: relative;
+
+            strong {
+                display: flex;
+                align-items: center;
+                font-size: 1.5rem;
+                font-weight: @font-weight__semibold;
+
+                &::before {
+                    display: inline-flex;
+                    align-items: center;
+                    width: 20px;
+                    height: 20px;
+                    margin-right: 6px;
+                    font: 1.1rem @icons-admin__font-name;
+                }
+            }
+
+            div {
+                margin-top: 4px;
+                padding-left: 25px;
+                font-size: 1.3rem;
+            }
+
+            em {
+                color: @mm-datatrics-color18;
+            }
+
+            .mm-datatrics-icon__help-rounded {
+                display: inline-block;
+                margin: 10px 0 0 25px;
+                font-size: 1.3rem;
+                text-decoration: underline;
+                transition: .3s;
+
+                &:hover {
+                    opacity: .75;
+                }
+            }
+
+            &.success strong {
+                color: @mm-datatrics-color15;
+
+                &::before {
+                    content: @icon-check-mage__content;
+                    padding: 2px 2px 2px 3px;
+                    border: 1px solid @mm-datatrics-color15;
+                    border-radius: 50%;
+                }
+            }
+
+            &.failed strong {
+                color: @mm-datatrics-color19;
+
+                &::before {
+                    content: @icon-help__content;
+                    font-size: 1.8rem;
+
+                }
+            }
+        }
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+        margin: 0 30px;
+        padding: 25px 0;
+        border-top: 1px solid @mm-datatrics-color3;
+    }
+}

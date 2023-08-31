@@ -8,10 +8,13 @@ declare(strict_types=1);
 namespace Datatrics\Connect\Model\Command;
 
 use Datatrics\Connect\Api\Content\RepositoryInterface as ContentRepository;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputInterface;
-use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Datatrics\Connect\Model\Config\System\ContentRepository as ConfigContentRepository;
+use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
+use Datatrics\Connect\Model\ProductData\Repository as ProductDataRepository;
+use Exception;
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Framework\EntityManager\MetadataPool;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class ContentAdd
@@ -22,93 +25,75 @@ class ContentAdd
 {
 
     /**
-     * @var ContentRepository
+     * @var ConfigContentRepository
      */
-    private $contentRepository;
-
+    private $configRepository;
     /**
      * @var ContentResource
      */
     private $contentResource;
     /**
-     * @var ConfigContentRepository
+     * @var ProductDataRepository
      */
-    private $configContentRepository;
+    private $productDataRepository;
+    /**
+     * @var string
+     */
+    private $entityId;
 
     /**
      * ContentAdd constructor.
-     * @param ContentRepository $contentRepository
+     * @param ConfigContentRepository $configRepository
+     * @param ProductDataRepository $productDataRepository
      * @param ContentResource $contentResource
-     * @param ConfigContentRepository $configContentRepository
+     * @param MetadataPool $metadataPool
+     * @throws Exception
      */
     public function __construct(
-        ContentRepository $contentRepository,
+        ConfigContentRepository $configRepository,
+        ProductDataRepository $productDataRepository,
         ContentResource $contentResource,
-        ConfigContentRepository $configContentRepository
+        MetadataPool $metadataPool
     ) {
-        $this->contentRepository = $contentRepository;
+        $this->configRepository = $configRepository;
+        $this->productDataRepository = $productDataRepository;
         $this->contentResource = $contentResource;
-        $this->configContentRepository = $configContentRepository;
+        $this->entityId = $metadataPool->getMetadata(ProductInterface::class)->getLinkField();
     }
 
     /**
-     * @param InputInterface $input
+     * @param array $storeIds
      * @param OutputInterface $output
      * @return int
      */
-    public function run(InputInterface $input, OutputInterface $output)
+    public function run(array $storeIds, OutputInterface $output): int
     {
-        return $this->addProducts(null, $output);
+        $updates = 0;
+        foreach ($storeIds as $storeId) {
+            $updates += $this->addProducts($storeId, $output);
+        }
+
+        return $updates;
     }
 
     /**
-     * @param null|int $storeId
-     * @param null|OutputInterface $output
+     * @param int|null $storeId
+     * @param OutputInterface|null $output
      * @return int
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function addProducts($storeId = null, $output = null)
+    public function addProducts(int $storeId, ?OutputInterface $output = null): int
     {
-        $connection = $this->contentResource->getConnection();
-        $stores = [];
-        if (!$storeId) {
-            $selectStores = $connection->select()->from(
-                $this->contentResource->getTable('store'),
-                'store_id'
-            );
-            foreach ($connection->fetchAll($selectStores) as $store) {
-                $stores[] = $store['store_id'];
-            }
-        } else {
-            $stores[] = $storeId;
+        if (!$this->configRepository->isEnabled($storeId)) {
+            return 0;
         }
-        $selectContent = $connection->select()->from(
-            $this->contentResource->getTable('datatrics_content'),
-            'content_id'
-        );
-        if ($storeId) {
-            $selectContent->joinLeft(
-                ['datatrics_content_store' => $this->contentResource->getTable('datatrics_content_store')],
-                'content_id = product_id',
-                []
-            )->where('datatrics_content_store.store_id = ?', $storeId);
-        }
-        $limit = $this->configContentRepository->getProcessingLimitAdd();
-        $select = $connection->select()->from(
-            $this->contentResource->getTable('catalog_product_entity'),
-            'entity_id'
-        )->joinLeft(
-            ['super_link' => $this->contentResource->getTable('catalog_product_super_link')],
-            'super_link.product_id =' . $this->contentResource->getTable('catalog_product_entity') . '.entity_id',
-            [
-                'parent_id' => 'GROUP_CONCAT(parent_id)'
-            ]
-        )->where('entity_id not in (?)', $selectContent)
-            ->group('entity_id')->limit($limit);
-        $result = $connection->fetchAll($select);
+
+        $productIds = $this->getAllProductIds();
+        $productData = $this->productDataRepository->getProductData($storeId, $productIds);
+        $currentStoreData = $this->getCurrentStoreData($storeId);
+        $this->cleanupTables($storeId, array_keys($productData));
 
         if ($output) {
-            $progressBar = new \Symfony\Component\Console\Helper\ProgressBar($output, count($result));
+            $progressBar = new \Symfony\Component\Console\Helper\ProgressBar($output, count($productData));
             $progressBar->setMessage('0', 'product');
             $progressBar->setFormat(
                 '<info>Content</info> %current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s%
@@ -118,16 +103,24 @@ class ContentAdd
             $progressBar->start();
             $progressBar->display();
         }
+
         $count = 0;
-        $this->contentResource->beginTransaction();
         $pool = 0;
-        $data = [];
-        foreach ($result as $entity) {
-            $count++;
+        $storeData = [];
+
+        foreach ($productData as $productId => $data) {
             $pool++;
-            $content = $this->contentRepository->create();
-            $content->setContentId($entity['entity_id'])
-                ->setParentId((string)$entity['parent_id']);
+
+            if (!isset($currentStoreData[$productId])) {
+                $storeData[] = [
+                    (int)$productId,
+                    $data['parent_id'] ?? null,
+                    (int)$storeId,
+                    ContentRepository::STATUS['queued']
+                ];
+                $count++;
+            }
+
             if ($pool == 1000) {
                 $pool = 0;
                 if ($output) {
@@ -137,32 +130,84 @@ class ContentAdd
                     $progressBar->advance(1000);
                 }
             }
-            foreach ($stores as $store) {
-                $data[] = [
-                    $entity['entity_id'],
-                    $store,
-                    'Queued for Update'
-                ];
-            }
-            $this->contentRepository->save($content);
         }
+
         if ($output) {
             /** @phpstan-ignore-next-line */
             $progressBar->setMessage((string)$count, 'product');
         }
-        if ($data) {
-            $connection->insertArray(
-                $this->contentResource->getTable('datatrics_content_store'),
-                ['product_id', 'store_id', 'status'],
-                $data
-            );
-        }
-        $this->contentResource->commit();
+
+        $this->updateStoreTable($storeData);
+
         if ($output) {
             /** @phpstan-ignore-next-line */
             $progressBar->finish();
             $output->writeln('');
         }
-        return $count;
+
+        return count($storeData);
+    }
+
+    /**
+     * @return array
+     */
+    private function getAllProductIds(): array
+    {
+        $connection = $this->contentResource->getConnection();
+        $table = $this->contentResource->getTable('catalog_product_entity');
+        $productIds = $connection->select()
+            ->from($table, $this->entityId);
+
+        return array_flip($connection->fetchCol($productIds));
+    }
+
+    /**
+     * @param $storeId
+     * @return array
+     */
+    private function getCurrentStoreData($storeId): array
+    {
+        $connection = $this->contentResource->getConnection();
+        $table = $this->contentResource->getTable('datatrics_content_store');
+        $productIds = $connection->select()
+            ->from($table, 'product_id')
+            ->where('store_id = ?', $storeId);
+
+        return array_flip($connection->fetchCol($productIds));
+    }
+
+    /**
+     * @param int $storeId
+     * @param array $productIds
+     * @return void
+     */
+    private function cleanupTables(int $storeId, array $productIds): void
+    {
+        $connection = $this->contentResource->getConnection();
+        $connection->delete(
+            $this->contentResource->getTable('datatrics_content_store'),
+            [
+                'store_id = ?' => $storeId,
+                'product_id NOT IN (?)' => $productIds
+            ]
+        );
+    }
+
+    /**
+     * @param array $storeData
+     * @return void
+     */
+    private function updateStoreTable(array $storeData)
+    {
+        if (empty($storeData)) {
+            return;
+        }
+
+        $connection = $this->contentResource->getConnection();
+        $connection->insertArray(
+            $this->contentResource->getTable('datatrics_content_store'),
+            ['product_id', 'parent_id', 'store_id', 'status'],
+            $storeData
+        );
     }
 }

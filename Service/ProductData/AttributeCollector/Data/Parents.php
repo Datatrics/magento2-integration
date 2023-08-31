@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
+use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\EntityManager\MetadataPool;
@@ -31,7 +32,7 @@ class Parents
      *
      * @param ResourceConnection $resource
      * @param MetadataPool $metadataPool
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(
         ResourceConnection $resource,

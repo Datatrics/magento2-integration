@@ -7,19 +7,17 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\Command;
 
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputInterface;
 use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
 use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
-use Magento\Framework\Serialize\Serializer\Json;
-use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
-use Datatrics\Connect\Service\Product\Data\AttributeMapper;
+use Datatrics\Connect\Api\Content\RepositoryInterface as ContentRepository;
+use Datatrics\Connect\Api\Log\RepositoryInterface as LogRepository;
 use Datatrics\Connect\Api\ProductData\RepositoryInterface as ProductDataRepository;
-use Magento\Store\Api\StoreRepositoryInterface;
-use Magento\Catalog\Model\ResourceModel\Product\Collection as ProductCollection;
+use Datatrics\Connect\Model\Content\CollectionFactory as ContentCollectionFactory;
+use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
+use Magento\Framework\Serialize\Serializer\Json;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Datatrics\Connect\Service\Product\Hub;
-use Datatrics\Connect\Model\Config\System\ContentRepository as ConfigContentRepository;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class ContentUpdate
@@ -33,135 +31,71 @@ class ContentUpdate
      * @var ContentResource
      */
     private $contentResource;
-
     /**
      * @var ApiAdapter
      */
     private $apiAdapter;
-
     /**
      * @var ContentConfigRepository
      */
     private $contentConfigRepository;
-
     /**
      * @var Json
      */
     private $json;
-
-    /**
-     * @var AttributeMapper
-     */
-    private $attributeMapper;
-
-    /**
-     * @var StoreRepositoryInterface
-     */
-    private $storeManager;
-
-    /**
-     * @var ProductCollection
-     */
-    private $productCollection;
-
     /**
      * @var bool
      */
     private $isDry = false;
-
-    /**
-     * @var Hub
-     */
-    private $collector;
-
     /**
      * @var ProgressBar|null
      */
     private $progressBar = null;
-
-    /**
-     * @var array
-     */
-    private $mediaUrl;
-
-    /**
-     * @var array
-     */
-    private $filters;
-
-    /**
-     * @var array
-     */
-    private $parents;
-
-    /**
-     * @var array
-     */
-    private $types;
-
-    /**
-     * @var array
-     */
-    private $behaviour;
-
-    /**
-     * @var array
-     */
-    private $childOf;
-
-    /**
-     * @var array
-     */
-    private $extraAttributes = [];
-
-    /**
-     * @var array
-     */
-    private $categoryNames = [];
-
-    /**
-     * @var array
-     */
-    private $storeUrl = [];
-
     /**
      * @var ProductDataRepository
      */
     private $productDataRepository;
     /**
-     * @var ConfigContentRepository
+     * @var LogRepository
      */
-    private $configContentRepository;
+    private $logRepository;
+    /**
+     * @var ContentCollectionFactory
+     */
+    private $contentCollectionFactory;
+    /**
+     * @var ContentRepository
+     */
+    private $contentRepository;
 
     /**
-     * ContentUpdate constructor.
      * @param ContentResource $contentResource
      * @param ApiAdapter $apiAdapter
+     * @param ContentRepository $contentRepository
      * @param ContentConfigRepository $contentConfigRepository
+     * @param ContentCollectionFactory $contentCollectionFactory
      * @param Json $json
-     * @param StoreRepositoryInterface $storeManager
-     * @param ProductCollection $productCollection
      * @param ProductDataRepository $productDataRepository
-     * @param ConfigContentRepository $configContentRepository
+     * @param LogRepository $logRepository
      */
     public function __construct(
         ContentResource $contentResource,
         ApiAdapter $apiAdapter,
+        ContentRepository $contentRepository,
         ContentConfigRepository $contentConfigRepository,
+        ContentCollectionFactory $contentCollectionFactory,
         Json $json,
-        StoreRepositoryInterface $storeManager,
-        ProductCollection $productCollection,
         ProductDataRepository $productDataRepository,
-        ConfigContentRepository $configContentRepository
+        LogRepository $logRepository
     ) {
         $this->contentResource = $contentResource;
         $this->apiAdapter = $apiAdapter;
+        $this->contentRepository = $contentRepository;
         $this->contentConfigRepository = $contentConfigRepository;
+        $this->contentCollectionFactory = $contentCollectionFactory;
         $this->json = $json;
-        $this->storeManager = $storeManager;
-        $this->productCollection = $productCollection;
         $this->productDataRepository = $productDataRepository;
-        $this->configContentRepository = $configContentRepository;
+        $this->logRepository = $logRepository;
     }
 
     /**
@@ -169,57 +103,43 @@ class ContentUpdate
      * @param OutputInterface $output
      * @return int
      */
-    public function run(InputInterface $input, OutputInterface $output)
+    public function run(InputInterface $input, OutputInterface $output): int
     {
         $storeId = (int)$input->getOption('store-id');
         if (!$this->contentConfigRepository->isEnabled($storeId)) {
-            $output->writeln('Product syncronisation disabled');
+            $output->writeln('Product synchronisation disabled');
             return 0;
         }
-        $this->isDry = (bool)$input->getOption('dry');
 
-        $connection = $this->contentResource->getConnection();
-        $select = $connection->select()->from(
-            $this->contentResource->getTable('datatrics_content_store'),
-            [
-                'product_id',
-                'update_attempts'
-            ]
-        )->where('store_id = ?', $storeId);
-        if (!$input->getOption('force')) {
-            $select->where('status <> ?', 'Synced');
-        }
-        if ($limit = $this->configContentRepository->getProcessingLimit($storeId)) {
-            $select->limit($limit);
-        }
-        if ($productIds = $input->getArgument('product-id')) {
-            $select->where('product_id in (?)', $productIds);
-        }
-        if (!$connection->fetchOne($select)) {
-            return 0;
-        }
-        $productIds = $connection->fetchCol($select);
+        $this->isDry = (bool)$input->getOption('dry');
+        $setProductIds = $input->getArgument('product-id');
+        $productIds = $this->getProductIds($storeId, $setProductIds);
+
         $count = $productIds ? $this->prepareData($productIds, $storeId) : 0;
         $this->initProgressBar($output, $count);
         return 0;
     }
 
     /**
-     * @param OutputInterface $output
-     * @param string|int $size
+     * @param int $storeId
+     * @param array|null $setProductIds
+     * @return array
      */
-    private function initProgressBar($output, $size)
+    public function getProductIds(int $storeId, ?array $setProductIds = null): array
     {
-        /* init progress bar */
-        $this->progressBar = new \Symfony\Component\Console\Helper\ProgressBar(
-            $output,
-            $size
-        );
-        $this->progressBar->setMessage('0', 'content');
-        $this->progressBar->setFormat(
-            '<info>Content</info> %current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s%
-    <info>⏺ Pushed:    </info>%content%'
-        );
+        $connection = $this->contentResource->getConnection();
+        $selectProductIds = $connection->select()
+            ->from($this->contentResource->getTable('datatrics_content_store'), 'product_id')
+            ->where('status != (?)', ContentRepository::STATUS['synced'])
+            ->where('store_id = ?', $storeId)
+            ->limit($this->contentConfigRepository->getProcessingLimit($storeId))
+            ->order('updated_at ASC');
+
+        if ($setProductIds) {
+            $selectProductIds->where('product_id in (?)', $setProductIds);
+        }
+
+        return $connection->fetchCol($selectProductIds);
     }
 
     /**
@@ -227,15 +147,14 @@ class ContentUpdate
      *
      * @param array $productIds
      * @param int $storeId
+     * @param bool $dryRun
      * @return int
      */
-    public function prepareData(array $productIds, int $storeId)
+    public function prepareData(array $productIds, int $storeId, bool $dryRun = false): int
     {
-        $connection = $this->contentResource->getConnection();
         $count = 0;
-        $items = [
-            'items' => []
-        ];
+        $items = ['items' => []];
+
         $data = $this->productDataRepository->getProductData($storeId, $productIds);
         foreach ($data as $id => $product) {
             $preparedData = [
@@ -244,63 +163,54 @@ class ContentUpdate
                 "item" => $product
             ];
             try {
-                $serializedData = $this->json->serialize($preparedData);
+                $this->json->serialize($preparedData);
             } catch (\Exception $e) {
                 continue;
             }
             $items['items'][] = $preparedData;
         }
-        if ($this->isDry) {
-            // phpcs:ignore Magento2.Functions.DiscouragedFunction
-            print_r($items);
+
+        if ($this->isDry || $dryRun) {
+            echo '<pre>'; // phpcs:ignore
+            print_r($items); // phpcs:ignore
             return $count;
         }
+
         if (!$items['items']) {
             $this->updateSkipped($productIds, $storeId);
             return $count;
         }
-        //bulk update
+
         $response = $this->apiAdapter->execute(
             ApiAdapter::BULK_CREATE_CONTENT,
             null,
             $this->json->serialize($items)
         );
+
         if (!$response['success'] || !isset($response['data']['total_elements'])) {
             return $count;
-        }
-        if ($response['success'] == true) {
-            $count += $response['data']['total_elements'];
         } else {
-            return $count;
+            $count += $response['data']['total_elements'];
         }
+
         $updatedProductIds = [];
         foreach ($response['data']['items'] as $item) {
             $updatedProductIds[] = $item['id'];
         }
-        $where = [
-            'product_id IN (?)' => $updatedProductIds,
-            'store_id = ?' => $storeId
-        ];
-        if ($response['success'] == true) {
-            $connection->update(
-                $this->contentResource->getTable('datatrics_content_store'),
-                [
-                    'status' => 'Synced',
-                    'update_msg' => '',
-                    'update_attempts' => 0
-                ],
-                $where
-            );
-        } else {
-            $connection->update(
-                $this->contentResource->getTable('datatrics_content_store'),
-                [
-                    'status' => 'Error',
-                    'update_msg' => ''
-                ],
-                $where
-            );
-        }
+
+        $connection = $this->contentResource->getConnection();
+        $connection->update(
+            $this->contentResource->getTable('datatrics_content_store'),
+            [
+                'status' => 'Synced',
+                'update_msg' => '',
+                'update_attempts' => 0
+            ],
+            [
+                'product_id IN (?)' => $updatedProductIds,
+                'store_id = ?' => $storeId
+            ]
+        );
 
         $skippedProducts = array_diff($productIds, $updatedProductIds);
         if (!empty($skippedProducts)) {
@@ -311,6 +221,7 @@ class ContentUpdate
             $this->progressBar->setMessage((string)$count, 'content');
             $this->progressBar->advance($count);
         }
+
         return $count;
     }
 
@@ -320,17 +231,42 @@ class ContentUpdate
      */
     private function updateSkipped(array $productIds, int $storeId)
     {
-        $connection = $this->contentResource->getConnection();
-        $connection->update(
-            $this->contentResource->getTable('datatrics_content_store'),
-            [
-                'status' => 'Skipped',
-                'update_msg' => ''
-            ],
-            [
-                'product_id IN (?)' => $productIds,
-                'store_id = ?' => $storeId
-            ]
+        $this->logRepository->addDebugLog('Skipped Products', implode(',', $productIds));
+
+        $collection = $this->contentCollectionFactory->create()
+            ->addFieldToFilter('product_id', ['in' => $productIds])
+            ->addFieldToFilter('store_id', $storeId);
+
+        foreach ($collection as $content) {
+            try {
+                if ($content->getUpdateAttempts() < 2) {
+                    $content->setStatus(ContentRepository::STATUS['skipped'])
+                        ->setUpdateAttempts($content->getUpdateAttempts() + 1);
+                    $this->contentRepository->save($content);
+                } else {
+                    $this->contentRepository->delete($content);
+                }
+            } catch (\Exception $exception) {
+                $this->logRepository->addErrorLog('updateSkipped', $exception->getMessage());
+            }
+        }
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param string|int $size
+     */
+    private function initProgressBar(OutputInterface $output, $size)
+    {
+        /* init progress bar */
+        $this->progressBar = new \Symfony\Component\Console\Helper\ProgressBar(
+            $output,
+            $size
+        );
+        $this->progressBar->setMessage('0', 'content');
+        $this->progressBar->setFormat(
+            '<info>Content</info> %current%/%max% [%bar%] %percent:3s%% %elapsed% %memory:6s%
+    <info>⏺ Pushed:    </info>%content%'
         );
     }
 }

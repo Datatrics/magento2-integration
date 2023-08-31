@@ -12,7 +12,7 @@
             <block name="datatrics.pixel.base"
                    ifconfig="datatrics_connect_tracking/tracking/enable"
                    class="Magento\Framework\View\Element\Template"
-                   before="-"
+                   after="-"
                    template="Datatrics_Connect::pixel.phtml">
                 <arguments>
                     <argument name="view_model" xsi:type="object">

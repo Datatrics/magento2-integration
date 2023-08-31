@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Service\ProductData\AttributeCollector\Data;
 
+use Exception;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\EntityManager\MetadataPool;
@@ -59,7 +60,7 @@ class Image
      * @param ResourceConnection $resource
      * @param StoreRepositoryInterface $storeRepository
      * @param MetadataPool $metadataPool
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(
         ResourceConnection $resource,
@@ -121,6 +122,7 @@ class Image
     {
         $mediaGalleryTable = $this->resource->getTableName('catalog_product_entity_media_gallery');
         $mediaGalleryValueTable = $this->resource->getTableName('catalog_product_entity_media_gallery_value');
+
         $select = $this->resource->getConnection()
             ->select()->from(
                 ['catalog_product_entity_media_gallery' => $mediaGalleryTable],
@@ -129,12 +131,18 @@ class Image
                 ['catalog_product_entity_media_gallery_value' => $mediaGalleryValueTable],
                 'catalog_product_entity_media_gallery.value_id = catalog_product_entity_media_gallery_value.value_id',
                 ['entity_id' => $this->linkField, 'store_id', 'position']
-            )->where('catalog_product_entity_media_gallery_value.store_id IN (?)', [0, $this->storeId])
-            ->where('catalog_product_entity_media_gallery_value.' . $this->linkField . ' IN (?)', $this->entityIds);
+            )->where(
+                'catalog_product_entity_media_gallery_value.store_id IN (?)',
+                [0, $this->storeId]
+            )->where(
+                'catalog_product_entity_media_gallery_value.' . $this->linkField . ' IN (?)',
+                $this->entityIds
+            );
 
         if (!$this->includeHidden) {
             $select->where('catalog_product_entity_media_gallery_value.disabled = 0', $this->includeHidden);
         }
+
         return $this->resource->getConnection()->fetchAll($select);
     }
 
@@ -154,9 +162,17 @@ class Image
                 ['catalog_product_entity_varchar' => $this->resource->getTableName('catalog_product_entity_varchar')],
                 'catalog_product_entity_varchar.attribute_id = eav_attribute.attribute_id',
                 $fields
-            )->where('eav_attribute.frontend_input = ?', 'media_image')
-            ->where('catalog_product_entity_varchar.store_id IN (?)', [0, $this->storeId])
-            ->where('catalog_product_entity_varchar.' . $this->linkField . ' IN (?)', $this->entityIds);
+            )->where(
+                'eav_attribute.frontend_input = ?',
+                'media_image'
+            )->where(
+                'catalog_product_entity_varchar.store_id IN (?)',
+                [0, $this->storeId]
+            )->where(
+                'catalog_product_entity_varchar.' . $this->linkField . ' IN (?)',
+                $this->entityIds
+            );
+
         foreach ($this->resource->getConnection()->fetchAll($select) as $item) {
             $data[$item['entity_id']][$item['value']][] = $item['attribute_code'];
         }
@@ -173,7 +189,7 @@ class Image
         $result = [];
         foreach ($imagesData as $imageData) {
             $result[$imageData['entity_id']][$imageData['store_id']][$imageData['position']] = [
-                'file' => $this->getMediaurl('catalog/product' . $imageData['value']),
+                'file' => $this->getMediaUrl('catalog/product' . $imageData['value']),
                 'position' => $imageData['position'],
                 'types' => (isset($typesData[$imageData['entity_id']][$imageData['value']]))
                     ? $typesData[$imageData['entity_id']][$imageData['value']]
@@ -187,14 +203,14 @@ class Image
      * @param string $path
      * @return string
      */
-    private function getMediaurl(string $path): string
+    private function getMediaUrl(string $path): string
     {
         if ($this->mediaUrl == null) {
             try {
                 $this->mediaUrl = $this->storeRepository
                     ->getById((int)$this->storeId)
                     ->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $this->mediaUrl = '';
             }
         }

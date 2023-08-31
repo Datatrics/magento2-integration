@@ -19,11 +19,20 @@
             "store_id": true,
             "update_msg": true,
             "update_attempts": true,
-            "status": true
+            "status": true,
+            "updated_at": true,
+            "parent_id": true
         },
         "constraint": {
             "PRIMARY": true,
-            "DATATRICS_CONTENT_STORE_STORE_ID_STORE_STORE_ID": true
+            "DATATRICS_CONTENT_STORE_STORE_ID_STORE_STORE_ID": true,
+            "DATATRICS_CONTENT_STORE_PRODUCT_ID_STORE_ID": true
+        },
+        "index": {
+            "DATATRICS_CONTENT_STORE_PRODUCT_ID": true,
+            "DATATRICS_CONTENT_STORE_STORE_ID": true,
+            "DATATRICS_CONTENT_STORE_STATUS": true,
+            "DATATRICS_CONTENT_STORE_PARENT_ID": true
         }
     },
     "datatrics_sales": {

@@ -7,10 +7,10 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Observer;
 
-use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
-use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Event\Observer;
 use Datatrics\Connect\Api\Log\RepositoryInterface as LogRepository;
+use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
 
 /**
  * Class InvalidateProduct
@@ -22,8 +22,7 @@ class InvalidateProduct implements ObserverInterface
     /**
      * @var ContentResource
      */
-    protected $contentResource;
-
+    private $contentResource;
     /**
      * @var LogRepository
      */
@@ -49,13 +48,22 @@ class InvalidateProduct implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $connection = $this->contentResource->getConnection();
-        $product = $observer->getEvent()->getProduct();
-        $this->logRepository->addDebugLog('Product', 'ID ' . $product->getId() . ' invalidated');
-        $connection->update(
-            $this->contentResource->getTable('datatrics_content_store'),
-            ['status' => 'Queued for Update'],
-            ['product_id = ?' => $product->getId()]
-        );
+        try {
+            $connection = $this->contentResource->getConnection();
+            $product = $observer->getEvent()->getProduct();
+            $this->logRepository->addDebugLog('Product', 'ID ' . $product->getId() . ' invalidated');
+            $connection->update(
+                $this->contentResource->getTable('datatrics_content_store'),
+                ['status' => 'Queued for Update'],
+                ['product_id = ?' => $product->getId()]
+            );
+            $connection->update(
+                $this->contentResource->getTable('datatrics_content_store'),
+                ['status' => 'Queued for Update'],
+                ['parent_id = ?' => $product->getId()]
+            );
+        } catch (\Exception $exception) {
+            $this->logRepository->addErrorLog('InvalidateProduct Observer', $exception->getMessage());
+        }
     }
 }

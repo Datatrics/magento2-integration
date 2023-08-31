@@ -14,7 +14,6 @@ use Datatrics\Connect\Block\Adminhtml\System\Config\Button\Integration;
 <script>
     require([
         'jquery',
-        'prototype'
     ], function (jQuery) {
         var resultSpan = jQuery('#result_integration');
         jQuery('#button_integration').click(function () {
@@ -48,8 +47,11 @@ use Datatrics\Connect\Block\Adminhtml\System\Config\Button\Integration;
         });
     });
 </script>
-<?= $block->getButtonHtml() ?>
-<div id="result_integration">
-    <span class="connecting" style="display: none;">Creating...</span>
-    <span class="result"></span>
+
+<div class="check-credentials-wrapper">
+    <?= $block->getButtonHtml() ?>
+    <div id="result_integration">
+        <span class="connecting" style="display: none;">Creating...</span>
+        <span class="result"></span>
+    </div>
 </div>

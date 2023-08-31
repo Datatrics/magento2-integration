@@ -24,5 +24,5 @@ class Error extends Base
     /**
      * @var string
      */
-    protected $fileName = '/var/log/datatrics/error.log';
+    protected $fileName = '/var/log/datatrics-error.log';
 }

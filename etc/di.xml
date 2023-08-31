@@ -171,20 +171,19 @@
     </type>
     <type name="Datatrics\Connect\Console\Command\ContentUpdate">
         <arguments>
-            <argument name="contentUpdateProcessing"
-                      xsi:type="object">Datatrics\Connect\Model\Command\ContentUpdate\Proxy</argument>
+            <argument name="contentUpdateProcessing" xsi:type="object">Datatrics\Connect\Model\Command\ContentUpdate\Proxy</argument>
         </arguments>
     </type>
     <type name="Datatrics\Connect\Console\Command\ContentAdd">
         <arguments>
-            <argument name="contentAddProcessing"
-                      xsi:type="object">Datatrics\Connect\Model\Command\ContentAdd\Proxy</argument>
+            <argument name="contentAddProcessing" xsi:type="object">Datatrics\Connect\Model\Command\ContentAdd\Proxy</argument>
+            <argument name="configProvider" xsi:type="object">Datatrics\Connect\Api\Config\System\ContentInterface\Proxy</argument>
         </arguments>
     </type>
     <type name="Datatrics\Connect\Console\Command\ContentInvalidate">
         <arguments>
-            <argument name="contentInvalidateProcessing"
-                      xsi:type="object">Datatrics\Connect\Model\Command\ContentInvalidate\Proxy</argument>
+            <argument name="contentInvalidateProcessing" xsi:type="object">Datatrics\Connect\Model\Command\ContentInvalidate\Proxy</argument>
+            <argument name="configProvider" xsi:type="object">Datatrics\Connect\Api\Config\System\ContentInterface\Proxy</argument>
         </arguments>
     </type>
     <!-- Command line block end -->

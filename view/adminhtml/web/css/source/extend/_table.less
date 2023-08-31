@@ -1,0 +1,49 @@
+.mm-datatrics-table .title {
+    &:extend(.section-config > .admin__collapsible-block > a);
+}
+
+.mm-block-datatrics-table {
+    &:extend(.mm-datatrics-heading-block);
+
+    display: table;
+    width: 100%;
+    margin-top: 16px;
+    border-top: 1px solid fade(@mm-datatrics-color5, 50%);
+    border-right: 1px solid fade(@mm-datatrics-color5, 50%);
+    border-bottom: 1px solid fade(@mm-datatrics-color5, 50%);
+
+    th, td {
+        padding: 16px 12px;
+        vertical-align: top;
+    }
+
+    td {
+        opacity: .8;
+    }
+
+    th {
+        border-bottom: 1px solid fade(@mm-datatrics-color5, 50%);
+    }
+
+    a {
+        &:extend(.mm-datatrics-show-more-actions a);
+
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        
+        font-weight: 600;
+        text-decoration: none;
+
+        &::before {
+            content: @icon-checkmark;
+            font-family: @icons-admin__font-name;
+            font-size: 10px;
+        }
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+

@@ -14,7 +14,6 @@ use Datatrics\Connect\Block\Adminhtml\System\Config\Button\Credentials;
 <script>
     require([
         'jquery',
-        'prototype'
     ], function (jQuery) {
         var resultSpan = jQuery('#result_api');
         jQuery('#connection_test').click(function () {
@@ -44,8 +43,11 @@ use Datatrics\Connect\Block\Adminhtml\System\Config\Button\Credentials;
         });
     });
 </script>
-<?= $block->getButtonHtml() ?>
-<div id="result_api">
-    <span class="connecting" style="display: none;">Connecting...</span>
-    <span class="result"></span>
+
+<div class="check-credentials-wrapper">
+    <?= $block->getButtonHtml() ?>
+    <div id="result_api">
+        <span class="connecting" style="display: none;">Connecting...</span>
+        <span class="result"></span>
+    </div>
 </div>

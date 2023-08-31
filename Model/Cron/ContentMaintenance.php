@@ -7,13 +7,8 @@ declare(strict_types=1);
 
 namespace Datatrics\Connect\Model\Cron;
 
-use Datatrics\Connect\Api\API\AdapterInterface as ApiAdapter;
-use Datatrics\Connect\Api\Content\RepositoryInterface as ContentRepository;
-use Datatrics\Connect\Api\Config\RepositoryInterface as ConfigRepository;
-use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
-use Magento\Framework\Serialize\Serializer\Json;
-use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
-use Magento\Store\Api\StoreRepositoryInterface;
+use Datatrics\Connect\Api\Config\System\ContentInterface as ConfigProvider;
+use Datatrics\Connect\Model\Command\ContentAdd;
 
 /**
  * Class ContentMaintenance
@@ -23,204 +18,57 @@ use Magento\Store\Api\StoreRepositoryInterface;
 class ContentMaintenance
 {
 
-    /**
-     * @var ContentRepository
-     */
-    private $contentRepository;
+    public $storeIds = [];
 
     /**
-     * @var ContentResource
+     * @var ConfigProvider
      */
-    private $contentResource;
+    private $configProvider;
+    /**
+     * @var ContentAdd
+     */
+    private $contentAdd;
 
     /**
-     * @var ConfigRepository
-     */
-    private $configRepository;
-
-    /**
-     * @var Json
-     */
-    private $json;
-
-    /**
-     * @var StoreRepositoryInterface
-     */
-    private $storeManager;
-
-    /**
-     * @var ApiAdapter
-     */
-    private $apiAdapter;
-
-    /**
-     * @var ContentConfigRepository
-     */
-    private $contentConfigRepository;
-
-    /**
-     * ContentMaintenance constructor.
-     * @param ContentResource $contentResource
-     * @param ConfigRepository $configRepository
-     * @param Json $json
-     * @param StoreRepositoryInterface $storeManager
-     * @param ContentRepository $contentRepository
-     * @param ApiAdapter $apiAdapter
-     * @param ContentConfigRepository $contentConfigRepository
+     * @param ConfigProvider $configProvider
+     * @param ContentAdd $contentAdd
      */
     public function __construct(
-        ContentResource $contentResource,
-        ConfigRepository $configRepository,
-        Json $json,
-        StoreRepositoryInterface $storeManager,
-        ContentRepository $contentRepository,
-        ApiAdapter $apiAdapter,
-        ContentConfigRepository $contentConfigRepository
+        ConfigProvider $configProvider,
+        ContentAdd $contentAdd
     ) {
-        $this->contentResource = $contentResource;
-        $this->configRepository = $configRepository;
-        $this->json = $json;
-        $this->storeManager = $storeManager;
-        $this->contentRepository = $contentRepository;
-        $this->apiAdapter = $apiAdapter;
-        $this->contentConfigRepository = $contentConfigRepository;
-    }
-
-    /**
-     * Collect products which should be scheduled to delete from platform
-     */
-    private function collectProductsToDelete()
-    {
-        $connection = $this->contentResource->getConnection();
-        $selectMagentoProducts = $connection->select()->from(
-            $this->contentResource->getTable('catalog_product_entity'),
-            [
-                'entity_id'
-            ]
-        );
-        $magentoProductIds = $connection->fetchCol($selectMagentoProducts);
-        $selectDatatricsProducts = $connection->select()->from(
-            $this->contentResource->getTable('datatrics_content'),
-            [
-                'content_id'
-            ]
-        );
-        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts);
-        $toDelete = array_diff($datatricsProductIds, $magentoProductIds);
-        $connection->update(
-            $this->contentResource->getTable('datatrics_content_store'),
-            ['status' => 'Queued for Delete'],
-            ['product_id IN (?)' => $toDelete]
-        );
-        foreach ($toDelete as $itemId) {
-            $data = [
-                "source" => "Magento 2",
-                "type" => "item"
-            ];
-            $this->apiAdapter->execute(
-                ApiAdapter::DELETE_CONTENT,
-                $itemId,
-                $data
-            );
-        }
-    }
-
-    /**
-     * Collect product IDs which should be scheduled to add to platform
-     *
-     * @return array
-     */
-    private function collectProductsToAdd()
-    {
-        $connection = $this->contentResource->getConnection();
-        $selectMagentoProducts = $connection->select()->from(
-            $this->contentResource->getTable('catalog_product_entity'),
-            [
-                'entity_id'
-            ]
-        );
-        $magentoProductIds = $connection->fetchCol($selectMagentoProducts);
-        $selectDatatricsProducts = $connection->select()->from(
-            $this->contentResource->getTable('datatrics_content_store'),
-            [
-                'product_id'
-            ]
-        );
-        $datatricsProductIds = $connection->fetchCol($selectDatatricsProducts);
-        $toAdd = array_diff($magentoProductIds, $datatricsProductIds);
-        return $toAdd;
-    }
-
-    /**
-     * Schedule products to add to platform
-     *
-     * @param array $productIds
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    private function addProducts($productIds)
-    {
-        $connection = $this->contentResource->getConnection();
-        $selectStores = $connection->select()->from(
-            $this->contentResource->getTable('store'),
-            'store_id'
-        );
-        $stores = [];
-        foreach ($connection->fetchAll($selectStores) as $store) {
-            $stores[] = $store['store_id'];
-        }
-        $select = $connection->select()->from(
-            $this->contentResource->getTable('catalog_product_entity'),
-            'entity_id'
-        )->joinLeft(
-            ['super_link' => $this->contentResource->getTable('catalog_product_super_link')],
-            'super_link.product_id =' . $this->contentResource->getTable('catalog_product_entity') . '.entity_id',
-            [
-                'parent_id' => 'GROUP_CONCAT(parent_id)'
-            ]
-        )->where('entity_id in (?)', $productIds)
-            ->group('entity_id')->limit(
-                $this->contentConfigRepository->getProcessingLimitAdd()
-            );
-        $result = $connection->fetchAll($select);
-        $this->contentResource->beginTransaction();
-        $data = [];
-        foreach ($result as $entity) {
-            $content = $this->contentRepository->create();
-            $content->setContentId($entity['entity_id'])
-                ->setParentId((string)$entity['parent_id']);
-            foreach ($stores as $store) {
-                $data[] = [
-                    $entity['entity_id'],
-                    $store,
-                    'Queued for Update'
-                ];
-            }
-            $this->contentRepository->save($content);
-        }
-        if ($data) {
-            $connection->insertArray(
-                $this->contentResource->getTable('datatrics_content_store'),
-                ['product_id', 'store_id', 'status'],
-                $data
-            );
-        }
-        $this->contentResource->commit();
+        $this->configProvider = $configProvider;
+        $this->contentAdd = $contentAdd;
     }
 
     /**
      * Schedule products to delete and add
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function execute()
+    public function execute(): ContentMaintenance
     {
-        if (!$this->configRepository->isEnabled()) {
+        if (!$this->configProvider->isEnabled()) {
             return $this;
         }
-        $this->collectProductsToDelete();
-        $idsToAdd = $this->collectProductsToAdd();
-        $this->addProducts($idsToAdd);
+
+        $storeIds = $this->getStoreIds();
+        foreach ($storeIds as $storeId) {
+            $this->contentAdd->addProducts($storeId);
+        }
+
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    private function getStoreIds(): array
+    {
+        if (!$this->storeIds) {
+            $this->storeIds = $this->configProvider->getContentEnabledStoreIds();
+        }
+
+        return $this->storeIds;
     }
 }

@@ -16,7 +16,7 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 class ResourceModel extends AbstractDb
 {
 
-    public const ENTITY_TABLE = 'datatrics_content';
+    public const ENTITY_TABLE = 'datatrics_content_store';
     public const PRIMARY = 'entity_id';
 
     /**
@@ -31,10 +31,10 @@ class ResourceModel extends AbstractDb
      * Check is entity exists
      *
      * @param int $entityId
-     * @param string $field
+     * @param string|null $field
      * @return bool
      */
-    public function isExists($entityId, $field = 'entity_id')
+    public function isExists(int $entityId, ?string $field = 'entity_id'): bool
     {
         $connection = $this->getConnection();
         $select = $connection->select()->from(
@@ -44,23 +44,5 @@ class ResourceModel extends AbstractDb
         $select->where($field . ' = :' . $field);
         $bind = [':' . $field => $entityId];
         return (bool)$connection->fetchOne($select, $bind);
-    }
-
-    /**
-     * Check is entity exists
-     *
-     * @param int $contentId
-     * @return int
-     */
-    public function getIdByContent($contentId)
-    {
-        $connection = $this->getConnection();
-        $select = $connection->select()->from(
-            $this->getTable(self::ENTITY_TABLE),
-            self::PRIMARY
-        );
-        $select->where('content_id = :content_id');
-        $bind = [':content_id' => $contentId];
-        return (int)$connection->fetchOne($select, $bind);
     }
 }

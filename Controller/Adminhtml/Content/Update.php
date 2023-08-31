@@ -9,7 +9,6 @@ namespace Datatrics\Connect\Controller\Adminhtml\Content;
 
 use Datatrics\Connect\Api\Config\System\ContentInterface as ContentConfigRepository;
 use Datatrics\Connect\Model\Command\ContentUpdate;
-use Datatrics\Connect\Model\Content\ResourceModel as ContentResource;
 use Datatrics\Connect\Service\API\ConnectionTest;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\Response\RedirectInterface;
@@ -41,10 +40,6 @@ class Update extends Action
     public const SUCCESS_MSG = '%1 product(s) were updated. ';
 
     /**
-     * @var ContentResource
-     */
-    private $contentResource;
-    /**
      * @var ContentUpdate
      */
     private $contentUpdate;
@@ -64,21 +59,19 @@ class Update extends Action
     /**
      * Update constructor.
      * @param Action\Context $context
-     * @param ContentResource $contentResource
      * @param ContentUpdate $contentUpdate
      * @param ContentConfigRepository $contentConfigRepository
      * @param ConnectionTest $connectionTest
+     * @param RedirectInterface $redirect
      */
     public function __construct(
         Action\Context $context,
-        ContentResource $contentResource,
         ContentUpdate $contentUpdate,
         ContentConfigRepository $contentConfigRepository,
         ConnectionTest $connectionTest,
         RedirectInterface $redirect
     ) {
         $this->messageManager = $context->getMessageManager();
-        $this->contentResource = $contentResource;
         $this->contentUpdate = $contentUpdate;
         $this->contentConfigRepository = $contentConfigRepository;
         $this->connectionTest = $connectionTest;
@@ -93,6 +86,7 @@ class Update extends Action
     {
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $storeId = (int)$this->getRequest()->getParam('store_id');
+        $dryRun = (bool)$this->getRequest()->getParam('dry');
 
         if (!$this->contentConfigRepository->isEnabled($storeId)) {
             $msg = self::ERROR_MSG_ENABLED;
@@ -104,20 +98,8 @@ class Update extends Action
 
         try {
             $this->connectionTest->executeByStoreId($storeId);
-            $connection = $this->contentResource->getConnection();
-            $selectProductIds = $connection->select()->from(
-                $this->contentResource->getTable('datatrics_content_store'),
-                'product_id'
-            )->where('status = :status')
-                ->where('store_id = :store_id')
-                ->limit($this->contentConfigRepository->getProcessingLimit($storeId));
-            $bind = [
-                ':status' => 'Queued for Update',
-                ':store_id' => $storeId
-            ];
-            $productIds = $connection->fetchCol($selectProductIds, $bind);
-            $count = $productIds ? $this->contentUpdate->prepareData($productIds, $storeId) : 0;
-
+            $productIds = $this->contentUpdate->getProductIds($storeId);
+            $count = $productIds ? $this->contentUpdate->prepareData($productIds, $storeId, $dryRun) : 0;
             if ($count > 0) {
                 $msg = self::SUCCESS_MSG;
                 $this->messageManager->addSuccessMessage(__($msg, $count));

@@ -25,7 +25,7 @@ class Repository implements ConfigRepositoryInterface
     /**
      * @var StoreManagerInterface
      */
-    private $storeManager;
+    public $storeManager;
     /**
      * @var ScopeConfigInterface
      */
